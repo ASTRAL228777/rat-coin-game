@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <title>Rat Coin Ultimate</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <button class="reset-btn" id="resetBtn" title="Сброс прогресса">❗</button>
+
+    <div class="reset-modal" id="resetModal">
+        <div class="modal-content">
+            <h2>⚠️ СБРОС ПРОГРЕССА</h2>
+            <p class="warning-text">ВНИМАНИЕ! Все данные будут удалены безвозвратно!</p>
+            <p style="color:#66fcf1;font-size:14px;">Введите код для подтверждения:</p>
+            <div class="code-display" id="codeDisplay">5189</div>
+            <input class="code-input" id="codeInput" type="text" maxlength="4" placeholder="Введите код" autocomplete="off">
+            <div class="confirm-box" id="confirmBox">
+                <p>❗ ВЫ УВЕРЕНЫ? ❗</p>
+                <p style="font-size:13px;color:#ff6666;">Это действие нельзя отменить!</p>
+            </div>
+            <div class="btn-row">
+                <button class="btn-reset" id="confirmResetBtn" disabled>СБРОСИТЬ</button>
+                <button class="btn-cancel" id="cancelResetBtn">Отмена</button>
+            </div>
+            <div class="status-msg" id="resetStatus"></div>
+        </div>
+    </div>
+
+    <div class="reload-notification" id="reloadNotification">
+        <div class="reload-content">
+            <h2>🔄 ПЕРЕЗАГРУЗИТЕ ИГРУ</h2>
+            <p style="color:#ffd700;font-size:16px;margin-bottom:10px;">Данные успешно сброшены!</p>
+            <p style="color:#66fcf1;font-size:14px;margin-bottom:15px;">Для полного применения изменений и исправления возможных багов необходимо перезагрузить страницу.</p>
+            <div class="reload-timer" id="reloadTimer">
+                <span class="timer-number" id="timerNumber">10</span>
+                <span class="timer-label">секунд</span>
+            </div>
+            <button class="reload-btn" id="reloadBtn" disabled>ОК</button>
+        </div>
+    </div>
+
+    <div class="enclosure" id="enclosure" style="display:none;">
+        <div class="enclosure-header">
+            <span class="enclosure-title">🐹 ВОЛЬЕР</span>
+            <span class="enclosure-status" id="enclosureStatus">🔴 Голодные</span>
+        </div>
+        <div class="enclosure-area" id="enclosureArea">
+            <div class="hamster" id="hamster1" style="display:none;">🐹</div>
+            <div class="hamster" id="hamster2" style="display:none;">🐹</div>
+            <div class="hamster" id="hamster3" style="display:none;">🐹</div>
+            <div class="hamster" id="hamster4" style="display:none;">🐹</div>
+            <div class="hamster" id="hamster5" style="display:none;">🐹</div>
+        </div>
+        <div class="enclosure-bottom">
+            <div class="food-bar-container">
+                <div class="food-bar-label">🍽️ Сытость</div>
+                <div class="food-bar-bg">
+                    <div class="food-bar-fill" id="foodBarFill" style="width:0%;"></div>
+                </div>
+                <div class="food-bar-text" id="foodBarText">0%</div>
+            </div>
+            <div class="enclosure-controls">
+                <button class="feed-btn" id="feedBtn" disabled>🍖 Покормить</button>
+                <button class="poop-btn" id="poopBtn" disabled style="display:none;">💩 Собрать (0)</button>
+            </div>
+            <div class="enclosure-bonus" id="enclosureBonus">🐹 Бонус: x1.0</div>
+            <div class="enclosure-satiety" id="enclosureSatiety" style="display:none; color:#45f3ff; font-size:11px;">🍽️ Насыщение: активно</div>
+            <div class="enclosure-pepper-buff" id="pepperIndicator" style="display:none; color:#ff4444; font-size:11px; text-align:center; animation: buffPulse 0.5s ease-in-out infinite alternate;">🌶️ x2 БУСТ СВИНОК!</div>
+        </div>
+    </div>
+
+    <div class="plants-container" id="plantsContainer" style="display:none;">
+        <div class="plants-label">🌱 ГОРШКИ</div>
+        <div class="plants-grid" id="plantsGrid"></div>
+    </div>
+
+    <div class="boss-skull" id="bossSkull" style="display:none;">
+        <div class="skull-icon" id="skullIcon">💀</div>
+        <div class="skull-label">БОССЫ</div>
+    </div>
+
+    <div class="boss-menu" id="bossMenu">
+        <div class="boss-menu-header">
+            <h2>💀 БОССЫ</h2>
+            <button class="close-boss-btn" id="closeBossMenu">✕</button>
+        </div>
+        <div class="boss-list" id="bossList">
+            <div class="boss-item" id="bossCapybara">
+                <div class="boss-preview">🦫</div>
+                <div class="boss-info">
+                    <h3>Капибара</h3>
+                    <div class="boss-desc">Спокойный, но опасный гигант!</div>
+                    <div class="boss-status" id="capybaraStatus">🔒 Не куплен</div>
+                </div>
+                <button class="boss-fight-btn" id="fightCapybaraBtn" disabled>Сражаться</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="boss-fight-modal" id="bossFightModal">
+        <div class="boss-fight-content">
+            <div class="boss-fight-header">
+                <h2>⚔️ БОЙ С КАПИБАРОЙ</h2>
+                <button class="close-fight-btn" id="closeFightBtn">✕</button>
+            </div>
+            <div class="boss-fight-area" id="bossFightArea">
+                <div class="boss-enemy" id="bossEnemy">🦫</div>
+                <div class="boss-bullets" id="bossBullets"></div>
+                <div class="player-projectile" id="playerProjectile" style="display:none;">💨</div>
+            </div>
+            <div class="boss-fight-info">
+                <div class="boss-hp-bar">
+                    <span>❤️ HP Капибары:</span>
+                    <div class="hp-bg">
+                        <div class="hp-fill" id="bossHpFill" style="width:100%;"></div>
+                    </div>
+                    <span id="bossHpText">100/100</span>
+                </div>
+                <div class="boss-fight-controls">
+                    <button class="shoot-btn" id="shootBtn">🎯 СТРЕЛЯТЬ</button>
+                    <button class="retreat-btn" id="retreatBtn">🏃 ОТСТУПИТЬ</button>
+                </div>
+                <div class="boss-timer" id="bossTimer">⏳ До следующей попытки: 30:00</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="lab-btn-container">
+        <button class="lab-btn" id="openLab">🧪 ЛАБОРАТОРИЯ</button>
+    </div>
+
+    <div class="lab-modal" id="labModal">
+        <div class="lab-content">
+            <div class="lab-header">
+                <h2>🧪 ЛАБОРАТОРИЯ</h2>
+                <button class="close-lab-btn" id="closeLab">✕</button>
+            </div>
+            <div class="lab-body">
+                <div class="lab-stats">
+                    <div class="lab-stat">💩 Какашек: <span id="poopCount">0</span></div>
+                    <div class="lab-stat">🧪 Удобрений: <span id="fertilizerCount">0</span></div>
+                </div>
+                <div class="lab-machine" id="labMachine">
+                    <div class="machine-icon">⚗️</div>
+                    <div class="machine-name">Станок удобрений</div>
+                    <div class="machine-status" id="machineStatus">⏸️ Бездействует</div>
+                    <div class="machine-progress" id="machineProgress" style="display:none;">
+                        <div class="machine-progress-bg">
+                            <div class="machine-progress-fill" id="machineProgressFill" style="width:0%;"></div>
+                        </div>
+                        <div class="machine-progress-text" id="machineProgressText">0%</div>
+                    </div>
+                    <button class="machine-btn" id="machineBtn">🔧 Запустить (7 💩 → 1 🧪)</button>
+                    <div class="machine-upgrade-info" id="machineUpgradeInfo">
+                        <span>⏱️ Время: <span id="machineTimeDisplay">5</span> мин</span>
+                        <span> | </span>
+                        <span>Уровень: <span id="machineLevelDisplay">0</span>/5</span>
+                    </div>
+                    <button class="machine-upgrade-btn" id="machineUpgradeBtn" disabled>⬆️ Улучшить (0)</button>
+                </div>
+
+                <div class="lab-divider"></div>
+
+                <button class="lab-section-btn" id="openCombiner" style="display:none; background:#ff6b00; color:white; border:none; padding:12px 20px; border-radius:10px; font-weight:bold; cursor:pointer; width:100%; margin-top:10px; font-size:16px;">
+                    🧪 КОМБИНАТОР
+                </button>
+
+                <button class="lab-section-btn" id="openExtractor" style="display:none; background:#45f3ff; color:#0b0c10; border:none; padding:12px 20px; border-radius:10px; font-weight:bold; cursor:pointer; width:100%; margin-top:10px; font-size:16px;">
+                    ⚗️ АППАРАТ ПРЕВРАЩЕНИЯ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="combiner-modal" id="combinerModal">
+        <div class="combiner-content">
+            <div class="combiner-header">
+                <h2>🧪 КОМБИНАТОР</h2>
+                <button class="close-combiner-btn" id="closeCombiner">✕</button>
+            </div>
+            <div class="combiner-body">
+                <div class="combiner-slots" id="combinerSlots"></div>
+                <div class="combiner-info" id="combinerInfo">📋 Положите ингредиенты в слоты</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="extractor-modal" id="extractorModal">
+        <div class="extractor-content">
+            <div class="extractor-header">
+                <h2>⚗️ АППАРАТ ПРЕВРАЩЕНИЯ</h2>
+                <button class="close-extractor-btn" id="closeExtractor">✕</button>
+            </div>
+            <div class="extractor-body">
+                <div class="extractor-queue" id="extractorQueue">⏳ Очередь пуста</div>
+                <div class="extractor-status" id="extractorStatus">⏸️ Бездействует</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2>⚙️ НАСТРОЙКИ МАНИПУЛЯТОРА</h2>
+                <button class="close-settings-btn" id="closeSettings">✕</button>
+            </div>
+            <div id="settingsContent"></div>
+        </div>
+    </div>
+
+    <div class="inventory-btn-container">
+        <button class="inventory-btn" id="openInventory">🎒 Инвентарь</button>
+    </div>
+
+    <div class="inventory-modal" id="inventoryModal">
+        <div class="inventory-content">
+            <div class="inventory-header">
+                <h2>🎒 ИНВЕНТАРЬ</h2>
+                <button class="close-inventory-btn" id="closeInventory">✕</button>
+            </div>
+            <div class="inventory-grid" id="inventoryGrid"></div>
+            <div class="inventory-empty" id="inventoryEmpty">🎒 Инвентарь пуст</div>
+        </div>
+    </div>
+
+    <div id="youtubePlayerContainer"></div>
+    <button class="music-btn" id="musicToggle">🔊</button>
+
+    <div class="header">
+        <h1>RAT COIN</h1>
+        <div class="cheat-warning" id="cheatWarning">⚠️ ОБНАРУЖЕН АВТОКЛИКЕР! ⚠️</div>
+        <div class="balance" id="balance">0 $RAT</div>
+        <div class="stats-info" id="statsInfo">Клик: +1 | Пассив: 0/сек</div>
+        <div class="buff-indicator" id="buffIndicator" style="display:none;">⚡ x2 БУСТ АКТИВЕН!</div>
+    </div>
+
+    <div class="click-area" id="clickArea">
+        <div class="rat-container" id="ratContainer">
+            <div class="rat-body" id="ratBody">🐀</div>
+            <div class="accessory hat" id="accHat" style="display:none;">🎩</div>
+            <div class="accessory glasses" id="accGlasses" style="display:none;">🕶️</div>
+            <div class="accessory sword" id="accSword" style="display:none;">⚔️</div>
+            <div class="accessory crown" id="accCrown" style="display:none;">👑</div>
+        </div>
+        <div class="anticheat-overlay" id="trapBtn">🪤</div>
+    </div>
+
+    <button class="menu-btn" id="openShop">🛒 МАГАЗИН</button>
+
+    <div class="toggle-container" id="toggleContainer">
+        <div class="toggle-box" id="grainBox">
+            <div class="label">🌽 Зерно</div>
+            <div class="switch" id="grainToggle">
+                <div class="slider"></div>
+            </div>
+            <div class="grain-status" id="grainStatus">Выкл</div>
+            <div class="sub-info" id="grainLevelDisplay">Ур. 0</div>
+            
+            <div class="super-divider"></div>
+            
+            <div class="super-section" id="superGrainBox">
+                <div class="label">⭐ Супер</div>
+                <div class="switch" id="superGrainToggle">
+                    <div class="slider"></div>
+                </div>
+                <div class="grain-status" id="superGrainStatus">Выкл</div>
+                <div class="sub-info" id="superGrainInfo">Базовое: 25</div>
+                <div class="indicator-text" id="superIndicator">⚠️ Включите оба!</div>
+            </div>
+            
+            <div class="super-divider"></div>
+            
+            <div class="mouse-section" id="mouseBox">
+                <div class="label">🐁 Мышь</div>
+                <div class="switch" id="mouseToggle">
+                    <div class="slider"></div>
+                </div>
+                <div class="grain-status" id="mouseStatus">Выкл</div>
+                <div class="sub-info" id="mouseInfo">Авто-сбор</div>
+                <div class="indicator-text" id="mouseIndicator">⚠️ Нет зерна</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="manipulator-container" id="manipulatorContainer">
+        <div class="manipulator-box" id="manipBox1">
+            <div class="manip-label" id="manipLabel1">🤖 Бездействует</div>
+            <div class="manip-row">
+                <button class="manip-switch" id="manipToggle1">
+                    <div class="manip-slider"></div>
+                </button>
+                <span class="manip-status" id="manipStatus1">Выкл</span>
+                <button class="manip-settings-btn" id="manipSettings1">⚙️</button>
+            </div>
+        </div>
+        <div class="manipulator-box" id="manipBox2">
+            <div class="manip-label" id="manipLabel2">🤖 Бездействует</div>
+            <div class="manip-row">
+                <button class="manip-switch" id="manipToggle2">
+                    <div class="manip-slider"></div>
+                </button>
+                <span class="manip-status" id="manipStatus2">Выкл</span>
+                <button class="manip-settings-btn" id="manipSettings2">⚙️</button>
+            </div>
+        </div>
+        <div class="manipulator-box" id="manipBox3">
+            <div class="manip-label" id="manipLabel3">🤖 Бездействует</div>
+            <div class="manip-row">
+                <button class="manip-switch" id="manipToggle3">
+                    <div class="manip-slider"></div>
+                </button>
+                <span class="manip-status" id="manipStatus3">Выкл</span>
+                <button class="manip-settings-btn" id="manipSettings3">⚙️</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="shop-modal" id="shopModal">
+        <div class="shop-header">
+            <h2>Крысиный магазин</h2>
+            <button class="close-btn" id="closeShop">✕</button>
+        </div>
+        
+        <div class="shop-tabs">
+            <div class="shop-tab active" data-tab="boosts">Бусты</div>
+            <div class="shop-tab" data-tab="accessories">Аксессуары</div>
+            <div class="shop-tab" data-tab="bosses">💀 Боссы</div>
+        </div>
+        
+        <div class="tab-content active" id="tab-boosts">
+            <div class="shop-item" id="clickItem">
+                <div class="info-block">
+                    <h3>🌾 Больше зерна</h3>
+                    <div class="desc">Увеличивает силу клика на +1</div>
+                    <div class="price-line">Цена: <span id="clickCost">50</span> $RAT</div>
+                    <div class="level-line">Уровень: <span id="clickLevel">0</span>/<span id="clickMaxLevel">10</span></div>
+                </div>
+                <button class="buy-btn" id="buyClick">Купить</button>
+            </div>
+            
+            <div class="shop-item" id="autoItem">
+                <div class="info-block">
+                    <h3>🍔 Ожирение</h3>
+                    <div class="desc">Даёт +1 пассивный доход каждую секунду</div>
+                    <div class="price-line">Цена: <span id="autoCost">100</span> $RAT</div>
+                    <div class="level-line">Уровень: <span id="autoLevel">0</span>/20</div>
+                </div>
+                <button class="buy-btn" id="buyAuto">Купить</button>
+            </div>
+            
+            <div class="shop-item" id="grainItem" style="display:none; border-color: #ffd700;">
+                <div class="info-block">
+                    <h3>🌽 Зерно</h3>
+                    <div class="desc">КЛИКНИ по зерну! Базовое значение: <span id="grainBase">3</span> × сила клика</div>
+                    <div class="price-line">Цена улучшения: <span id="grainCost">1000</span> $RAT</div>
+                    <div class="level-line">Уровень: <span id="grainLevel">0</span>/7 (каждый уровень +1 к базе)</div>
+                    <div style="font-size:11px;color:#66fcf1;margin-top:4px;">⚡ После покупки появится тумблер справа</div>
+                </div>
+                <button class="buy-btn" id="buyGrain">Улучшить</button>
+            </div>
+            
+            <div class="shop-item" id="superGrainItem" style="display:none; border-color: #ff007f; background: #1a0a0f;">
+                <div class="info-block">
+                    <h3 style="color:#ff007f;">⭐ Супер зерно</h3>
+                    <div class="desc">КЛИКНИ по зерну! Базовое значение: <strong>25</strong> × сила клика</div>
+                    <div class="desc" style="color:#ff6666;font-size:11px;">Спавнится в 2 раза реже обычного</div>
+                    <div class="price-line">Цена: <span id="superGrainCost">10000</span> $RAT</div>
+                    <div class="level-line" style="color:#ff007f;">⭐ УЛУЧШЕННОЕ (покупается 1 раз)</div>
+                    <div style="font-size:11px;color:#ff6666;margin-top:4px;">⚡ После покупки появится второй тумблер</div>
+                    <div style="font-size:11px;color:#ffd700;margin-top:4px;">🌾 Лимит "Больше зерна" увеличится до 20</div>
+                    <div style="font-size:11px;color:#66fcf1;margin-top:4px;">🔗 Для работы супер-зерна нужны оба тумблера!</div>
+                    <div style="font-size:11px;color:#66fcf1;margin-top:4px;">🐁 Откроется мышь-собиратор в магазине!</div>
+                </div>
+                <button class="buy-btn" id="buySuperGrain" style="background-color:#ff007f;color:white;">Купить</button>
+            </div>
+            
+            <div class="shop-item" id="mouseShopItem" style="display:none; border-color: #66fcf1; background: #0a1a1f;">
+                <div class="info-block">
+                    <h3 style="color:#66fcf1;">🐁 Мышь-собиратор</h3>
+                    <div class="desc">Автоматически собирает зерно с экрана!</div>
+                    <div class="desc" style="color:#66fcf1;font-size:11px;">Бегает по экрану и забирает зерно за вас</div>
+                    <div class="price-line">Цена: <span id="mouseShopCost">15000</span> $RAT</div>
+                    <div class="level-line" style="color:#66fcf1;">🐁 УЛУЧШЕНИЕ (покупается 1 раз)</div>
+                    <div style="font-size:11px;color:#66fcf1;margin-top:4px;">⚡ После покупки появится тумблер мыши</div>
+                </div>
+                <button class="buy-btn" id="buyMouseShop" style="background-color:#66fcf1;color:#0b0c10;">Купить</button>
+            </div>
+            
+            <div class="shop-item" id="hamsterShopItem" style="display:none; border-color: #ffd700; background: #1a1a0a;">
+                <div class="info-block">
+                    <h3 style="color:#ffd700;">🐹 Морские свинки</h3>
+                    <div class="desc">Милые свинки в вольере! Дают бонус к силе клика</div>
+                    <div class="price-line">Цена: <span id="hamsterShopCost">20000</span> $RAT</div>
+                    <div class="level-line" style="color:#ffd700;">🐹 УЛУЧШЕНИЕ (покупается 1 раз)</div>
+                    <div style="font-size:11px;color:#ffd700;margin-top:4px;">⚡ После покупки появится вольер слева</div>
+                </div>
+                <button class="buy-btn" id="buyHamsterShop" style="background-color:#ffd700;color:#0b0c10;">Купить</button>
+            </div>
+            
+            <div class="shop-item" id="hamsterUpgradeShopItem" style="display:none; border-color: #66fcf1; background: #0a1a1a;">
+                <div class="info-block">
+                    <h3 style="color:#66fcf1;">⬆️ Улучшить свинок</h3>
+                    <div class="desc">Увеличивает бонус от морских свинок</div>
+                    <div class="desc" style="color:#66fcf1;font-size:11px;">Текущий бонус: <span id="hamsterUpgradeCurrentBonus">x1.0</span></div>
+                    <div class="price-line">Цена: <span id="hamsterUpgradeCost">5000</span> $RAT</div>
+                    <div class="level-line">Уровень: <span id="hamsterUpgradeLevel">0</span>/5</div>
+                </div>
+                <button class="buy-btn" id="buyHamsterUpgrade" style="background-color:#66fcf1;color:#0b0c10;">Улучшить</button>
+            </div>
+            
+            <div class="shop-item" id="plantShopItem" style="display:none; border-color: #45f3ff; background: #0a1a1a;">
+                <div class="info-block">
+                    <h3 style="color:#45f3ff;">🌱 Первый горшок</h3>
+                    <div class="desc">Растение в горшке!</div>
+                    <div class="desc" style="color:#ffd700;font-size:11px;">🌿 Даёт 1 растение в инвентарь после сбора</div>
+                    <div class="price-line">Цена: <span id="plantShopCost">30000</span> $RAT</div>
+                    <div class="level-line" style="color:#45f3ff;">🌱 УЛУЧШЕНИЕ (покупается 1 раз)</div>
+                    <div style="font-size:11px;color:#66fcf1;margin-top:4px;">⚡ После покупки появится горшок слева внизу</div>
+                </div>
+                <button class="buy-btn" id="buyPlant" style="background-color:#45f3ff;color:#0b0c10;">Купить</button>
+            </div>
+            
+            <div class="shop-item" id="plantUpgrade1ShopItem" style="display:none; border-color: #66fcf1; background: #0a1a1f;">
+                <div class="info-block">
+                    <h3 style="color:#66fcf1;">⬆️ Улучшение горшков I</h3>
+                    <div class="desc">Добавляет второй горшок</div>
+                    <div class="price-line">Цена: <span id="plantUpgrade1Cost">50000</span> $RAT</div>
+                    <div class="level-line" style="color:#66fcf1;">🌱 УРОВЕНЬ 2</div>
+                </div>
+                <button class="buy-btn" id="buyPlantUpgrade1" style="background-color:#66fcf1;color:#0b0c10;">Купить</button>
+            </div>
+            
+            <div class="shop-item" id="plantUpgrade2ShopItem" style="display:none; border-color: #ffd700; background: #1a1a0a;">
+                <div class="info-block">
+                    <h3 style="color:#ffd700;">⬆️ Улучшение горшков II</h3>
+                    <div class="desc">Добавляет третий горшок</div>
+                    <div class="price-line">Цена: <span id="plantUpgrade2Cost">70000</span> $RAT</div>
+                    <div class="level-line" style="color:#ffd700;">🌱 УРОВЕНЬ 3 (МАКСИМУМ)</div>
+                </div>
+                <button class="buy-btn" id="buyPlantUpgrade2" style="background-color:#ffd700;color:#0b0c10;">Купить</button>
+            </div>
+            
+            <div class="shop-item" id="plantTypeGrassItem" style="display:none; border-color: #45f3ff; background: #0a1a0a;">
+                <div class="info-block">
+                    <h3 style="color:#45f3ff;">🌿 Трава</h3>
+                    <div class="desc">Растёт 3 минуты. Кормит свинок на 100%</div>
+                    <div class="price-line">Цена: <span id="plantTypeGrassCost">10000</span> $RAT</div>
+                    <div class="level-line" style="color:#45f3ff;">🌱 (покупается 1 раз)</div>
+                </div>
+                <button class="buy-btn" id="buyPlantTypeGrass" style="background-color:#45f3ff;color:#0b0c10;">Купить</button>
+            </div>
+            
+            <div class="shop-item" id="plantTypePepperItem" style="display:none; border-color: #ff4444; background: #1a0a0a;">
+                <div class="info-block">
+                    <h3 style="color:#ff4444;">🌶️ Болгарский перец</h3>
+                    <div class="desc">Растёт 5 минут. Кормит на 100% + x2 буст свинкам на 20 сек</div>
+                    <div class="price-line">Цена: <span id="plantTypePepperCost">25000</span> $RAT</div>
+                    <div class="level-line" style="color:#ff4444;">🌶️ (покупается 1 раз)</div>
+                </div>
+                <button class="buy-btn" id="buyPlantTypePepper" style="background-color:#ff4444;color:white;">Купить</button>
+            </div>
+            
+            <div class="shop-item" id="plantTypeAppleItem" style="display:none; border-color: #ff6b6b; background: #1a0a0a;">
+                <div class="info-block">
+                    <h3 style="color:#ff6b6b;">🍎 Яблоко</h3>
+                    <div class="desc">Растёт 8 минут. Кормит на 100% + насыщение 1 минуту</div>
+                    <div class="desc" style="color:#ffd700;font-size:11px;">🍽️ Свинки НЕ тратят голод 1 минуту</div>
+                    <div class="price-line">Цена: <span id="plantTypeAppleCost">40000</span> $RAT</div>
+                    <div class="level-line" style="color:#ff6b6b;">🍎 (покупается 1 раз)</div>
+                </div>
+                <button class="buy-btn" id="buyPlantTypeApple" style="background-color:#ff6b6b;color:white;">Купить</button>
+            </div>
+            
+            <div class="shop-item" id="plantTypeCabbageItem" style="display:none; border-color: #45f3ff; background: #0a1a0a;">
+                <div class="info-block">
+                    <h3 style="color:#45f3ff;">🥬 Капуста</h3>
+                    <div class="desc">Растёт 2 минуты. Насыщает на 50% + 💩 5 какашек</div>
+                    <div class="price-line">Цена: <span id="plantTypeCabbageCost">15000</span> $RAT</div>
+                    <div class="level-line" style="color:#45f3ff;">🥬 (покупается 1 раз)</div>
+                </div>
+                <button class="buy-btn" id="buyPlantTypeCabbage" style="background-color:#45f3ff;color:#0b0c10;">Купить</button>
+            </div>
+            
+            <div class="shop-item" id="labShopItem" style="display:none; border-color: #9b59b6; background: #1a0a1f;">
+                <div class="info-block">
+                    <h3 style="color:#9b59b6;">🧪 Лаборатория</h3>
+                    <div class="desc">Полноценная лаборатория для исследований!</div>
+                    <div class="price-line">Цена: <span id="labShopCost">50000</span> $RAT</div>
+                    <div class="level-line" style="color:#9b59b6;">🧪 УЛУЧШЕНИЕ (покупается 1 раз)</div>
+                    <div style="font-size:11px;color:#66fcf1;margin-top:4px;">⚡ После покупки появится кнопка "ЛАБОРАТОРИЯ"</div>
+                    <div style="font-size:11px;color:#ffd700;margin-top:4px;">⚙️ В лаборатории доступны разные устройства</div>
+                </div>
+                <button class="buy-btn" id="buyLab" style="background-color:#9b59b6;color:white;">Купить</button>
+            </div>
+            
+            <div class="shop-item" id="combinerShopItem" style="display:none; border-color: #ff6b00; background: #1a0f00;">
+                <div class="info-block">
+                    <h3 style="color:#ff6b00;">🧪 Комбинатор</h3>
+                    <div class="desc">Большой крафтовый стол для создания новых предметов!</div>
+                    <div class="desc" style="color:#ffd700;font-size:11px;">📦 2 слота для крафта</div>
+                    <div class="desc" style="color:#66fcf1;font-size:11px;">🟢 Экстракт ГМО яблока = Яблоко + Удобрение (5 мин)</div>
+                    <div class="desc" style="color:#66fcf1;font-size:11px;">🔴 Экстракт корма = Яблоко + Трава + Перец (5 мин)</div>
+                    <div class="price-line">Цена: <span id="combinerShopCost">30000</span> $RAT</div>
+                    <div class="level-line" style="color:#ff6b00;">🧪 УЛУЧШЕНИЕ (покупается 1 раз)</div>
+                    <div style="font-size:11px;color:#ff6b00;margin-top:4px;">⚡ После покупки появится вкладка "Комбинатор" в лаборатории</div>
+                </div>
+                <button class="buy-btn" id="buyCombiner" style="background-color:#ff6b00;color:white;">Купить</button>
+            </div>
+            
+            <div class="shop-item" id="combinerUpgradeShopItem" style="display:none; border-color: #ff6b00; background: #1a0f00;">
+                <div class="info-block">
+                    <h3 style="color:#ff6b00;">⬆️ Улучшить комбинатор</h3>
+                    <div class="desc">Добавляет 3-й слот для крафта</div>
+                    <div class="price-line">Цена: <span id="combinerUpgradeCost">60000</span> $RAT</div>
+                    <div class="level-line" style="color:#ff6b00;">Текущий уровень: <span id="combinerLevel">Уровень 1 (2 слота)</span></div>
+                </div>
+                <button class="buy-btn" id="buyCombinerUpgrade" style="background-color:#ff6b00;color:white;">Улучшить</button>
+            </div>
+            
+            <div class="shop-item" id="extractorShopItem" style="display:none; border-color: #45f3ff; background: #0a1a1a;">
+                <div class="info-block">
+                    <h3 style="color:#45f3ff;">⚗️ Аппарат превращения</h3>
+                    <div class="desc">Превращает экстракты в готовые предметы!</div>
+                    <div class="desc" style="color:#66fcf1;font-size:11px;">⏱️ 1 минута на превращение</div>
+                    <div class="desc" style="color:#66fcf1;font-size:11px;">🟢 Экстракт ГМО яблока → 🍏 ГМО яблоко</div>
+                    <div class="desc" style="color:#66fcf1;font-size:11px;">🔴 Экстракт крысиного корма → 🍖 Крысиный корм</div>
+                    <div class="price-line">Цена: <span id="extractorShopCost">20000</span> $RAT</div>
+                    <div class="level-line" style="color:#45f3ff;">⚗️ НЕ УЛУЧШАЕТСЯ</div>
+                </div>
+                <button class="buy-btn" id="buyExtractor" style="background-color:#45f3ff;color:#0b0c10;">Купить</button>
+            </div>
+            
+            <div class="shop-item" id="manipulatorShopItem" style="display:none; border-color: #ffd700; background: #1a1a0a;">
+                <div class="info-block">
+                    <h3 style="color:#ffd700;">🤖 Манипулятор</h3>
+                    <div class="desc">Автоматизированный робот для работы в лаборатории!</div>
+                    <div class="desc" style="color:#66fcf1;font-size:11px;">⚙️ Настраивается под любую задачу</div>
+                    <div class="desc" style="color:#66fcf1;font-size:11px;">🍖 Кормит свинок</div>
+                    <div class="desc" style="color:#66fcf1;font-size:11px;">🔧 Автоматически крафтит</div>
+                    <div class="desc" style="color:#66fcf1;font-size:11px;">🧪 Делает удобрения</div>
+                    <div class="desc" style="color:#66fcf1;font-size:11px;">🔄 Перекладывает экстракты</div>
+                    <div class="price-line">Цена: <span id="manipulatorShopCost">10000</span> $RAT</div>
+                    <div class="level-line" style="color:#ffd700;">Куплено: <span id="manipulatorLevel">0</span>/3 🤖</div>
+                    <div style="font-size:11px;color:#ffd700;margin-top:4px;">⚡ После покупки появится тумблер справа</div>
+                    <div style="font-size:11px;color:#ff6666;margin-top:4px;">🔒 Требуются все части лаборатории!</div>
+                </div>
+                <button class="buy-btn" id="buyManipulator" style="background-color:#ffd700;color:#0b0c10;">Купить манипулятор</button>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="tab-accessories">
+            <div class="accessory-item" data-accessory="hat">
+                <div class="preview">🐀🎩</div>
+                <div class="info">
+                    <h3>Шляпа мафиози</h3>
+                    <div class="desc">Стильная шляпа для солидной крысы</div>
+                    <div class="bonus">✨ Бонус: +5% к силе клика</div>
+                    <div class="price">💰 1 000 $RAT</div>
+                </div>
+                <button class="equip-btn" data-accessory="hat">Купить</button>
+            </div>
+            
+            <div class="accessory-item" data-accessory="glasses">
+                <div class="preview">🐀🕶️</div>
+                <div class="info">
+                    <h3>Крутые очки</h3>
+                    <div class="desc">Чтобы скрыть свои тёмные дела</div>
+                    <div class="bonus">✨ Бонус: +15% к силе клика</div>
+                    <div class="price">💰 5 000 $RAT</div>
+                </div>
+                <button class="equip-btn" data-accessory="glasses">Купить</button>
+            </div>
+            
+            <div class="accessory-item" data-accessory="sword">
+                <div class="preview">🐀⚔️</div>
+                <div class="info">
+                    <h3>Меч ниндзя</h3>
+                    <div class="desc">Для защиты от котов и других врагов</div>
+                    <div class="bonus">✨ Бонус: +30% к силе клика</div>
+                    <div class="price">💰 50 000 $RAT</div>
+                </div>
+                <button class="equip-btn" data-accessory="sword">Купить</button>
+            </div>
+            
+            <div class="accessory-item" data-accessory="crown">
+                <div class="preview">🐀👑</div>
+                <div class="info">
+                    <h3>Корона крыс</h3>
+                    <div class="desc">Только для истинного короля грызунов</div>
+                    <div class="bonus">✨ Бонус: +100% к силе клика</div>
+                    <div class="price">💰 10 000 000 $RAT</div>
+                </div>
+                <button class="equip-btn" data-accessory="crown">Купить</button>
+            </div>
+            
+            <div style="text-align:center;margin-top:10px;padding:10px;background:#0b0c10;border-radius:10px;border:1px solid #ffd700;">
+                <span style="color:#66fcf1;">👑 Активный бонус: </span>
+                <span style="color:#ffd700;font-weight:bold;" id="accessoryBonusDisplay">+0%</span>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="tab-bosses">
+            <div class="shop-item" id="bossMenuShopItem" style="border-color: #ff0033; background: #1a0a0a;">
+                <div class="info-block">
+                    <h3 style="color:#ff0033;">💀 Меню боссов</h3>
+                    <div class="desc">Открывает доступ к боссам и их меню</div>
+                    <div class="price-line">Цена: <span id="bossMenuCost">50000</span> $RAT</div>
+                    <div class="level-line" style="color:#ff0033;">💀 УЛУЧШЕНИЕ (покупается 1 раз)</div>
+                    <div style="font-size:11px;color:#ff6666;margin-top:4px;">⚡ После покупки появится череп под тумблерами</div>
+                    <div style="font-size:11px;color:#ffd700;margin-top:4px;">🦫 Боссы покупаются отдельно</div>
+                </div>
+                <button class="buy-btn" id="buyBossMenu" style="background-color:#ff0033;color:white;">Купить</button>
+            </div>
+            
+            <div class="shop-item" id="capybaraShopItem" style="display:none; border-color: #8B6B3D; background: #1a140a;">
+                <div class="info-block">
+                    <h3 style="color:#8B6B3D;">🦫 Капибара</h3>
+                    <div class="desc">Спокойный гигант, но опасный противник!</div>
+                    <div class="desc" style="color:#ffd700;font-size:11px;">💰 Награда: Корм для крысы (x2 буст на 30 сек)</div>
+                    <div class="price-line">Цена: <span id="capybaraCost">100000</span> $RAT</div>
+                    <div class="level-line" style="color:#8B6B3D;">🦫 БОСС (покупается 1 раз)</div>
+                    <div style="font-size:11px;color:#66fcf1;margin-top:4px;">⚡ После покупки появится в меню боссов</div>
+                    <div style="font-size:11px;color:#ff6666;margin-top:4px;">⏳ Перезарядка: 10 минут</div>
+                </div>
+                <button class="buy-btn" id="buyCapybara" style="background-color:#8B6B3D;color:white;">Купить</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
