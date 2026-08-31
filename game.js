@@ -2,33 +2,62 @@
 // ==================== СИСТЕМА ВЕРСИЙ ========================
 // ============================================================
 
-const GAME_VERSION = '2.0.0';
+const GAME_VERSION = '2.0.2';
 
 // Список изменений по версиям
 const UPDATE_CHANGELOG = {
     '2.0.0': '🚀 Полный релиз! Комбинатор, манипуляторы, ГМО яблоки и многое другое!',
     '2.0.1': '🐛 Исправлен баг с какашками и кнопкой сбора',
-    '2.1.0': '✨ Добавлены манипуляторы! 🤖 Автоматизация процессов!',
-    '2.1.1': '🔧 Улучшена производительность и исправлены мелкие баги',
+    '2.0.2': '🔒 Добавлен умный античит! Защита от читерства!',
 };
 
-// Проверяем версию игры
+// ============================================================
+// ==================== УМНЫЙ АНТИЧИТ =========================
+// ============================================================
+
+// Конфигурация античита
+const ANTI_CHEAT = {
+    enabled: true,
+    checkInterval: 3000,         // Проверка каждые 3 секунды
+    lookbackSeconds: 5,          // Смотрим доход за последние 5 секунд
+    maxPossibleCPS: 25,          // Максимальное число кликов в секунду (человек не может быстрее)
+    bufferPercent: 25,           // 25% запас (чтобы не наказывать за удачные моменты)
+    minScoreForCheck: 1000,      // Начинаем проверять только после 1000 монет
+    suspicionThreshold: 150,     // Если доход превышает норму на 150% - подозрение
+    banThreshold: 300,           // Если доход превышает норму на 300% - бан
+    autoClickerThreshold: 500,   // Если пассивный доход слишком высок
+};
+
+// Переменные античита
+let anticheatTimer = null;
+let scoreHistory = [];
+let timeHistory = [];
+let totalClicks = parseInt(localStorage.getItem('rat_totalClicks')) || 0;
+let totalTimePlayed = parseInt(localStorage.getItem('rat_totalTimePlayed')) || 0;
+let lastCheckTime = Date.now();
+let isSuspicious = false;
+let suspicionLevel = 0;
+let cheatDetected = false;
+
+// Проверка версии
 function checkGameVersion() {
     const savedVersion = localStorage.getItem('rat_game_version');
     
-    // Если версия не совпадает — обновляем
     if (savedVersion !== GAME_VERSION) {
         console.log(`🔄 Обновление игры! ${savedVersion || 'Новая установка'} → ${GAME_VERSION}`);
-        
-        // Сохраняем новую версию
         localStorage.setItem('rat_game_version', GAME_VERSION);
-        
-        // Показываем уведомление об обновлении
         showUpdateNotification();
+        
+        // При обновлении сбрасываем подозрения
+        if (savedVersion && savedVersion < '2.0.2') {
+            localStorage.setItem('rat_cheat_detected', 'false');
+            localStorage.removeItem('rat_checked_score');
+            localStorage.removeItem('rat_checked_time');
+            localStorage.removeItem('rat_checked_max_income');
+        }
     }
 }
 
-// Показываем уведомление об обновлении
 function showUpdateNotification() {
     const changes = UPDATE_CHANGELOG[GAME_VERSION] || 'Новые функции и улучшения!';
     
@@ -64,7 +93,6 @@ function showUpdateNotification() {
     `;
     document.body.appendChild(notification);
     
-    // Удаляем через 10 секунд
     setTimeout(() => {
         const el = document.getElementById('updateNotification');
         if (el) {
@@ -75,23 +103,324 @@ function showUpdateNotification() {
     }, 10000);
 }
 
-// Добавляем CSS для анимации
+// CSS для анимации
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideDown {
         0% { transform: translateX(-50%) translateY(-100px); opacity: 0; }
         100% { transform: translateX(-50%) translateY(0); opacity: 1; }
     }
+    @keyframes banBlink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+    }
 `;
 document.head.appendChild(style);
 
-// Запускаем проверку версии
-checkGameVersion();
+// ===== ФУНКЦИИ АНТИЧИТА =====
+
+// Считаем максимально возможный доход за период
+function calculateMaxPossibleIncome(timeSeconds) {
+    // 1. Максимальный доход с кликов
+    const maxClicksPerSecond = ANTI_CHEAT.maxPossibleCPS;
+    const currentClickPower = getTotalClickPower();
+    const maxClickIncome = maxClicksPerSecond * currentClickPower * timeSeconds;
+    
+    // 2. Пассивный доход (автокликеры)
+    const passiveIncome = autoClickers * timeSeconds;
+    
+    // 3. Бонусы от зерна
+    let grainIncome = 0;
+    if (grainActive && grainLevel > 0) {
+        const grainPerSecond = 1 / 5; // примерно 1 зерно в 5 секунд
+        const grainValue = grainBase * currentClickPower;
+        grainIncome = grainPerSecond * grainValue * timeSeconds;
+    }
+    
+    // 4. Бонус от мыши-собиратора
+    let mouseIncome = 0;
+    if (mouseActive && mousePurchased) {
+        mouseIncome = grainIncome * 0.3;
+    }
+    
+    // 5. Бонус от морских свинок
+    let hamsterBonus = getHamsterBonus();
+    
+    // 6. Бонус от удобрений (ускоряют рост растений, дают доп доход)
+    let fertilizerBonus = 1 + (fertilizerCount * 0.01);
+    
+    // Суммируем всё с учётом бустов
+    let totalPossibleIncome = (maxClickIncome + passiveIncome + grainIncome + mouseIncome) * hamsterBonus * fertilizerBonus;
+    
+    // Учитываем активный буст (x2)
+    if (buffActive) {
+        totalPossibleIncome = totalPossibleIncome * 2;
+    }
+    
+    // Добавляем запас (чтобы не наказывать за удачные моменты)
+    totalPossibleIncome = totalPossibleIncome * (1 + ANTI_CHEAT.bufferPercent / 100);
+    
+    return Math.floor(totalPossibleIncome);
+}
+
+// Проверка баланса (главная функция античита)
+function checkBalance() {
+    if (!ANTI_CHEAT.enabled) return;
+    if (cheatDetected) return;
+    
+    // Не проверяем если мало денег (античит не нужен для новичков)
+    if (score < ANTI_CHEAT.minScoreForCheck) return;
+    
+    const now = Date.now();
+    const timeSinceLastCheck = (now - lastCheckTime) / 1000;
+    
+    // Обновляем время игры
+    totalTimePlayed += Math.floor(timeSinceLastCheck);
+    localStorage.setItem('rat_totalTimePlayed', totalTimePlayed);
+    
+    // Получаем текущий баланс
+    const currentScore = score;
+    
+    // Получаем сохранённые данные с прошлой проверки
+    const savedScore = parseInt(localStorage.getItem('rat_checked_score')) || 0;
+    const savedTime = parseInt(localStorage.getItem('rat_checked_time')) || 0;
+    
+    // Если это первая проверка — сохраняем и выходим
+    if (savedScore === 0 && savedTime === 0) {
+        localStorage.setItem('rat_checked_score', currentScore);
+        localStorage.setItem('rat_checked_time', totalTimePlayed);
+        lastCheckTime = now;
+        return;
+    }
+    
+    // Вычисляем реальный прирост за период
+    const realGain = currentScore - savedScore;
+    const timePassed = totalTimePlayed - savedTime;
+    
+    // Если прошло мало времени — пропускаем
+    if (timePassed < 1) {
+        lastCheckTime = now;
+        return;
+    }
+    
+    // Вычисляем максимально возможный доход за этот период
+    const maxPossibleGain = calculateMaxPossibleIncome(timePassed);
+    
+    // Проверяем, не превышает ли реальный доход допустимый
+    const ratio = (realGain / maxPossibleGain) * 100;
+    
+    console.log(`🔍 Античит: Реальный доход: ${realGain}, Максимально возможный: ${maxPossibleGain}, Соотношение: ${ratio.toFixed(1)}%`);
+    
+    // Сохраняем текущие значения для следующей проверки
+    localStorage.setItem('rat_checked_score', currentScore);
+    localStorage.setItem('rat_checked_time', totalTimePlayed);
+    lastCheckTime = now;
+    
+    // Проверяем на читерство
+    if (ratio > ANTI_CHEAT.banThreshold) {
+        // Полный бан - читерство очевидно
+        triggerAntiCheatBan(realGain, maxPossibleGain, ratio);
+        return;
+    }
+    
+    if (ratio > ANTI_CHEAT.suspicionThreshold) {
+        // Подозрительно много - накапливаем подозрения
+        suspicionLevel++;
+        isSuspicious = true;
+        console.log(`⚠️ Античит: Подозрение ${suspicionLevel}/3 (${ratio.toFixed(1)}% от максимума)`);
+        
+        // Предупреждение
+        showAntiCheatWarning(realGain, maxPossibleGain, ratio);
+        
+        if (suspicionLevel >= 3) {
+            // Три подозрения подряд - бан
+            triggerAntiCheatBan(realGain, maxPossibleGain, ratio);
+        }
+    } else {
+        // Всё нормально — сбрасываем подозрения
+        if (isSuspicious) {
+            suspicionLevel = 0;
+            isSuspicious = false;
+            hideAntiCheatWarning();
+        }
+    }
+}
+
+// Показываем предупреждение
+function showAntiCheatWarning(realGain, maxGain, ratio) {
+    let warningEl = document.getElementById('anticheatWarning');
+    if (!warningEl) {
+        warningEl = document.createElement('div');
+        warningEl.id = 'anticheatWarning';
+        warningEl.style.cssText = `
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 165, 0, 0.9);
+            color: #0b0c10;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 9998;
+            box-shadow: 0 0 30px rgba(255, 165, 0, 0.3);
+            animation: slideDown 0.5s ease-out;
+            text-align: center;
+            max-width: 90%;
+        `;
+        document.body.appendChild(warningEl);
+    }
+    warningEl.innerHTML = `
+        ⚠️ ПОДОЗРЕНИЕ: Ваш доход (${realGain}) выше допустимого (${maxGain}) в ${ratio.toFixed(0)}%.
+        <br><span style="font-size:12px;">Если это ошибка — просто продолжайте играть. (${3 - suspicionLevel} попытки до блокировки)</span>
+        <br><span style="font-size:11px;color:#666;">Античит v2.0.2</span>
+    `;
+    warningEl.style.display = 'block';
+}
+
+function hideAntiCheatWarning() {
+    const el = document.getElementById('anticheatWarning');
+    if (el) {
+        el.style.display = 'none';
+    }
+}
+
+// Триггер бана
+function triggerAntiCheatBan(realGain, maxGain, ratio) {
+    if (cheatDetected) return;
+    cheatDetected = true;
+    localStorage.setItem('rat_cheat_detected', 'true');
+    
+    console.log(`🚨 АНТИЧИТ: БАН! Доход ${realGain} превышает ${maxGain} в ${ratio.toFixed(0)}%`);
+    
+    // Показываем сообщение о бане
+    const banEl = document.createElement('div');
+    banEl.id = 'anticheatBan';
+    banEl.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 0, 0, 0.95);
+        color: white;
+        padding: 30px 40px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 24px;
+        z-index: 10000;
+        box-shadow: 0 0 60px rgba(255, 0, 0, 0.5);
+        text-align: center;
+        max-width: 90%;
+        animation: banBlink 0.5s ease-in-out 5;
+        border: 3px solid #ffd700;
+    `;
+    banEl.innerHTML = `
+        <div style="font-size:60px;">🚫</div>
+        <div style="margin:15px 0;">ОБНАРУЖЕНО ЧИТЕРСТВО!</div>
+        <div style="font-size:16px;opacity:0.8;max-width:400px;">
+            Ваш доход (${realGain}) превышает максимально возможный (${maxGain}) в ${ratio.toFixed(0)}%.
+        </div>
+        <div style="font-size:14px;opacity:0.6;margin-top:10px;">
+            Прогресс будет сброшен через 10 секунд...
+        </div>
+        <div style="font-size:12px;opacity:0.4;margin-top:15px;border-top:1px solid rgba(255,255,255,0.2);padding-top:10px;">
+            🔒 Античит v2.0.2 | Если это ошибка — обратитесь к разработчику
+        </div>
+    `;
+    document.body.appendChild(banEl);
+    
+    // Блокируем интерфейс
+    document.body.style.pointerEvents = 'none';
+    
+    // Через 10 секунд сбрасываем прогресс
+    setTimeout(() => {
+        // Сбрасываем прогресс
+        localStorage.clear();
+        
+        // Обновляем версию
+        localStorage.setItem('rat_game_version', GAME_VERSION);
+        
+        // Перезагружаем
+        location.reload();
+    }, 10000);
+}
+
+// Запуск античита
+function startAntiCheat() {
+    if (anticheatTimer) {
+        clearInterval(anticheatTimer);
+    }
+    
+    // Проверяем, не был ли уже обнаружен чит
+    if (localStorage.getItem('rat_cheat_detected') === 'true') {
+        // Показываем сообщение о том, что чит был обнаружен
+        setTimeout(() => {
+            const banEl = document.createElement('div');
+            banEl.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(255, 0, 0, 0.9);
+                color: white;
+                padding: 30px 40px;
+                border-radius: 20px;
+                font-weight: bold;
+                font-size: 24px;
+                z-index: 10000;
+                box-shadow: 0 0 60px rgba(255, 0, 0, 0.5);
+                text-align: center;
+                max-width: 90%;
+                border: 3px solid #ffd700;
+            `;
+            banEl.innerHTML = `
+                <div style="font-size:60px;">🚫</div>
+                <div style="margin:15px 0;">ВНИМАНИЕ!</div>
+                <div style="font-size:16px;opacity:0.8;max-width:400px;">
+                    Ранее было обнаружено читерство. Прогресс сброшен.
+                </div>
+                <div style="font-size:14px;opacity:0.6;margin-top:10px;">
+                    Игра будет перезагружена через 5 секунд...
+                </div>
+                <div style="font-size:12px;opacity:0.4;margin-top:15px;border-top:1px solid rgba(255,255,255,0.2);padding-top:10px;">
+                    🔒 Античит v2.0.2 | Играйте честно!
+                </div>
+            `;
+            document.body.appendChild(banEl);
+            document.body.style.pointerEvents = 'none';
+            
+            setTimeout(() => {
+                localStorage.removeItem('rat_cheat_detected');
+                location.reload();
+            }, 5000);
+        }, 1000);
+        return;
+    }
+    
+    // Запускаем проверку
+    anticheatTimer = setInterval(() => {
+        checkBalance();
+    }, ANTI_CHEAT.checkInterval);
+}
+
+// Очистка античита (для перезагрузки)
+function stopAntiCheat() {
+    if (anticheatTimer) {
+        clearInterval(anticheatTimer);
+        anticheatTimer = null;
+    }
+    hideAntiCheatWarning();
+}
 
 // ============================================================
 // ==================== ИНИЦИАЛИЗАЦИЯ =========================
 // ============================================================
 
+// Запускаем проверку версии
+checkGameVersion();
+
+// Инициализация остальных переменных
 let score = parseInt(localStorage.getItem('rat_score')) || 0;
 let clickPower = parseInt(localStorage.getItem('rat_clickPower')) || 1;
 let autoClickers = parseInt(localStorage.getItem('rat_autoClickers')) || 0;
@@ -846,6 +1175,19 @@ function resetAllProgress() {
             plantIntervals[i] = null;
         }
     }
+    
+    // Сбрасываем античит
+    localStorage.removeItem('rat_cheat_detected');
+    localStorage.removeItem('rat_checked_score');
+    localStorage.removeItem('rat_checked_time');
+    localStorage.removeItem('rat_checked_max_income');
+    localStorage.removeItem('rat_totalClicks');
+    localStorage.removeItem('rat_totalTimePlayed');
+    cheatDetected = false;
+    suspicionLevel = 0;
+    isSuspicious = false;
+    hideAntiCheatWarning();
+    
     localStorage.clear();
     saveGame();
     savePlantData();
@@ -3406,7 +3748,16 @@ if (hamsterPurchased) {
     startPoopProduction();
 }
 
-// ===== МАГАЗИН =====
+// ============================================================
+// ==================== ЗАПУСК АНТИЧИТА ======================
+// ============================================================
+
+startAntiCheat();
+
+// ============================================================
+// ==================== МАГАЗИН ===============================
+// ============================================================
+
 document.querySelectorAll('.shop-tab').forEach(tab => {
     tab.addEventListener('click', function() {
         document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
@@ -4287,11 +4638,29 @@ window.addFertilizer = function() {
     alert('🧪 Добавлено 5 удобрений!');
 };
 
+window.disableAntiCheat = function() {
+    ANTI_CHEAT.enabled = false;
+    stopAntiCheat();
+    hideAntiCheatWarning();
+    console.log('🔒 Античит ОТКЛЮЧЁН!');
+    alert('🔒 Античит отключён!');
+};
+
+window.enableAntiCheat = function() {
+    ANTI_CHEAT.enabled = true;
+    startAntiCheat();
+    console.log('🔒 Античит ВКЛЮЧЁН!');
+    alert('🔒 Античит включён!');
+};
+
 console.log('💀 Игра загружена!');
+console.log('💀 Версия:', GAME_VERSION);
 console.log('💀 Для сброса перезарядки босса введите: resetBossCooldown()');
 console.log('💀 Для победы над боссом введите: forceBossDefeat()');
 console.log('🌱 Для добавления горшка введите: addPlant()');
 console.log('💩 Для добавления какашек введите: addPoop()');
 console.log('🧪 Для добавления удобрений введите: addFertilizer()');
+console.log('🔒 Для отключения античита: disableAntiCheat()');
+console.log('🔒 Для включения античита: enableAntiCheat()');
 console.log('🔊 Музыка включена:', musicEnabled);
 console.log('🎵 ID видео:', musicVideoId);
