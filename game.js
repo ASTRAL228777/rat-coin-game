@@ -2,65 +2,365 @@
 // ==================== СИСТЕМА ВЕРСИЙ ========================
 // ============================================================
 
-const GAME_VERSION = '2.0.2';
+const GAME_VERSION = '2.0.3';
 
-// Список изменений по версиям
 const UPDATE_CHANGELOG = {
     '2.0.0': '🚀 Полный релиз! Комбинатор, манипуляторы, ГМО яблоки и многое другое!',
     '2.0.1': '🐛 Исправлен баг с какашками и кнопкой сбора',
     '2.0.2': '🔒 Добавлен умный античит! Защита от читерства!',
+    '2.0.3': '🔐 Античит полностью скрыт от консоли! Улучшена защита!',
 };
 
 // ============================================================
-// ==================== УМНЫЙ АНТИЧИТ =========================
+// ==================== СКРЫТЫЙ АНТИЧИТ =======================
 // ============================================================
 
-// Конфигурация античита
-const ANTI_CHEAT = {
-    enabled: true,
-    checkInterval: 3000,         // Проверка каждые 3 секунды
-    lookbackSeconds: 5,          // Смотрим доход за последние 5 секунд
-    maxPossibleCPS: 25,          // Максимальное число кликов в секунду (человек не может быстрее)
-    bufferPercent: 25,           // 25% запас (чтобы не наказывать за удачные моменты)
-    minScoreForCheck: 1000,      // Начинаем проверять только после 1000 монет
-    suspicionThreshold: 150,     // Если доход превышает норму на 150% - подозрение
-    banThreshold: 300,           // Если доход превышает норму на 300% - бан
-    autoClickerThreshold: 500,   // Если пассивный доход слишком высок
-};
+const AntiCheat = (function() {
+    
+    const CONFIG = {
+        enabled: true,
+        checkInterval: 3000,
+        lookbackSeconds: 5,
+        maxPossibleCPS: 25,
+        bufferPercent: 25,
+        minScoreForCheck: 1000,
+        suspicionThreshold: 150,
+        banThreshold: 300,
+    };
+    
+    let timer = null;
+    let lastCheckTime = Date.now();
+    let suspicionLevel = 0;
+    let isSuspicious = false;
+    let cheatDetected = false;
+    let warningElement = null;
+    
+    function getTotalClickPower() {
+        let base = parseInt(localStorage.getItem('rat_clickPower')) || 1;
+        let bonus = 0;
+        let accessory = localStorage.getItem('rat_accessory');
+        const bonuses = { hat: 5, glasses: 15, sword: 30, crown: 100 };
+        if (accessory && bonuses[accessory]) bonus = bonuses[accessory];
+        let hamsterBonus = 1.0;
+        let hamsterFood = parseFloat(localStorage.getItem('rat_hamsterFood')) || 0;
+        let hamsterLevel = parseInt(localStorage.getItem('rat_hamsterLevel')) || 0;
+        if (hamsterFood > 0) {
+            hamsterBonus = 1.0 + hamsterLevel * 0.1;
+            if (localStorage.getItem('rat_pepperBuffActive') === 'true') {
+                hamsterBonus *= 2;
+            }
+        }
+        let buffActive = localStorage.getItem('rat_buffActive') === 'true';
+        let buffMult = buffActive ? 2 : 1;
+        return Math.floor(base * (1 + bonus / 100) * hamsterBonus * buffMult);
+    }
+    
+    function getAutoClickers() {
+        return parseInt(localStorage.getItem('rat_autoClickers')) || 0;
+    }
+    
+    function getGrainData() {
+        const grainActive = localStorage.getItem('rat_grainActive') === 'true';
+        const grainLevel = parseInt(localStorage.getItem('rat_grainLevel')) || 0;
+        const grainBase = parseInt(localStorage.getItem('rat_grainBase')) || 3;
+        const superGrainPurchased = localStorage.getItem('rat_superGrainPurchased') === 'true';
+        const superGrainActive = localStorage.getItem('rat_superGrainActive') === 'true';
+        const mousePurchased = localStorage.getItem('rat_mousePurchased') === 'true';
+        const mouseActive = localStorage.getItem('rat_mouseActive') === 'true';
+        return { grainActive, grainLevel, grainBase, superGrainPurchased, superGrainActive, mousePurchased, mouseActive };
+    }
+    
+    function calculateMaxPossibleIncome(timeSeconds) {
+        const clickPower = getTotalClickPower();
+        const maxClicksPerSecond = CONFIG.maxPossibleCPS;
+        const maxClickIncome = maxClicksPerSecond * clickPower * timeSeconds;
+        const passiveIncome = getAutoClickers() * timeSeconds;
+        
+        let grainIncome = 0;
+        const grainData = getGrainData();
+        if (grainData.grainActive && grainData.grainLevel > 0) {
+            const grainPerSecond = 1 / 5;
+            let grainValue = grainData.grainBase * clickPower;
+            if (grainData.superGrainActive && grainData.superGrainPurchased) {
+                grainValue = 25 * clickPower;
+            }
+            grainIncome = grainPerSecond * grainValue * timeSeconds;
+        }
+        
+        let mouseIncome = 0;
+        if (grainData.mouseActive && grainData.mousePurchased) {
+            mouseIncome = grainIncome * 0.3;
+        }
+        
+        let hamsterBonus = 1.0;
+        let hamsterFood = parseFloat(localStorage.getItem('rat_hamsterFood')) || 0;
+        let hamsterLevel = parseInt(localStorage.getItem('rat_hamsterLevel')) || 0;
+        if (hamsterFood > 0) {
+            hamsterBonus = 1.0 + hamsterLevel * 0.1;
+        }
+        
+        let totalPossibleIncome = (maxClickIncome + passiveIncome + grainIncome + mouseIncome) * hamsterBonus;
+        
+        if (localStorage.getItem('rat_buffActive') === 'true') {
+            totalPossibleIncome *= 2;
+        }
+        
+        totalPossibleIncome *= (1 + CONFIG.bufferPercent / 100);
+        return Math.floor(totalPossibleIncome);
+    }
+    
+    function showWarning(realGain, maxGain, ratio) {
+        if (warningElement) return;
+        warningElement = document.createElement('div');
+        warningElement.id = 'anticheatWarning';
+        warningElement.style.cssText = `
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 165, 0, 0.95);
+            color: #0b0c10;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 9998;
+            box-shadow: 0 0 30px rgba(255, 165, 0, 0.3);
+            animation: slideDown 0.5s ease-out;
+            text-align: center;
+            max-width: 90%;
+            font-family: 'Segoe UI', sans-serif;
+        `;
+        warningElement.innerHTML = `
+            ⚠️ ПОДОЗРЕНИЕ: Ваш доход (${realGain}) выше допустимого (${maxGain}) в ${ratio.toFixed(0)}%.
+            <br><span style="font-size:12px;">Если это ошибка — просто продолжайте играть. (${3 - suspicionLevel} попытки до блокировки)</span>
+            <br><span style="font-size:10px;color:#666;">🔒 Античит v${GAME_VERSION}</span>
+        `;
+        document.body.appendChild(warningElement);
+    }
+    
+    function hideWarning() {
+        if (warningElement) {
+            warningElement.remove();
+            warningElement = null;
+        }
+    }
+    
+    function triggerBan(realGain, maxGain, ratio) {
+        if (cheatDetected) return;
+        cheatDetected = true;
+        localStorage.setItem('rat_cheat_detected', 'true');
+        
+        const banEl = document.createElement('div');
+        banEl.id = 'anticheatBan';
+        banEl.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 0, 0, 0.95);
+            color: white;
+            padding: 30px 40px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 24px;
+            z-index: 10000;
+            box-shadow: 0 0 60px rgba(255, 0, 0, 0.5);
+            text-align: center;
+            max-width: 90%;
+            animation: banBlink 0.5s ease-in-out 5;
+            border: 3px solid #ffd700;
+            font-family: 'Segoe UI', sans-serif;
+        `;
+        banEl.innerHTML = `
+            <div style="font-size:60px;">🚫</div>
+            <div style="margin:15px 0;">ОБНАРУЖЕНО ЧИТЕРСТВО!</div>
+            <div style="font-size:16px;opacity:0.8;max-width:400px;">
+                Ваш доход (${realGain}) превышает максимально возможный (${maxGain}) в ${ratio.toFixed(0)}%.
+            </div>
+            <div style="font-size:14px;opacity:0.6;margin-top:10px;">
+                Прогресс будет сброшен через 10 секунд...
+            </div>
+            <div style="font-size:12px;opacity:0.4;margin-top:15px;border-top:1px solid rgba(255,255,255,0.2);padding-top:10px;">
+                🔒 Античит v${GAME_VERSION}
+            </div>
+        `;
+        document.body.appendChild(banEl);
+        document.body.style.pointerEvents = 'none';
+        
+        setTimeout(() => {
+            localStorage.clear();
+            localStorage.setItem('rat_game_version', GAME_VERSION);
+            location.reload();
+        }, 10000);
+    }
+    
+    function checkBalance() {
+        if (!CONFIG.enabled) return;
+        if (cheatDetected) return;
+        
+        const score = parseInt(localStorage.getItem('rat_score')) || 0;
+        if (score < CONFIG.minScoreForCheck) return;
+        
+        const now = Date.now();
+        const timeSinceLastCheck = (now - lastCheckTime) / 1000;
+        if (timeSinceLastCheck < 1) return;
+        
+        const savedScore = parseInt(localStorage.getItem('rat_checked_score')) || 0;
+        const savedTime = parseInt(localStorage.getItem('rat_checked_time')) || 0;
+        const totalTimePlayed = parseInt(localStorage.getItem('rat_totalTimePlayed')) || 0;
+        
+        if (savedScore === 0 && savedTime === 0) {
+            localStorage.setItem('rat_checked_score', score);
+            localStorage.setItem('rat_checked_time', totalTimePlayed);
+            lastCheckTime = now;
+            return;
+        }
+        
+        const realGain = score - savedScore;
+        const timePassed = totalTimePlayed - savedTime;
+        if (timePassed < 1 || realGain < 0) {
+            lastCheckTime = now;
+            return;
+        }
+        
+        const maxPossibleGain = calculateMaxPossibleIncome(timePassed);
+        const ratio = (realGain / maxPossibleGain) * 100;
+        
+        localStorage.setItem('rat_checked_score', score);
+        localStorage.setItem('rat_checked_time', totalTimePlayed);
+        lastCheckTime = now;
+        
+        if (ratio > CONFIG.banThreshold) {
+            triggerBan(realGain, maxPossibleGain, ratio);
+            return;
+        }
+        
+        if (ratio > CONFIG.suspicionThreshold) {
+            suspicionLevel++;
+            isSuspicious = true;
+            showWarning(realGain, maxPossibleGain, ratio);
+            if (suspicionLevel >= 3) {
+                triggerBan(realGain, maxPossibleGain, ratio);
+            }
+        } else {
+            if (isSuspicious) {
+                suspicionLevel = 0;
+                isSuspicious = false;
+                hideWarning();
+            }
+        }
+    }
+    
+    return {
+        start: function() {
+            if (timer) return;
+            
+            if (localStorage.getItem('rat_cheat_detected') === 'true') {
+                setTimeout(() => {
+                    const banEl = document.createElement('div');
+                    banEl.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: rgba(255, 0, 0, 0.9);
+                        color: white;
+                        padding: 30px 40px;
+                        border-radius: 20px;
+                        font-weight: bold;
+                        font-size: 24px;
+                        z-index: 10000;
+                        box-shadow: 0 0 60px rgba(255, 0, 0, 0.5);
+                        text-align: center;
+                        max-width: 90%;
+                        border: 3px solid #ffd700;
+                        font-family: 'Segoe UI', sans-serif;
+                    `;
+                    banEl.innerHTML = `
+                        <div style="font-size:60px;">🚫</div>
+                        <div style="margin:15px 0;">ВНИМАНИЕ!</div>
+                        <div style="font-size:16px;opacity:0.8;max-width:400px;">
+                            Ранее было обнаружено читерство. Прогресс сброшен.
+                        </div>
+                        <div style="font-size:14px;opacity:0.6;margin-top:10px;">
+                            Игра будет перезагружена через 5 секунд...
+                        </div>
+                        <div style="font-size:12px;opacity:0.4;margin-top:15px;border-top:1px solid rgba(255,255,255,0.2);padding-top:10px;">
+                            🔒 Античит v${GAME_VERSION} | Играйте честно!
+                        </div>
+                    `;
+                    document.body.appendChild(banEl);
+                    document.body.style.pointerEvents = 'none';
+                    setTimeout(() => {
+                        localStorage.removeItem('rat_cheat_detected');
+                        location.reload();
+                    }, 5000);
+                }, 1000);
+                return;
+            }
+            
+            timer = setInterval(checkBalance, CONFIG.checkInterval);
+        },
+        stop: function() {
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+            }
+            hideWarning();
+        }
+    };
+    
+})();
 
-// Переменные античита
-let anticheatTimer = null;
-let scoreHistory = [];
-let timeHistory = [];
-let totalClicks = parseInt(localStorage.getItem('rat_totalClicks')) || 0;
-let totalTimePlayed = parseInt(localStorage.getItem('rat_totalTimePlayed')) || 0;
-let lastCheckTime = Date.now();
-let isSuspicious = false;
-let suspicionLevel = 0;
-let cheatDetected = false;
+// ============================================================
+// ==================== ПЕРЕХВАТ КОНСОЛИ ======================
+// ============================================================
 
-// Проверка версии
+Object.defineProperty(window, 'AntiCheat', {
+    get: function() { return undefined; },
+    set: function() {},
+    configurable: false,
+    enumerable: false
+});
+
+const blockedCommands = [
+    'disableAntiCheat', 'enableAntiCheat', 'resetBossCooldown',
+    'forceBossDefeat', 'addPlant', 'addPoop', 'addFertilizer'
+];
+
+blockedCommands.forEach(cmd => {
+    Object.defineProperty(window, cmd, {
+        get: function() { 
+            console.warn(`🔒 Команда "${cmd}" заблокирована античитом!`);
+            return undefined; 
+        },
+        set: function() {},
+        configurable: false,
+        enumerable: false
+    });
+});
+
+// ============================================================
+// ==================== ИНИЦИАЛИЗАЦИЯ =========================
+// ============================================================
+
 function checkGameVersion() {
     const savedVersion = localStorage.getItem('rat_game_version');
-    
     if (savedVersion !== GAME_VERSION) {
         console.log(`🔄 Обновление игры! ${savedVersion || 'Новая установка'} → ${GAME_VERSION}`);
         localStorage.setItem('rat_game_version', GAME_VERSION);
         showUpdateNotification();
-        
-        // При обновлении сбрасываем подозрения
-        if (savedVersion && savedVersion < '2.0.2') {
+        if (savedVersion && savedVersion < '2.0.3') {
             localStorage.setItem('rat_cheat_detected', 'false');
             localStorage.removeItem('rat_checked_score');
             localStorage.removeItem('rat_checked_time');
-            localStorage.removeItem('rat_checked_max_income');
         }
     }
 }
 
 function showUpdateNotification() {
     const changes = UPDATE_CHANGELOG[GAME_VERSION] || 'Новые функции и улучшения!';
-    
     const notification = document.createElement('div');
     notification.id = 'updateNotification';
     notification.style.cssText = `
@@ -92,7 +392,6 @@ function showUpdateNotification() {
         </div>
     `;
     document.body.appendChild(notification);
-    
     setTimeout(() => {
         const el = document.getElementById('updateNotification');
         if (el) {
@@ -103,7 +402,6 @@ function showUpdateNotification() {
     }, 10000);
 }
 
-// CSS для анимации
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideDown {
@@ -117,310 +415,10 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// ===== ФУНКЦИИ АНТИЧИТА =====
-
-// Считаем максимально возможный доход за период
-function calculateMaxPossibleIncome(timeSeconds) {
-    // 1. Максимальный доход с кликов
-    const maxClicksPerSecond = ANTI_CHEAT.maxPossibleCPS;
-    const currentClickPower = getTotalClickPower();
-    const maxClickIncome = maxClicksPerSecond * currentClickPower * timeSeconds;
-    
-    // 2. Пассивный доход (автокликеры)
-    const passiveIncome = autoClickers * timeSeconds;
-    
-    // 3. Бонусы от зерна
-    let grainIncome = 0;
-    if (grainActive && grainLevel > 0) {
-        const grainPerSecond = 1 / 5; // примерно 1 зерно в 5 секунд
-        const grainValue = grainBase * currentClickPower;
-        grainIncome = grainPerSecond * grainValue * timeSeconds;
-    }
-    
-    // 4. Бонус от мыши-собиратора
-    let mouseIncome = 0;
-    if (mouseActive && mousePurchased) {
-        mouseIncome = grainIncome * 0.3;
-    }
-    
-    // 5. Бонус от морских свинок
-    let hamsterBonus = getHamsterBonus();
-    
-    // 6. Бонус от удобрений (ускоряют рост растений, дают доп доход)
-    let fertilizerBonus = 1 + (fertilizerCount * 0.01);
-    
-    // Суммируем всё с учётом бустов
-    let totalPossibleIncome = (maxClickIncome + passiveIncome + grainIncome + mouseIncome) * hamsterBonus * fertilizerBonus;
-    
-    // Учитываем активный буст (x2)
-    if (buffActive) {
-        totalPossibleIncome = totalPossibleIncome * 2;
-    }
-    
-    // Добавляем запас (чтобы не наказывать за удачные моменты)
-    totalPossibleIncome = totalPossibleIncome * (1 + ANTI_CHEAT.bufferPercent / 100);
-    
-    return Math.floor(totalPossibleIncome);
-}
-
-// Проверка баланса (главная функция античита)
-function checkBalance() {
-    if (!ANTI_CHEAT.enabled) return;
-    if (cheatDetected) return;
-    
-    // Не проверяем если мало денег (античит не нужен для новичков)
-    if (score < ANTI_CHEAT.minScoreForCheck) return;
-    
-    const now = Date.now();
-    const timeSinceLastCheck = (now - lastCheckTime) / 1000;
-    
-    // Обновляем время игры
-    totalTimePlayed += Math.floor(timeSinceLastCheck);
-    localStorage.setItem('rat_totalTimePlayed', totalTimePlayed);
-    
-    // Получаем текущий баланс
-    const currentScore = score;
-    
-    // Получаем сохранённые данные с прошлой проверки
-    const savedScore = parseInt(localStorage.getItem('rat_checked_score')) || 0;
-    const savedTime = parseInt(localStorage.getItem('rat_checked_time')) || 0;
-    
-    // Если это первая проверка — сохраняем и выходим
-    if (savedScore === 0 && savedTime === 0) {
-        localStorage.setItem('rat_checked_score', currentScore);
-        localStorage.setItem('rat_checked_time', totalTimePlayed);
-        lastCheckTime = now;
-        return;
-    }
-    
-    // Вычисляем реальный прирост за период
-    const realGain = currentScore - savedScore;
-    const timePassed = totalTimePlayed - savedTime;
-    
-    // Если прошло мало времени — пропускаем
-    if (timePassed < 1) {
-        lastCheckTime = now;
-        return;
-    }
-    
-    // Вычисляем максимально возможный доход за этот период
-    const maxPossibleGain = calculateMaxPossibleIncome(timePassed);
-    
-    // Проверяем, не превышает ли реальный доход допустимый
-    const ratio = (realGain / maxPossibleGain) * 100;
-    
-    console.log(`🔍 Античит: Реальный доход: ${realGain}, Максимально возможный: ${maxPossibleGain}, Соотношение: ${ratio.toFixed(1)}%`);
-    
-    // Сохраняем текущие значения для следующей проверки
-    localStorage.setItem('rat_checked_score', currentScore);
-    localStorage.setItem('rat_checked_time', totalTimePlayed);
-    lastCheckTime = now;
-    
-    // Проверяем на читерство
-    if (ratio > ANTI_CHEAT.banThreshold) {
-        // Полный бан - читерство очевидно
-        triggerAntiCheatBan(realGain, maxPossibleGain, ratio);
-        return;
-    }
-    
-    if (ratio > ANTI_CHEAT.suspicionThreshold) {
-        // Подозрительно много - накапливаем подозрения
-        suspicionLevel++;
-        isSuspicious = true;
-        console.log(`⚠️ Античит: Подозрение ${suspicionLevel}/3 (${ratio.toFixed(1)}% от максимума)`);
-        
-        // Предупреждение
-        showAntiCheatWarning(realGain, maxPossibleGain, ratio);
-        
-        if (suspicionLevel >= 3) {
-            // Три подозрения подряд - бан
-            triggerAntiCheatBan(realGain, maxPossibleGain, ratio);
-        }
-    } else {
-        // Всё нормально — сбрасываем подозрения
-        if (isSuspicious) {
-            suspicionLevel = 0;
-            isSuspicious = false;
-            hideAntiCheatWarning();
-        }
-    }
-}
-
-// Показываем предупреждение
-function showAntiCheatWarning(realGain, maxGain, ratio) {
-    let warningEl = document.getElementById('anticheatWarning');
-    if (!warningEl) {
-        warningEl = document.createElement('div');
-        warningEl.id = 'anticheatWarning';
-        warningEl.style.cssText = `
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 165, 0, 0.9);
-            color: #0b0c10;
-            padding: 12px 20px;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 14px;
-            z-index: 9998;
-            box-shadow: 0 0 30px rgba(255, 165, 0, 0.3);
-            animation: slideDown 0.5s ease-out;
-            text-align: center;
-            max-width: 90%;
-        `;
-        document.body.appendChild(warningEl);
-    }
-    warningEl.innerHTML = `
-        ⚠️ ПОДОЗРЕНИЕ: Ваш доход (${realGain}) выше допустимого (${maxGain}) в ${ratio.toFixed(0)}%.
-        <br><span style="font-size:12px;">Если это ошибка — просто продолжайте играть. (${3 - suspicionLevel} попытки до блокировки)</span>
-        <br><span style="font-size:11px;color:#666;">Античит v2.0.2</span>
-    `;
-    warningEl.style.display = 'block';
-}
-
-function hideAntiCheatWarning() {
-    const el = document.getElementById('anticheatWarning');
-    if (el) {
-        el.style.display = 'none';
-    }
-}
-
-// Триггер бана
-function triggerAntiCheatBan(realGain, maxGain, ratio) {
-    if (cheatDetected) return;
-    cheatDetected = true;
-    localStorage.setItem('rat_cheat_detected', 'true');
-    
-    console.log(`🚨 АНТИЧИТ: БАН! Доход ${realGain} превышает ${maxGain} в ${ratio.toFixed(0)}%`);
-    
-    // Показываем сообщение о бане
-    const banEl = document.createElement('div');
-    banEl.id = 'anticheatBan';
-    banEl.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(255, 0, 0, 0.95);
-        color: white;
-        padding: 30px 40px;
-        border-radius: 20px;
-        font-weight: bold;
-        font-size: 24px;
-        z-index: 10000;
-        box-shadow: 0 0 60px rgba(255, 0, 0, 0.5);
-        text-align: center;
-        max-width: 90%;
-        animation: banBlink 0.5s ease-in-out 5;
-        border: 3px solid #ffd700;
-    `;
-    banEl.innerHTML = `
-        <div style="font-size:60px;">🚫</div>
-        <div style="margin:15px 0;">ОБНАРУЖЕНО ЧИТЕРСТВО!</div>
-        <div style="font-size:16px;opacity:0.8;max-width:400px;">
-            Ваш доход (${realGain}) превышает максимально возможный (${maxGain}) в ${ratio.toFixed(0)}%.
-        </div>
-        <div style="font-size:14px;opacity:0.6;margin-top:10px;">
-            Прогресс будет сброшен через 10 секунд...
-        </div>
-        <div style="font-size:12px;opacity:0.4;margin-top:15px;border-top:1px solid rgba(255,255,255,0.2);padding-top:10px;">
-            🔒 Античит v2.0.2 | Если это ошибка — обратитесь к разработчику
-        </div>
-    `;
-    document.body.appendChild(banEl);
-    
-    // Блокируем интерфейс
-    document.body.style.pointerEvents = 'none';
-    
-    // Через 10 секунд сбрасываем прогресс
-    setTimeout(() => {
-        // Сбрасываем прогресс
-        localStorage.clear();
-        
-        // Обновляем версию
-        localStorage.setItem('rat_game_version', GAME_VERSION);
-        
-        // Перезагружаем
-        location.reload();
-    }, 10000);
-}
-
-// Запуск античита
-function startAntiCheat() {
-    if (anticheatTimer) {
-        clearInterval(anticheatTimer);
-    }
-    
-    // Проверяем, не был ли уже обнаружен чит
-    if (localStorage.getItem('rat_cheat_detected') === 'true') {
-        // Показываем сообщение о том, что чит был обнаружен
-        setTimeout(() => {
-            const banEl = document.createElement('div');
-            banEl.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: rgba(255, 0, 0, 0.9);
-                color: white;
-                padding: 30px 40px;
-                border-radius: 20px;
-                font-weight: bold;
-                font-size: 24px;
-                z-index: 10000;
-                box-shadow: 0 0 60px rgba(255, 0, 0, 0.5);
-                text-align: center;
-                max-width: 90%;
-                border: 3px solid #ffd700;
-            `;
-            banEl.innerHTML = `
-                <div style="font-size:60px;">🚫</div>
-                <div style="margin:15px 0;">ВНИМАНИЕ!</div>
-                <div style="font-size:16px;opacity:0.8;max-width:400px;">
-                    Ранее было обнаружено читерство. Прогресс сброшен.
-                </div>
-                <div style="font-size:14px;opacity:0.6;margin-top:10px;">
-                    Игра будет перезагружена через 5 секунд...
-                </div>
-                <div style="font-size:12px;opacity:0.4;margin-top:15px;border-top:1px solid rgba(255,255,255,0.2);padding-top:10px;">
-                    🔒 Античит v2.0.2 | Играйте честно!
-                </div>
-            `;
-            document.body.appendChild(banEl);
-            document.body.style.pointerEvents = 'none';
-            
-            setTimeout(() => {
-                localStorage.removeItem('rat_cheat_detected');
-                location.reload();
-            }, 5000);
-        }, 1000);
-        return;
-    }
-    
-    // Запускаем проверку
-    anticheatTimer = setInterval(() => {
-        checkBalance();
-    }, ANTI_CHEAT.checkInterval);
-}
-
-// Очистка античита (для перезагрузки)
-function stopAntiCheat() {
-    if (anticheatTimer) {
-        clearInterval(anticheatTimer);
-        anticheatTimer = null;
-    }
-    hideAntiCheatWarning();
-}
-
 // ============================================================
-// ==================== ИНИЦИАЛИЗАЦИЯ =========================
+// ==================== ПЕРЕМЕННЫЕ ============================
 // ============================================================
 
-// Запускаем проверку версии
-checkGameVersion();
-
-// Инициализация остальных переменных
 let score = parseInt(localStorage.getItem('rat_score')) || 0;
 let clickPower = parseInt(localStorage.getItem('rat_clickPower')) || 1;
 let autoClickers = parseInt(localStorage.getItem('rat_autoClickers')) || 0;
@@ -438,7 +436,6 @@ let superGrainActive = localStorage.getItem('rat_superGrainActive') === 'true';
 let mousePurchased = localStorage.getItem('rat_mousePurchased') === 'true';
 let mouseActive = localStorage.getItem('rat_mouseActive') === 'true';
 
-// ===== СИСТЕМА ВОЛЬЕРА =====
 let hamsterPurchased = localStorage.getItem('rat_hamsterPurchased') === 'true';
 let hamsterLevel = parseInt(localStorage.getItem('rat_hamsterLevel')) || 0;
 let hamsterFood = parseFloat(localStorage.getItem('rat_hamsterFood')) || 0;
@@ -447,18 +444,15 @@ let hamsterBonus = 1.0;
 let hamsterUpgradeCost = 5000;
 const MAX_HAMSTER_LEVEL = 4;
 
-// ===== СИСТЕМА КАКАШЕК =====
 let poopCount = parseInt(localStorage.getItem('rat_poopCount')) || 0;
 let labPoopCount = parseInt(localStorage.getItem('rat_labPoopCount')) || 0;
 let poopTimer = null;
 
-// ===== СИСТЕМА МАНИПУЛЯТОРОВ =====
 let manipulatorPurchased = localStorage.getItem('rat_manipulatorPurchased') === 'true';
 let manipulatorLevel = parseInt(localStorage.getItem('rat_manipulatorLevel')) || 0;
 let manipulatorSettings = JSON.parse(localStorage.getItem('rat_manipulatorSettings') || '[{"enabled":false,"action":"none","target":""},{"enabled":false,"action":"none","target":""},{"enabled":false,"action":"none","target":""}]');
 let manipulatorTimers = [null, null, null];
 
-// ===== СИСТЕМА КОМБИНАТОРА =====
 let combinerPurchased = localStorage.getItem('rat_combinerPurchased') === 'true';
 let combinerLevel = parseInt(localStorage.getItem('rat_combinerLevel')) || 0;
 let combinerSlots = [null, null, null];
@@ -466,22 +460,18 @@ let combinerRunning = [false, false, false];
 let combinerProgress = [0, 0, 0];
 let combinerTimer = [null, null, null];
 
-// ===== СИСТЕМА ЭКСТРАКТОВ =====
 let extracts = JSON.parse(localStorage.getItem('rat_extracts') || '{"gmo_apple": 0, "rat_food": 0}');
 
-// ===== СИСТЕМА АППАРАТА =====
 let extractorPurchased = localStorage.getItem('rat_extractorPurchased') === 'true';
 let extractorQueue = JSON.parse(localStorage.getItem('rat_extractorQueue') || '[]');
 let extractorProgress = JSON.parse(localStorage.getItem('rat_extractorProgress') || '[]');
 let extractorTimer = null;
 
-// ===== СИСТЕМА БОССОВ =====
 let bossMenuPurchased = localStorage.getItem('rat_bossMenuPurchased') === 'true';
 let capybaraPurchased = localStorage.getItem('rat_capybaraPurchased') === 'true';
 let capybaraCooldown = parseInt(localStorage.getItem('rat_capybaraCooldown')) || 0;
 let capybaraDefeated = localStorage.getItem('rat_capybaraDefeated') === 'true';
 
-// ===== СИСТЕМА РАСТЕНИЙ =====
 let plantPurchased = localStorage.getItem('rat_plantPurchased') === 'true';
 let plantLevel = parseInt(localStorage.getItem('rat_plantLevel')) || 0;
 let plantUpgrade1 = localStorage.getItem('rat_plantUpgrade1') === 'true';
@@ -503,39 +493,33 @@ if (plantData.length === 0) {
 
 let plantInventory = JSON.parse(localStorage.getItem('rat_plantInventory') || '{"grass": 0, "pepper": 0, "apple": 0, "cabbage": 0}');
 
-// ===== СИСТЕМА ЛАБОРАТОРИИ =====
 let labPurchased = localStorage.getItem('rat_labPurchased') === 'true';
 let machineLevel = parseInt(localStorage.getItem('rat_machineLevel')) || 0;
 let machineRunning = false;
-let machineProgress = 0;
+let machineProgress = parseFloat(localStorage.getItem('rat_machineProgress')) || 0;
 let machineTimer = null;
 let fertilizerCount = parseInt(localStorage.getItem('rat_fertilizerCount')) || 0;
 
-// ===== ФИКС ПЕРЕЗАРЯДКИ =====
 if (capybaraCooldown > 600) {
     capybaraCooldown = 600;
     localStorage.setItem('rat_capybaraCooldown', capybaraCooldown);
 }
 
-// ===== ИНВЕНТАРЬ =====
 let inventory = JSON.parse(localStorage.getItem('rat_inventory') || '{"food": 0, "gmo_apple": 0}');
 
-// ===== БУСТЫ =====
-let buffActive = false;
+let buffActive = localStorage.getItem('rat_buffActive') === 'true';
 let buffTimer = null;
-let buffType = null;
+let buffType = localStorage.getItem('rat_buffType') || null;
 
-let pepperBuffActive = false;
+let pepperBuffActive = localStorage.getItem('rat_pepperBuffActive') === 'true';
 let pepperBuffTimer = null;
 
-let satietyActive = false;
+let satietyActive = localStorage.getItem('rat_satietyActive') === 'true';
 let satietyTimer = null;
 
-// ===== БОССФАЙТ ПЕРЕМЕННЫЕ =====
 let bossFightActive = false;
 let bossHp = 100;
 let bossMaxHp = 100;
-let playerX = 50;
 let bossX = 50;
 let bossY = 15;
 let bossDirection = 1;
@@ -547,7 +531,6 @@ let bossFightInterval = null;
 let canShoot = true;
 let shootCooldown = 300;
 
-// ===== МУЗЫКА =====
 let musicEnabled = localStorage.getItem('rat_musicEnabled') !== 'false';
 let musicVideoId = '5QtxOr4iSBY';
 
@@ -606,7 +589,6 @@ const PLANT_TYPES = {
     cabbage: { name: 'Капуста', emoji: '🥬', growTime: 120, cost: 15000, color: '#45f3ff', desc: 'Насыщает на 50% + 💩 5 какашек' }
 };
 
-// ===== РЕЦЕПТЫ КОМБИНАТОРА =====
 const COMBINER_RECIPES = {
     gmo_apple_extract: {
         name: 'Экстракт ГМО яблока',
@@ -747,7 +729,6 @@ const mouseInfo = document.getElementById('mouseInfo');
 const mouseBox = document.getElementById('mouseBox');
 const mouseIndicator = document.getElementById('mouseIndicator');
 
-// ===== МАНИПУЛЯТОРЫ (ТУМБЛЕРЫ) =====
 const manipulatorContainer = document.getElementById('manipulatorContainer');
 const manipToggles = [
     document.getElementById('manipToggle1'),
@@ -815,7 +796,6 @@ const hamsterElements = [
     document.getElementById('hamster5')
 ];
 
-// ===== БОССЫ =====
 const bossSkull = document.getElementById('bossSkull');
 const bossMenu = document.getElementById('bossMenu');
 const closeBossMenuBtn = document.getElementById('closeBossMenu');
@@ -834,18 +814,15 @@ const shootBtn = document.getElementById('shootBtn');
 const retreatBtn = document.getElementById('retreatBtn');
 const bossTimer = document.getElementById('bossTimer');
 
-// ===== ИНВЕНТАРЬ =====
 const inventoryModal = document.getElementById('inventoryModal');
 const openInventoryBtn = document.getElementById('openInventory');
 const closeInventoryBtn = document.getElementById('closeInventory');
 const inventoryGrid = document.getElementById('inventoryGrid');
 const inventoryEmpty = document.getElementById('inventoryEmpty');
 
-// ===== РАСТЕНИЯ =====
 const plantsContainer = document.getElementById('plantsContainer');
 const plantsGrid = document.getElementById('plantsGrid');
 
-// ===== ЛАБОРАТОРИЯ =====
 const labModal = document.getElementById('labModal');
 const openLabBtn = document.getElementById('openLab');
 const closeLabBtn = document.getElementById('closeLab');
@@ -860,28 +837,23 @@ const machineTimeDisplay = document.getElementById('machineTimeDisplay');
 const machineLevelDisplay = document.getElementById('machineLevelDisplay');
 const machineUpgradeBtn = document.getElementById('machineUpgradeBtn');
 
-// ===== КОМБИНАТОР =====
 const combinerModal = document.getElementById('combinerModal');
 const openCombinerBtn = document.getElementById('openCombiner');
 const closeCombinerBtn = document.getElementById('closeCombiner');
 const combinerSlotsContainer = document.getElementById('combinerSlots');
 const combinerInfo = document.getElementById('combinerInfo');
 
-// ===== ЭКСТРАКТОР =====
 const extractorModal = document.getElementById('extractorModal');
 const openExtractorBtn = document.getElementById('openExtractor');
 const closeExtractorBtn = document.getElementById('closeExtractor');
 const extractorQueueEl = document.getElementById('extractorQueue');
 const extractorStatus = document.getElementById('extractorStatus');
 
-// ===== НАСТРОЙКИ МАНИПУЛЯТОРА =====
 const settingsModal = document.getElementById('settingsModal');
 const closeSettingsBtn = document.getElementById('closeSettings');
 const settingsContent = document.getElementById('settingsContent');
 
 const buffIndicator = document.getElementById('buffIndicator');
-
-// ===== МУЗЫКА =====
 const musicToggle = document.getElementById('musicToggle');
 
 // ============================================================
@@ -1034,6 +1006,7 @@ function saveGame() {
     localStorage.setItem('rat_labPoopCount', labPoopCount);
     localStorage.setItem('rat_labPurchased', labPurchased);
     localStorage.setItem('rat_machineLevel', machineLevel);
+    localStorage.setItem('rat_machineProgress', machineProgress);
     localStorage.setItem('rat_fertilizerCount', fertilizerCount);
     localStorage.setItem('rat_combinerPurchased', combinerPurchased);
     localStorage.setItem('rat_combinerLevel', combinerLevel);
@@ -1044,6 +1017,10 @@ function saveGame() {
     localStorage.setItem('rat_manipulatorPurchased', manipulatorPurchased);
     localStorage.setItem('rat_manipulatorLevel', manipulatorLevel);
     localStorage.setItem('rat_manipulatorSettings', JSON.stringify(manipulatorSettings));
+    localStorage.setItem('rat_buffActive', buffActive);
+    localStorage.setItem('rat_buffType', buffType || '');
+    localStorage.setItem('rat_pepperBuffActive', pepperBuffActive);
+    localStorage.setItem('rat_satietyActive', satietyActive);
 }
 
 function showReloadNotification() {
@@ -1063,6 +1040,59 @@ function showReloadNotification() {
             reloadBtn.textContent = '🔄 Перезагрузить игру';
         }
     }, 1000);
+}
+
+function clearAllIntervals() {
+    // Очищаем все интервалы и таймауты
+    const intervals = [
+        grainSpawnTimeout, grainTimerInterval, grainLifeTimeout,
+        mouseMoveInterval, hamsterMoveInterval, foodDepletionInterval,
+        reloadTimerInterval, poopTimer, machineTimer,
+        bossMoveInterval, bossShootInterval, bossCooldownInterval, bossFightInterval,
+        buffTimer, pepperBuffTimer, satietyTimer,
+        ...combinerTimer,
+        extractorTimer,
+        ...manipulatorTimers,
+        ...plantIntervals
+    ];
+    
+    intervals.forEach(interval => {
+        if (interval) {
+            clearInterval(interval);
+            clearTimeout(interval);
+        }
+    });
+    
+    // Очищаем массивы таймеров
+    for (let i = 0; i < combinerTimer.length; i++) {
+        combinerTimer[i] = null;
+        combinerRunning[i] = false;
+        combinerProgress[i] = 0;
+    }
+    for (let i = 0; i < manipulatorTimers.length; i++) {
+        manipulatorTimers[i] = null;
+    }
+    for (let i = 0; i < plantIntervals.length; i++) {
+        plantIntervals[i] = null;
+    }
+    
+    grainSpawnTimeout = null;
+    grainTimerInterval = null;
+    grainLifeTimeout = null;
+    mouseMoveInterval = null;
+    hamsterMoveInterval = null;
+    foodDepletionInterval = null;
+    reloadTimerInterval = null;
+    poopTimer = null;
+    machineTimer = null;
+    bossMoveInterval = null;
+    bossShootInterval = null;
+    bossCooldownInterval = null;
+    bossFightInterval = null;
+    buffTimer = null;
+    pepperBuffTimer = null;
+    satietyTimer = null;
+    extractorTimer = null;
 }
 
 function resetAllProgress() {
@@ -1111,15 +1141,14 @@ function resetAllProgress() {
     labPoopCount = 0;
     labPurchased = false;
     machineLevel = 0;
-    fertilizerCount = 0;
-    machineRunning = false;
     machineProgress = 0;
+    machineRunning = false;
+    fertilizerCount = 0;
     combinerPurchased = false;
     combinerLevel = 0;
     combinerSlots = [null, null, null];
     combinerRunning = [false, false, false];
     combinerProgress = [0, 0, 0];
-    combinerTimer = [null, null, null];
     extractorPurchased = false;
     extractorQueue = [];
     extractorProgress = [];
@@ -1131,62 +1160,21 @@ function resetAllProgress() {
         { enabled: false, action: 'none', target: '' },
         { enabled: false, action: 'none', target: '' }
     ];
-
-    if (grainActive) toggleGrain(false);
-    if (superGrainActive) toggleSuperGrain(false);
-    if (mouseActive) toggleMouse(false);
-    if (hamsterPurchased) {
-        stopHamsterMovement();
-        stopFoodDepletion();
-        enclosure.classList.remove('visible');
-    }
-    if (bossMoveInterval) clearInterval(bossMoveInterval);
-    if (bossShootInterval) clearInterval(bossShootInterval);
-    if (bossCooldownInterval) clearInterval(bossCooldownInterval);
-    if (bossFightInterval) clearInterval(bossFightInterval);
-    if (buffTimer) clearInterval(buffTimer);
-    if (pepperBuffTimer) clearInterval(pepperBuffTimer);
-    if (satietyTimer) clearInterval(satietyTimer);
-    if (poopTimer) clearInterval(poopTimer);
-    if (machineTimer) clearInterval(machineTimer);
-    for (let i = 0; i < combinerTimer.length; i++) {
-        if (combinerTimer[i]) {
-            clearInterval(combinerTimer[i]);
-            combinerTimer[i] = null;
-        }
-    }
-    if (extractorTimer) clearInterval(extractorTimer);
-    for (let i = 0; i < manipulatorTimers.length; i++) {
-        if (manipulatorTimers[i]) {
-            clearInterval(manipulatorTimers[i]);
-            manipulatorTimers[i] = null;
-        }
-    }
-    buffIndicator.style.display = 'none';
-    enclosureSatiety.classList.remove('active');
-    enclosureSatiety.style.display = 'none';
-    if (pepperIndicator) {
-        pepperIndicator.classList.remove('active');
-        pepperIndicator.style.display = 'none';
-    }
-    for (let i = 0; i < plantIntervals.length; i++) {
-        if (plantIntervals[i]) {
-            clearInterval(plantIntervals[i]);
-            plantIntervals[i] = null;
-        }
-    }
+    MAX_CLICK_LEVEL = 10;
     
-    // Сбрасываем античит
+    clearAllIntervals();
+    
+    AntiCheat.stop();
+    
     localStorage.removeItem('rat_cheat_detected');
     localStorage.removeItem('rat_checked_score');
     localStorage.removeItem('rat_checked_time');
-    localStorage.removeItem('rat_checked_max_income');
     localStorage.removeItem('rat_totalClicks');
     localStorage.removeItem('rat_totalTimePlayed');
-    cheatDetected = false;
-    suspicionLevel = 0;
-    isSuspicious = false;
-    hideAntiCheatWarning();
+    localStorage.removeItem('rat_buffActive');
+    localStorage.removeItem('rat_buffType');
+    localStorage.removeItem('rat_pepperBuffActive');
+    localStorage.removeItem('rat_satietyActive');
     
     localStorage.clear();
     saveGame();
@@ -1568,15 +1556,14 @@ function startMachine() {
     if (machineTimer) clearInterval(machineTimer);
     machineTimer = setInterval(() => {
         machineProgress++;
+        saveGame();
         updateLabUI();
         if (machineProgress >= maxTime) {
             clearInterval(machineTimer);
             machineTimer = null;
             machineRunning = false;
             machineProgress = maxTime;
-
             fertilizerCount = fertilizerCount + 1;
-
             updateLabUI();
             saveGame();
             alert('🧪 Станок завершил работу!\n7 какашек → 1 удобрение!');
@@ -1979,11 +1966,22 @@ function updateManipulatorUI() {
             const setting = manipulatorSettings[i] || { enabled: false, action: 'none', target: '' };
 
             if (toggle) {
-                if (setting.enabled) {
-                    toggle.classList.add('active');
-                } else {
-                    toggle.classList.remove('active');
-                }
+                toggle.classList.toggle('active', setting.enabled);
+                // Удаляем старый обработчик и добавляем новый через addEventListener
+                const newToggle = toggle.cloneNode(true);
+                toggle.parentNode.replaceChild(newToggle, toggle);
+                manipToggles[i] = newToggle;
+                newToggle.addEventListener('click', function() {
+                    const idx = parseInt(this.id.replace('manipToggle', '')) - 1;
+                    const setting = manipulatorSettings[idx] || { enabled: false, action: 'none', target: '' };
+                    setting.enabled = !setting.enabled;
+                    manipulatorSettings[idx] = setting;
+                    localStorage.setItem('rat_manipulatorSettings', JSON.stringify(manipulatorSettings));
+                    saveGame();
+                    updateManipulatorUI();
+                    updateUI();
+                    restartManipulators();
+                });
             }
 
             if (status) {
@@ -2011,24 +2009,13 @@ function updateManipulatorUI() {
             if (label) label.textContent = actionText;
 
             if (settingsBtn) {
-                settingsBtn.onclick = function() {
+                const newSettingsBtn = settingsBtn.cloneNode(true);
+                settingsBtn.parentNode.replaceChild(newSettingsBtn, settingsBtn);
+                manipSettingsBtns[i] = newSettingsBtn;
+                newSettingsBtn.addEventListener('click', function() {
                     const idx = parseInt(this.id.replace('manipSettings', '')) - 1;
                     openManipulatorSettings(idx);
-                };
-            }
-
-            if (toggle) {
-                toggle.onclick = function() {
-                    const idx = parseInt(this.id.replace('manipToggle', '')) - 1;
-                    const setting = manipulatorSettings[idx] || { enabled: false, action: 'none', target: '' };
-                    setting.enabled = !setting.enabled;
-                    manipulatorSettings[idx] = setting;
-                    localStorage.setItem('rat_manipulatorSettings', JSON.stringify(manipulatorSettings));
-                    saveGame();
-                    updateManipulatorUI();
-                    updateUI();
-                    restartManipulators();
-                };
+                });
             }
 
         } else {
@@ -2368,6 +2355,168 @@ function startBossCooldownTimer() {
 }
 
 // ============================================================
+// ==================== БОССФАЙТ ===============================
+// ============================================================
+
+function startBossFight() {
+    if (bossFightActive) return;
+    bossFightActive = true;
+    bossHp = bossMaxHp;
+    bossX = 50;
+    bossDirection = 1;
+    bossBullets = [];
+    bossFightModal.classList.add('open');
+    bossFightModal.style.display = 'flex';
+    shootBtn.disabled = false;
+    bossTimer.textContent = '⚔️ БОЙ НАЧАЛСЯ!';
+    bossTimer.className = 'boss-timer ready';
+    
+    bossEnemy.style.left = bossX + '%';
+    bossEnemy.style.bottom = bossY + '%';
+    updateBossHp();
+    
+    bossMoveInterval = setInterval(() => {
+        bossX += bossDirection * 1.5;
+        if (bossX > 85 || bossX < 15) bossDirection *= -1;
+        bossEnemy.style.left = bossX + '%';
+    }, 100);
+    
+    bossShootInterval = setInterval(() => {
+        if (!bossFightActive) return;
+        const bullet = document.createElement('div');
+        bullet.className = 'boss-bullet';
+        bullet.textContent = '💀';
+        bullet.style.left = (bossX + Math.random() * 10 - 5) + '%';
+        bullet.style.top = '20%';
+        bossBulletsContainer.appendChild(bullet);
+        setTimeout(() => bullet.remove(), 2000);
+    }, 1000);
+    
+    bossFightInterval = setInterval(() => {
+        if (!bossFightActive) return;
+        const bullets = bossBulletsContainer.querySelectorAll('.boss-bullet');
+        bullets.forEach(b => {
+            const rect = b.getBoundingClientRect();
+            const ratRect = ratContainer.getBoundingClientRect();
+            if (rect.left < ratRect.right && rect.right > ratRect.left &&
+                rect.top < ratRect.bottom && rect.bottom > ratRect.top) {
+                b.remove();
+                bossHp -= 5;
+                updateBossHp();
+                if (bossHp <= 0) {
+                    bossDefeated();
+                }
+            }
+        });
+    }, 100);
+}
+
+function stopBossFight() {
+    bossFightActive = false;
+    if (bossMoveInterval) { clearInterval(bossMoveInterval); bossMoveInterval = null; }
+    if (bossShootInterval) { clearInterval(bossShootInterval); bossShootInterval = null; }
+    if (bossFightInterval) { clearInterval(bossFightInterval); bossFightInterval = null; }
+    bossFightModal.classList.remove('open');
+    bossFightModal.style.display = 'none';
+    bossBulletsContainer.innerHTML = '';
+}
+
+function shootBoss() {
+    if (!bossFightActive || !canShoot) return;
+    canShoot = false;
+    shootBtn.disabled = true;
+    
+    playerProjectile.style.display = 'block';
+    playerProjectile.style.left = '50%';
+    playerProjectile.style.bottom = '10%';
+    playerProjectile.style.transform = 'translateX(-50%)';
+    playerProjectile.textContent = '💨';
+    
+    setTimeout(() => {
+        const projRect = playerProjectile.getBoundingClientRect();
+        const bossRect = bossEnemy.getBoundingClientRect();
+        if (projRect.left < bossRect.right && projRect.right > bossRect.left &&
+            projRect.top < bossRect.bottom && projRect.bottom > bossRect.top) {
+            bossHp -= 15;
+            updateBossHp();
+            if (bossHp <= 0) {
+                bossDefeated();
+            }
+        }
+        playerProjectile.style.display = 'none';
+    }, 600);
+    
+    setTimeout(() => {
+        canShoot = true;
+        shootBtn.disabled = false;
+    }, shootCooldown);
+}
+
+function updateBossHp() {
+    const percent = Math.max(0, (bossHp / bossMaxHp) * 100);
+    bossHpFill.style.width = percent + '%';
+    bossHpText.textContent = Math.round(bossHp) + '/' + bossMaxHp;
+}
+
+function bossDefeated() {
+    stopBossFight();
+    capybaraDefeated = true;
+    capybaraCooldown = 600;
+    localStorage.setItem('rat_capybaraCooldown', capybaraCooldown);
+    localStorage.setItem('rat_capybaraDefeated', 'true');
+    if (!inventory.food) inventory.food = 0;
+    inventory.food++;
+    saveGame();
+    updateUI();
+    startBossCooldownTimer();
+    alert('🎉 БОСС ПОБЕЖДЁН!\n🍖 Получен Корм для крысы! (x2 буст на 30 сек)');
+}
+
+shootBtn.addEventListener('click', shootBoss);
+retreatBtn.addEventListener('click', () => {
+    if (confirm('🏃 Вы уверены, что хотите отступить?')) {
+        stopBossFight();
+        capybaraCooldown = 300;
+        localStorage.setItem('rat_capybaraCooldown', capybaraCooldown);
+        saveGame();
+        updateUI();
+        startBossCooldownTimer();
+        alert('⏳ Вы отступили! Перезарядка: 5 минут');
+    }
+});
+
+closeFightBtn.addEventListener('click', () => {
+    if (bossFightActive) {
+        if (confirm('🏃 Вы уверены, что хотите выйти из боя?')) {
+            stopBossFight();
+            capybaraCooldown = 300;
+            localStorage.setItem('rat_capybaraCooldown', capybaraCooldown);
+            saveGame();
+            updateUI();
+            startBossCooldownTimer();
+        }
+    } else {
+        stopBossFight();
+    }
+});
+
+bossFightModal.addEventListener('click', function(e) {
+    if (e.target === this && bossFightActive) {
+        if (confirm('🏃 Вы уверены, что хотите выйти из боя?')) {
+            stopBossFight();
+            capybaraCooldown = 300;
+            localStorage.setItem('rat_capybaraCooldown', capybaraCooldown);
+            saveGame();
+            updateUI();
+            startBossCooldownTimer();
+        }
+    } else if (e.target === this) {
+        this.style.display = 'none';
+        this.classList.remove('open');
+    }
+});
+
+// ============================================================
 // ==================== ИНВЕНТАРЬ ==============================
 // ============================================================
 
@@ -2496,6 +2645,8 @@ function useFoodItem() {
         buffType = null;
         ratBody.classList.remove('buffed');
         buffIndicator.style.display = 'none';
+        localStorage.setItem('rat_buffActive', 'false');
+        localStorage.setItem('rat_buffType', '');
         saveGame();
         updateUI();
     }, 30000);
@@ -2510,12 +2661,14 @@ function useGmoApple() {
     }
     inventory.gmo_apple--;
     satietyActive = true;
+    localStorage.setItem('rat_satietyActive', 'true');
     enclosureSatiety.classList.add('active');
     enclosureSatiety.style.display = 'block';
     enclosureSatiety.textContent = '🍏 ГМО насыщение: 2:30';
     if (satietyTimer) clearInterval(satietyTimer);
     satietyTimer = setTimeout(() => {
         satietyActive = false;
+        localStorage.setItem('rat_satietyActive', 'false');
         enclosureSatiety.classList.remove('active');
         enclosureSatiety.style.display = 'none';
         saveGame();
@@ -2546,6 +2699,7 @@ function usePlantItem(type) {
         }
         if (type === 'pepper') {
             pepperBuffActive = true;
+            localStorage.setItem('rat_pepperBuffActive', 'true');
             if (pepperIndicator) {
                 pepperIndicator.classList.add('active');
                 pepperIndicator.style.display = 'block';
@@ -2553,6 +2707,7 @@ function usePlantItem(type) {
             if (pepperBuffTimer) clearInterval(pepperBuffTimer);
             pepperBuffTimer = setTimeout(() => {
                 pepperBuffActive = false;
+                localStorage.setItem('rat_pepperBuffActive', 'false');
                 if (pepperIndicator) {
                     pepperIndicator.classList.remove('active');
                     pepperIndicator.style.display = 'none';
@@ -2563,11 +2718,13 @@ function usePlantItem(type) {
             alert('🌶️ Болгарский перец использован! Свинки дают x2 бонус на 20 секунд!');
         } else if (type === 'apple') {
             satietyActive = true;
+            localStorage.setItem('rat_satietyActive', 'true');
             enclosureSatiety.classList.add('active');
             enclosureSatiety.style.display = 'block';
             if (satietyTimer) clearInterval(satietyTimer);
             satietyTimer = setTimeout(() => {
                 satietyActive = false;
+                localStorage.setItem('rat_satietyActive', 'false');
                 enclosureSatiety.classList.remove('active');
                 enclosureSatiety.style.display = 'none';
                 saveGame();
@@ -2902,7 +3059,6 @@ function updateUI() {
         capybaraShopItem.classList.remove('disabled');
     }
 
-    // ===== РАСТЕНИЯ =====
     if (hamsterLevel >= MAX_HAMSTER_LEVEL) {
         plantShopItem.style.display = 'flex';
         if (plantPurchased) {
@@ -3043,7 +3199,6 @@ function updateUI() {
         plantTypeCabbageItem.style.display = 'none';
     }
 
-    // ===== ЛАБОРАТОРИЯ =====
     const allPlantsBought = plantPurchased && plantUpgrade1 && plantUpgrade2 && 
                            plantTypeGrass && plantTypePepper && plantTypeApple && plantTypeCabbage;
 
@@ -3069,7 +3224,6 @@ function updateUI() {
         labShopItem.classList.remove('disabled');
     }
 
-    // ===== КОМБИНАТОР =====
     if (labPurchased) {
         combinerShopItem.style.display = 'flex';
         if (combinerPurchased) {
@@ -3116,7 +3270,6 @@ function updateUI() {
         combinerUpgradeShopItem.classList.remove('disabled');
     }
 
-    // ===== АППАРАТ ПРЕВРАЩЕНИЯ =====
     if (combinerPurchased) {
         extractorShopItem.style.display = 'flex';
         if (extractorPurchased) {
@@ -3139,7 +3292,6 @@ function updateUI() {
         extractorShopItem.classList.remove('disabled');
     }
 
-    // ===== МАНИПУЛЯТОРЫ =====
     if (isAllLabPartsBought()) {
         manipulatorShopItem.style.display = 'flex';
         if (manipulatorLevel >= 3) {
@@ -3164,7 +3316,6 @@ function updateUI() {
         manipulatorShopItem.classList.remove('disabled');
     }
 
-    // ===== ОБНОВЛЯЕМ ТУМБЛЕРЫ МАНИПУЛЯТОРОВ =====
     updateManipulatorUI();
 
     if (labPurchased) {
@@ -3175,7 +3326,6 @@ function updateUI() {
         openLabBtn.style.display = 'none';
     }
 
-    // ===== КНОПКА СБОРА КАКАШЕК =====
     if (labPurchased && hamsterPurchased) {
         poopBtn.style.display = 'block';
         poopBtn.classList.add('visible');
@@ -3742,17 +3892,18 @@ resetModal.addEventListener('click', function(e) {
 
 initMusic();
 
+checkGameVersion();
+
 updateUI();
 
 if (hamsterPurchased) {
     startPoopProduction();
 }
 
-// ============================================================
-// ==================== ЗАПУСК АНТИЧИТА ======================
-// ============================================================
-
-startAntiCheat();
+// Запускаем античит
+setTimeout(() => {
+    AntiCheat.start();
+}, 500);
 
 // ============================================================
 // ==================== МАГАЗИН ===============================
@@ -4034,7 +4185,6 @@ buyCapybaraBtn.addEventListener('click', () => {
     }
 });
 
-// ===== ПОКУПКА РАСТЕНИЙ =====
 buyPlantBtn.addEventListener('click', () => {
     if (plantPurchased) {
         alert("Горшок уже куплен!");
@@ -4176,7 +4326,6 @@ buyPlantTypeCabbageBtn.addEventListener('click', () => {
     }
 });
 
-// ===== ПОКУПКА ЛАБОРАТОРИИ =====
 buyLabBtn.addEventListener('click', () => {
     if (labPurchased) {
         alert("Лаборатория уже куплена!");
@@ -4193,7 +4342,6 @@ buyLabBtn.addEventListener('click', () => {
     }
 });
 
-// ===== ПОКУПКА КОМБИНАТОРА =====
 buyCombinerBtn.addEventListener('click', () => {
     if (combinerPurchased) {
         alert("Комбинатор уже куплен!");
@@ -4219,7 +4367,6 @@ buyCombinerBtn.addEventListener('click', () => {
     }
 });
 
-// ===== ПОКУПКА УЛУЧШЕНИЯ КОМБИНАТОРА =====
 buyCombinerUpgradeBtn.addEventListener('click', () => {
     if (combinerLevel >= 1) {
         alert("Максимальный уровень достигнут!");
@@ -4242,7 +4389,6 @@ buyCombinerUpgradeBtn.addEventListener('click', () => {
     }
 });
 
-// ===== ПОКУПКА АППАРАТА ПРЕВРАЩЕНИЯ =====
 buyExtractorBtn.addEventListener('click', () => {
     if (extractorPurchased) {
         alert("Аппарат уже куплен!");
@@ -4265,7 +4411,6 @@ buyExtractorBtn.addEventListener('click', () => {
     }
 });
 
-// ===== ПОКУПКА МАНИПУЛЯТОРА =====
 buyManipulatorBtn.addEventListener('click', () => {
     if (manipulatorLevel >= 3) {
         alert("Максимальное количество манипуляторов достигнуто!");
@@ -4453,33 +4598,12 @@ bossMenu.addEventListener('click', function(e) {
     }
 });
 
-// ===== БОССФАЙТ =====
 fightCapybaraBtn.addEventListener('click', () => {
     if (!capybaraPurchased) return;
     if (capybaraCooldown > 0) return;
     if (capybaraDefeated) return;
     startBossFight();
 });
-
-function startBossFight() {
-    // Боссфайт код (оставляем как есть)
-}
-
-function stopBossFight() {
-    // ...
-}
-
-function shootBoss() {
-    // ...
-}
-
-function updateBossHp() {
-    // ...
-}
-
-function bossDefeated() {
-    // ...
-}
 
 // ============================================================
 // ==================== ИНВЕНТАРЬ ==============================
@@ -4577,90 +4701,13 @@ setInterval(() => {
     }
 }, 1000);
 
-// ============================================================
-// ==================== КОНСОЛЬНЫЕ КОМАНДЫ ====================
-// ============================================================
-
-window.resetBossCooldown = function() {
-    capybaraCooldown = 0;
-    capybaraDefeated = false;
-    localStorage.setItem('rat_capybaraCooldown', 0);
-    localStorage.setItem('rat_capybaraDefeated', 'false');
+// Добавляем обработку закрытия страницы для сохранения
+window.addEventListener('beforeunload', function() {
     saveGame();
-    updateBossStatus();
-    updateUI();
-    console.log('✅ Перезарядка босса сброшена!');
-    alert('✅ Перезарядка босса сброшена!');
-};
-
-window.forceBossDefeat = function() {
-    capybaraDefeated = true;
-    capybaraCooldown = 0;
-    localStorage.setItem('rat_capybaraCooldown', 0);
-    localStorage.setItem('rat_capybaraDefeated', 'true');
-    if (!inventory.food) inventory.food = 0;
-    inventory.food++;
-    saveGame();
-    updateBossStatus();
-    updateUI();
-    console.log('✅ Босс принудительно побеждён!');
-    alert('✅ Босс принудительно побеждён! +🍖');
-};
-
-window.addPlant = function() {
-    plantPurchased = true;
-    plantLevel = 1;
-    plantData[0].stage = 'idle';
-    plantData[0].progress = 0;
-    plantData[0].type = null;
-    plantData[0].fertilizer = false;
-    savePlantData();
-    saveGame();
-    updateUI();
-    setTimeout(() => updatePlantsUI(), 100);
-    console.log('🌱 Горшок добавлен!');
-    alert('🌱 Горшок добавлен!');
-};
-
-window.addPoop = function() {
-    poopCount += 10;
-    saveGame();
-    updateUI();
-    console.log('💩 Добавлено 10 какашек!');
-    alert('💩 Добавлено 10 какашек!');
-};
-
-window.addFertilizer = function() {
-    fertilizerCount += 5;
-    saveGame();
-    updateUI();
-    console.log('🧪 Добавлено 5 удобрений!');
-    alert('🧪 Добавлено 5 удобрений!');
-};
-
-window.disableAntiCheat = function() {
-    ANTI_CHEAT.enabled = false;
-    stopAntiCheat();
-    hideAntiCheatWarning();
-    console.log('🔒 Античит ОТКЛЮЧЁН!');
-    alert('🔒 Античит отключён!');
-};
-
-window.enableAntiCheat = function() {
-    ANTI_CHEAT.enabled = true;
-    startAntiCheat();
-    console.log('🔒 Античит ВКЛЮЧЁН!');
-    alert('🔒 Античит включён!');
-};
+});
 
 console.log('💀 Игра загружена!');
 console.log('💀 Версия:', GAME_VERSION);
-console.log('💀 Для сброса перезарядки босса введите: resetBossCooldown()');
-console.log('💀 Для победы над боссом введите: forceBossDefeat()');
-console.log('🌱 Для добавления горшка введите: addPlant()');
-console.log('💩 Для добавления какашек введите: addPoop()');
-console.log('🧪 Для добавления удобрений введите: addFertilizer()');
-console.log('🔒 Для отключения античита: disableAntiCheat()');
-console.log('🔒 Для включения античита: enableAntiCheat()');
+console.log('💀 Играйте честно! Античит активен и защищён от вмешательства!');
 console.log('🔊 Музыка включена:', musicEnabled);
 console.log('🎵 ID видео:', musicVideoId);
