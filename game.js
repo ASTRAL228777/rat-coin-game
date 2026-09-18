@@ -2,14 +2,277 @@
 // ==================== СИСТЕМА ВЕРСИЙ ========================
 // ============================================================
 
-const GAME_VERSION = '2.0.3';
+const GAME_VERSION = '2.0.4';
 
 const UPDATE_CHANGELOG = {
     '2.0.0': '🚀 Полный релиз! Комбинатор, манипуляторы, ГМО яблоки и многое другое!',
     '2.0.1': '🐛 Исправлен баг с какашками и кнопкой сбора',
     '2.0.2': '🔒 Добавлен умный античит! Защита от читерства!',
     '2.0.3': '🔐 Античит полностью скрыт от консоли! Улучшена защита!',
+    '2.0.4': '🚫 Защита от мультивкладок! Прогресс больше не теряется!',
 };
+
+// ============================================================
+// ==================== ЗАЩИТА ОТ МУЛЬТИВКЛАДОК ===============
+// ============================================================
+
+(function detectMultipleTabs() {
+    const TAB_KEY = 'rat_active_tab';
+    const TAB_ID = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    const HEARTBEAT_INTERVAL = 1000;
+    const TAB_TIMEOUT = 3000;
+    
+    let isActiveTab = false;
+    let heartbeatTimer = null;
+    let blocker = null;
+    
+    function getActiveTabData() {
+        try {
+            const raw = localStorage.getItem(TAB_KEY);
+            if (!raw) return null;
+            const data = JSON.parse(raw);
+            if (Date.now() - data.timestamp > TAB_TIMEOUT) {
+                return null;
+            }
+            return data;
+        } catch (e) {
+            return null;
+        }
+    }
+    
+    function acquireLock() {
+        const existing = getActiveTabData();
+        
+        if (existing && existing.id !== TAB_ID) {
+            showMultiTabBlock();
+            return false;
+        }
+        
+        try {
+            localStorage.setItem(TAB_KEY, JSON.stringify({
+                id: TAB_ID,
+                timestamp: Date.now()
+            }));
+            isActiveTab = true;
+            hideMultiTabBlock();
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+    
+    function heartbeat() {
+        if (!isActiveTab) {
+            const existing = getActiveTabData();
+            if (!existing) {
+                acquireLock();
+            }
+            return;
+        }
+        
+        try {
+            localStorage.setItem(TAB_KEY, JSON.stringify({
+                id: TAB_ID,
+                timestamp: Date.now()
+            }));
+        } catch (e) {}
+    }
+    
+    function releaseLock() {
+        try {
+            const existing = getActiveTabData();
+            if (existing && existing.id === TAB_ID) {
+                localStorage.removeItem(TAB_KEY);
+            }
+        } catch (e) {}
+    }
+    
+    function showMultiTabBlock() {
+        if (blocker) return;
+        
+        // Останавливаем все игровые процессы
+        if (typeof window._stopAllGameProcesses === 'function') {
+            window._stopAllGameProcesses();
+        }
+        
+        blocker = document.createElement('div');
+        blocker.id = 'multiTabBlocker';
+        blocker.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #0b0c10 0%, #1a0a1f 100%);
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+            color: #45f3ff;
+            padding: 20px;
+            text-align: center;
+            animation: multiTabFadeIn 0.4s ease-out;
+        `;
+        blocker.innerHTML = `
+            <style>
+                @keyframes multiTabFadeIn {
+                    0% { opacity: 0; transform: scale(0.9); }
+                    100% { opacity: 1; transform: scale(1); }
+                }
+                @keyframes multiTabPulse {
+                    0%, 100% { text-shadow: 0 0 20px #ff007f, 0 0 40px #ff007f; }
+                    50% { text-shadow: 0 0 40px #ff007f, 0 0 80px #ff007f; }
+                }
+                @keyframes ratBounce {
+                    0%, 100% { transform: translateY(0) rotate(-5deg); }
+                    50% { transform: translateY(-20px) rotate(5deg); }
+                }
+            </style>
+            <div style="font-size: 120px; margin-bottom: 20px; animation: ratBounce 1.5s ease-in-out infinite;">🐀</div>
+            <h1 style="
+                color: #ff007f;
+                animation: multiTabPulse 1.5s ease-in-out infinite;
+                font-size: 28px;
+                margin-bottom: 15px;
+                letter-spacing: 2px;
+            ">
+                🚫 ИГРА УЖЕ ОТКРЫТА
+            </h1>
+            <h2 style="
+                color: #45f3ff;
+                font-size: 20px;
+                margin-bottom: 20px;
+                text-shadow: 0 0 15px #45f3ff;
+            ">
+                в другой вкладке!
+            </h2>
+            <p style="
+                color: #66fcf1;
+                font-size: 15px;
+                max-width: 500px;
+                line-height: 1.7;
+                margin-bottom: 25px;
+                padding: 0 15px;
+            ">
+                🎮 Играть одновременно в нескольких вкладках <b style="color:#ffd700;">НЕЛЬЗЯ</b>!<br>
+                Это приведёт к <b style="color:#ff6666;">потере прогресса</b> и багам сохранения.<br><br>
+                Закройте <b>эту</b> вкладку и продолжите игру в той,<br>
+                где она была открыта <b style="color:#45f3ff;">первой</b>.
+            </p>
+            <div style="
+                background: rgba(31, 40, 51, 0.8);
+                padding: 15px 25px;
+                border-radius: 12px;
+                border: 2px solid #ffd700;
+                margin-bottom: 20px;
+                max-width: 500px;
+            ">
+                <p style="color: #ffd700; font-size: 13px; margin: 0; line-height: 1.6;">
+                    ⚠️ <b>Если вы думаете, что это ошибка:</b><br>
+                    Закройте <b>ВСЕ</b> вкладки с игрой и откройте заново
+                </p>
+            </div>
+            <button id="multiTabReloadBtn" style="
+                background: linear-gradient(135deg, #45f3ff, #66fcf1);
+                color: #0b0c10;
+                border: none;
+                padding: 14px 40px;
+                border-radius: 12px;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+                font-family: 'Segoe UI', sans-serif;
+                box-shadow: 0 0 30px rgba(69, 243, 255, 0.4);
+                transition: all 0.3s ease;
+            ">🔄 Проверить снова</button>
+            <div style="
+                margin-top: 25px;
+                color: #555;
+                font-size: 11px;
+                letter-spacing: 1px;
+            ">
+                🔒 Rat Coin Ultimate v${GAME_VERSION}
+            </div>
+        `;
+        document.body.appendChild(blocker);
+        document.body.style.overflow = 'hidden';
+        document.body.style.pointerEvents = 'none';
+        blocker.style.pointerEvents = 'auto';
+        
+        // Обработчик кнопки
+        setTimeout(() => {
+            const btn = document.getElementById('multiTabReloadBtn');
+            if (btn) {
+                btn.addEventListener('click', function() {
+                    // Пытаемся перехватить лок
+                    if (acquireLock()) {
+                        hideMultiTabBlock();
+                        location.reload();
+                    } else {
+                        btn.textContent = '❌ Всё ещё открыто в другой вкладке';
+                        btn.style.background = 'linear-gradient(135deg, #ff0033, #ff6666)';
+                        btn.style.color = 'white';
+                        setTimeout(() => {
+                            btn.textContent = '🔄 Проверить снова';
+                            btn.style.background = 'linear-gradient(135deg, #45f3ff, #66fcf1)';
+                            btn.style.color = '#0b0c10';
+                        }, 2000);
+                    }
+                });
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                    this.style.boxShadow = '0 0 50px rgba(69, 243, 255, 0.6)';
+                });
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                    this.style.boxShadow = '0 0 30px rgba(69, 243, 255, 0.4)';
+                });
+            }
+        }, 0);
+    }
+    
+    function hideMultiTabBlock() {
+        if (blocker) {
+            blocker.remove();
+            blocker = null;
+        }
+        document.body.style.overflow = '';
+        document.body.style.pointerEvents = '';
+    }
+    
+    // Экспортируем ID вкладки глобально для проверки в saveGame
+    window._ratTabId = TAB_ID;
+    window._ratIsActiveTab = function() { return isActiveTab; };
+    window._ratTryAcquireLock = acquireLock;
+    
+    setTimeout(() => {
+        if (acquireLock()) {
+            heartbeatTimer = setInterval(heartbeat, HEARTBEAT_INTERVAL);
+        }
+    }, 100);
+    
+    window.addEventListener('beforeunload', releaseLock);
+    window.addEventListener('pagehide', releaseLock);
+    
+    window.addEventListener('storage', function(e) {
+        if (e.key === TAB_KEY) {
+            const existing = getActiveTabData();
+            if (existing && existing.id !== TAB_ID) {
+                isActiveTab = false;
+                showMultiTabBlock();
+            } else if (!existing) {
+                if (acquireLock()) {
+                    if (!heartbeatTimer) {
+                        heartbeatTimer = setInterval(heartbeat, HEARTBEAT_INTERVAL);
+                    }
+                }
+            }
+        }
+    });
+    
+})();
 
 // ============================================================
 // ==================== СКРЫТЫЙ АНТИЧИТ =======================
@@ -351,7 +614,7 @@ function checkGameVersion() {
         console.log(`🔄 Обновление игры! ${savedVersion || 'Новая установка'} → ${GAME_VERSION}`);
         localStorage.setItem('rat_game_version', GAME_VERSION);
         showUpdateNotification();
-        if (savedVersion && savedVersion < '2.0.3') {
+        if (savedVersion && savedVersion < '2.0.4') {
             localStorage.setItem('rat_cheat_detected', 'false');
             localStorage.removeItem('rat_checked_score');
             localStorage.removeItem('rat_checked_time');
@@ -857,6 +1120,68 @@ const buffIndicator = document.getElementById('buffIndicator');
 const musicToggle = document.getElementById('musicToggle');
 
 // ============================================================
+// ==================== ФУНКЦИЯ ОСТАНОВКИ ВСЕХ ПРОЦЕССОВ =====
+// ============================================================
+
+window._stopAllGameProcesses = function() {
+    // Останавливаем античит
+    if (typeof AntiCheat !== 'undefined') AntiCheat.stop();
+    
+    // Останавливаем боссфайт
+    if (bossMoveInterval) { clearInterval(bossMoveInterval); bossMoveInterval = null; }
+    if (bossShootInterval) { clearInterval(bossShootInterval); bossShootInterval = null; }
+    if (bossFightInterval) { clearInterval(bossFightInterval); bossFightInterval = null; }
+    if (bossCooldownInterval) { clearInterval(bossCooldownInterval); bossCooldownInterval = null; }
+    
+    // Останавливаем вольер
+    if (foodDepletionInterval) { clearInterval(foodDepletionInterval); foodDepletionInterval = null; }
+    if (hamsterMoveInterval) { clearInterval(hamsterMoveInterval); hamsterMoveInterval = null; }
+    if (poopTimer) { clearInterval(poopTimer); poopTimer = null; }
+    
+    // Останавливаем зерно
+    if (grainSpawnTimeout) { clearTimeout(grainSpawnTimeout); grainSpawnTimeout = null; }
+    if (grainTimerInterval) { clearInterval(grainTimerInterval); grainTimerInterval = null; }
+    if (grainLifeTimeout) { clearTimeout(grainLifeTimeout); grainLifeTimeout = null; }
+    if (currentGrainElement) { currentGrainElement.remove(); currentGrainElement = null; }
+    isGrainActive = false;
+    
+    // Останавливаем мышь
+    if (mouseMoveInterval) { clearInterval(mouseMoveInterval); mouseMoveInterval = null; }
+    if (mouseElement) { mouseElement.remove(); mouseElement = null; }
+    
+    // Останавливаем станок
+    if (machineTimer) { clearInterval(machineTimer); machineTimer = null; }
+    
+    // Останавливаем комбинатор
+    for (let i = 0; i < combinerTimer.length; i++) {
+        if (combinerTimer[i]) { clearInterval(combinerTimer[i]); combinerTimer[i] = null; }
+    }
+    
+    // Останавливаем экстрактор
+    if (extractorTimer) { clearInterval(extractorTimer); extractorTimer = null; }
+    
+    // Останавливаем манипуляторы
+    for (let i = 0; i < manipulatorTimers.length; i++) {
+        if (manipulatorTimers[i]) { clearInterval(manipulatorTimers[i]); manipulatorTimers[i] = null; }
+    }
+    
+    // Останавливаем растения
+    for (let i = 0; i < plantIntervals.length; i++) {
+        if (plantIntervals[i]) { clearInterval(plantIntervals[i]); plantIntervals[i] = null; }
+    }
+    
+    // Останавливаем таймеры бустов
+    if (buffTimer) { clearTimeout(buffTimer); buffTimer = null; }
+    if (pepperBuffTimer) { clearTimeout(pepperBuffTimer); pepperBuffTimer = null; }
+    if (satietyTimer) { clearTimeout(satietyTimer); satietyTimer = null; }
+    
+    // Останавливаем перезагрузку
+    if (reloadTimerInterval) { clearInterval(reloadTimerInterval); reloadTimerInterval = null; }
+    
+    console.log('🛑 Все игровые процессы остановлены (мультивкладка)');
+};
+
+// ============================================================
 // ==================== ФУНКЦИИ МУЗЫКИ =======================
 // ============================================================
 
@@ -970,6 +1295,11 @@ function isAllLabPartsBought() {
 }
 
 function saveGame() {
+    // Проверяем, что мы — активная вкладка (защита от race condition)
+    if (window._ratIsActiveTab && !window._ratIsActiveTab()) {
+        return; // Неактивная вкладка не сохраняет
+    }
+    
     localStorage.setItem('rat_score', score);
     localStorage.setItem('rat_clickPower', clickPower);
     localStorage.setItem('rat_autoClickers', autoClickers);
@@ -1043,7 +1373,6 @@ function showReloadNotification() {
 }
 
 function clearAllIntervals() {
-    // Очищаем все интервалы и таймауты
     const intervals = [
         grainSpawnTimeout, grainTimerInterval, grainLifeTimeout,
         mouseMoveInterval, hamsterMoveInterval, foodDepletionInterval,
@@ -1063,7 +1392,6 @@ function clearAllIntervals() {
         }
     });
     
-    // Очищаем массивы таймеров
     for (let i = 0; i < combinerTimer.length; i++) {
         combinerTimer[i] = null;
         combinerRunning[i] = false;
@@ -1163,7 +1491,6 @@ function resetAllProgress() {
     MAX_CLICK_LEVEL = 10;
     
     clearAllIntervals();
-    
     AntiCheat.stop();
     
     localStorage.removeItem('rat_cheat_detected');
@@ -1451,6 +1778,7 @@ function startPlantGrowth(index) {
 }
 
 function savePlantData() {
+    if (window._ratIsActiveTab && !window._ratIsActiveTab()) return;
     localStorage.setItem('rat_plantData', JSON.stringify(plantData));
     localStorage.setItem('rat_plantInventory', JSON.stringify(plantInventory));
 }
@@ -1967,7 +2295,6 @@ function updateManipulatorUI() {
 
             if (toggle) {
                 toggle.classList.toggle('active', setting.enabled);
-                // Удаляем старый обработчик и добавляем новый через addEventListener
                 const newToggle = toggle.cloneNode(true);
                 toggle.parentNode.replaceChild(newToggle, toggle);
                 manipToggles[i] = newToggle;
@@ -2317,10 +2644,6 @@ function updateBossStatus() {
         fightBtn.disabled = false;
     }
 }
-
-// ============================================================
-// ==================== ФУНКЦИЯ ТАЙМЕРА БОССА ================
-// ============================================================
 
 function startBossCooldownTimer() {
     if (bossCooldownInterval) {
@@ -4701,13 +5024,13 @@ setInterval(() => {
     }
 }, 1000);
 
-// Добавляем обработку закрытия страницы для сохранения
 window.addEventListener('beforeunload', function() {
     saveGame();
 });
 
 console.log('💀 Игра загружена!');
 console.log('💀 Версия:', GAME_VERSION);
-console.log('💀 Играйте честно! Античит активен и защищён от вмешательства!');
+console.log('💀 Мультивкладки ЗАБЛОКИРОВАНЫ');
+console.log('💀 Античит АКТИВЕН и защищён');
 console.log('🔊 Музыка включена:', musicEnabled);
 console.log('🎵 ID видео:', musicVideoId);
