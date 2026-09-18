@@ -16,53 +16,17 @@
             if (data.id && data.id !== TAB_ID && timeSince < TAB_TIMEOUT) {
                 document.documentElement.innerHTML = `
                     <head><title>🐀 Rat Coin - Игра уже открыта</title></head>
-                    <body style="
-                        margin: 0; padding: 0;
-                        background: linear-gradient(135deg, #0b0c10 0%, #1a0a1f 100%);
-                        color: #45f3ff;
-                        font-family: 'Segoe UI', sans-serif;
-                        display: flex; flex-direction: column;
-                        justify-content: center; align-items: center;
-                        height: 100vh; text-align: center; overflow: hidden;
-                    ">
-                        <div style="font-size: 120px; margin-bottom: 20px; animation: bounce 1.5s ease-in-out infinite;">🐀</div>
-                        <h1 style="
-                            color: #ff007f; font-size: 28px; margin-bottom: 15px;
-                            text-shadow: 0 0 20px #ff007f, 0 0 40px #ff007f;
-                            animation: pulse 1.5s ease-in-out infinite;
-                        ">🚫 ИГРА УЖЕ ОТКРЫТА</h1>
-                        <h2 style="color: #45f3ff; font-size: 20px; margin-bottom: 20px; text-shadow: 0 0 15px #45f3ff;">
-                            в другой вкладке!
-                        </h2>
-                        <p style="color: #66fcf1; font-size: 15px; max-width: 500px; line-height: 1.7; margin-bottom: 25px; padding: 0 15px;">
+                    <body style="margin:0;padding:0;background:linear-gradient(135deg,#0b0c10 0%,#1a0a1f 100%);color:#45f3ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;text-align:center;overflow:hidden;">
+                        <div style="font-size:120px;margin-bottom:20px;">🐀</div>
+                        <h1 style="color:#ff007f;font-size:28px;margin-bottom:15px;text-shadow:0 0 20px #ff007f;">🚫 ИГРА УЖЕ ОТКРЫТА</h1>
+                        <h2 style="color:#45f3ff;font-size:20px;margin-bottom:20px;">в другой вкладке!</h2>
+                        <p style="color:#66fcf1;font-size:15px;max-width:500px;line-height:1.7;margin-bottom:25px;padding:0 15px;">
                             🎮 Играть одновременно в нескольких вкладках <b style="color:#ffd700;">НЕЛЬЗЯ</b>!<br>
                             Это приведёт к <b style="color:#ff6666;">потере прогресса</b>.<br><br>
                             Закройте <b>эту</b> вкладку и продолжите игру в той,<br>
                             где она была открыта <b style="color:#45f3ff;">первой</b>.
                         </p>
-                        <div style="background: rgba(31, 40, 51, 0.8); padding: 15px 25px; border-radius: 12px; border: 2px solid #ffd700; margin-bottom: 20px; max-width: 500px;">
-                            <p style="color: #ffd700; font-size: 13px; margin: 0; line-height: 1.6;">
-                                ⚠️ <b>Если это ошибка:</b><br>
-                                Закройте <b>ВСЕ</b> вкладки с игрой и откройте заново
-                            </p>
-                        </div>
-                        <button onclick="location.reload()" style="
-                            background: linear-gradient(135deg, #45f3ff, #66fcf1);
-                            color: #0b0c10; border: none; padding: 14px 40px;
-                            border-radius: 12px; font-size: 16px; font-weight: bold;
-                            cursor: pointer; font-family: 'Segoe UI', sans-serif;
-                            box-shadow: 0 0 30px rgba(69, 243, 255, 0.4);
-                        ">🔄 Проверить снова</button>
-                        <style>
-                            @keyframes bounce {
-                                0%, 100% { transform: translateY(0) rotate(-5deg); }
-                                50% { transform: translateY(-20px) rotate(5deg); }
-                            }
-                            @keyframes pulse {
-                                0%, 100% { text-shadow: 0 0 20px #ff007f, 0 0 40px #ff007f; }
-                                50% { text-shadow: 0 0 40px #ff007f, 0 0 80px #ff007f; }
-                            }
-                        </style>
+                        <button onclick="location.reload()" style="background:linear-gradient(135deg,#45f3ff,#66fcf1);color:#0b0c10;border:none;padding:14px 40px;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;">🔄 Проверить снова</button>
                     </body>
                 `;
                 throw new Error('MultiTab blocked');
@@ -78,7 +42,6 @@
         if (e.message === 'MultiTab blocked') {
             throw e;
         }
-        console.warn('MultiTab check error:', e);
     }
     
     window._ratTabId = TAB_ID;
@@ -122,32 +85,23 @@
         } catch (e) {}
     });
     
-    window.addEventListener('pagehide', function() {
-        try {
-            const raw = localStorage.getItem(TAB_KEY);
-            if (raw) {
-                const data = JSON.parse(raw);
-                if (data.id === TAB_ID) {
-                    localStorage.removeItem(TAB_KEY);
-                }
-            }
-        } catch (e) {}
-    });
-    
 })();
 
 // ============================================================
 // ==================== СИСТЕМА ВЕРСИЙ ========================
 // ============================================================
 
-const GAME_VERSION = '2.0.4';
+const GAME_VERSION = '2.1.0';
 
 const UPDATE_CHANGELOG = {
-    '2.0.0': '🚀 Полный релиз! Комбинатор, манипуляторы, ГМО яблоки и многое другое!',
-    '2.0.1': '🐛 Исправлен баг с какашками и кнопкой сбора',
-    '2.0.2': '🔒 Добавлен умный античит! Защита от читерства!',
-    '2.0.3': '🔐 Античит полностью скрыт от консоли! Улучшена защита!',
-    '2.0.4': '🚫 Защита от мультивкладок! Прогресс больше не теряется!',
+    '2.0.0': '🚀 Полный релиз!',
+    '2.0.1': '🐛 Исправлен баг с какашками',
+    '2.0.2': '🔒 Умный античит!',
+    '2.0.3': '🔐 Античит скрыт от консоли!',
+    '2.0.4': '🚫 Защита от мультивкладок!',
+    '2.0.5': '💾 Восстановление состояния!',
+    '2.0.6': '🧠 Улучшенная логика манипуляторов!',
+    '2.1.0': '🌾 Экстракт сена! Исправлены баффы от манипулятора!',
 };
 
 // ============================================================
@@ -159,7 +113,6 @@ const AntiCheat = (function() {
     const CONFIG = {
         enabled: true,
         checkInterval: 3000,
-        lookbackSeconds: 5,
         maxPossibleCPS: 25,
         bufferPercent: 25,
         minScoreForCheck: 1000,
@@ -185,9 +138,8 @@ const AntiCheat = (function() {
         let hamsterLevel = parseInt(localStorage.getItem('rat_hamsterLevel')) || 0;
         if (hamsterFood > 0) {
             hamsterBonus = 1.0 + hamsterLevel * 0.1;
-            if (localStorage.getItem('rat_pepperBuffActive') === 'true') {
-                hamsterBonus *= 2;
-            }
+            if (localStorage.getItem('rat_pepperBuffActive') === 'true') hamsterBonus *= 2;
+            if (localStorage.getItem('rat_hayBuffActive') === 'true') hamsterBonus *= 1.3;
         }
         let buffActive = localStorage.getItem('rat_buffActive') === 'true';
         let buffMult = buffActive ? 2 : 1;
@@ -198,51 +150,35 @@ const AntiCheat = (function() {
         return parseInt(localStorage.getItem('rat_autoClickers')) || 0;
     }
     
-    function getGrainData() {
-        const grainActive = localStorage.getItem('rat_grainActive') === 'true';
-        const grainLevel = parseInt(localStorage.getItem('rat_grainLevel')) || 0;
-        const grainBase = parseInt(localStorage.getItem('rat_grainBase')) || 3;
-        const superGrainPurchased = localStorage.getItem('rat_superGrainPurchased') === 'true';
-        const superGrainActive = localStorage.getItem('rat_superGrainActive') === 'true';
-        const mousePurchased = localStorage.getItem('rat_mousePurchased') === 'true';
-        const mouseActive = localStorage.getItem('rat_mouseActive') === 'true';
-        return { grainActive, grainLevel, grainBase, superGrainPurchased, superGrainActive, mousePurchased, mouseActive };
-    }
-    
     function calculateMaxPossibleIncome(timeSeconds) {
         const clickPower = getTotalClickPower();
-        const maxClicksPerSecond = CONFIG.maxPossibleCPS;
-        const maxClickIncome = maxClicksPerSecond * clickPower * timeSeconds;
+        const maxClickIncome = CONFIG.maxPossibleCPS * clickPower * timeSeconds;
         const passiveIncome = getAutoClickers() * timeSeconds;
         
         let grainIncome = 0;
-        const grainData = getGrainData();
-        if (grainData.grainActive && grainData.grainLevel > 0) {
+        const grainActive = localStorage.getItem('rat_grainActive') === 'true';
+        const grainLevel = parseInt(localStorage.getItem('rat_grainLevel')) || 0;
+        const grainBase = parseInt(localStorage.getItem('rat_grainBase')) || 3;
+        const superGrainActive = localStorage.getItem('rat_superGrainActive') === 'true';
+        if (grainActive && grainLevel > 0) {
             const grainPerSecond = 1 / 5;
-            let grainValue = grainData.grainBase * clickPower;
-            if (grainData.superGrainActive && grainData.superGrainPurchased) {
-                grainValue = 25 * clickPower;
-            }
+            let grainValue = grainBase * clickPower;
+            if (superGrainActive) grainValue = 25 * clickPower;
             grainIncome = grainPerSecond * grainValue * timeSeconds;
-        }
-        
-        let mouseIncome = 0;
-        if (grainData.mouseActive && grainData.mousePurchased) {
-            mouseIncome = grainIncome * 0.3;
         }
         
         let hamsterBonus = 1.0;
         let hamsterFood = parseFloat(localStorage.getItem('rat_hamsterFood')) || 0;
         let hamsterLevel = parseInt(localStorage.getItem('rat_hamsterLevel')) || 0;
-        if (hamsterFood > 0) {
-            hamsterBonus = 1.0 + hamsterLevel * 0.1;
-        }
+        if (hamsterFood > 0) hamsterBonus = 1.0 + hamsterLevel * 0.1;
         
-        let totalPossibleIncome = (maxClickIncome + passiveIncome + grainIncome + mouseIncome) * hamsterBonus;
+        let totalPossibleIncome = (maxClickIncome + passiveIncome + grainIncome) * hamsterBonus;
         
-        if (localStorage.getItem('rat_buffActive') === 'true') {
-            totalPossibleIncome *= 2;
-        }
+        if (localStorage.getItem('rat_buffActive') === 'true') totalPossibleIncome *= 2;
+        
+        const manipulatorLevel = parseInt(localStorage.getItem('rat_manipulatorLevel')) || 0;
+        const manipulatorIncome = (manipulatorLevel * clickPower * timeSeconds) / 5;
+        totalPossibleIncome += manipulatorIncome * hamsterBonus;
         
         totalPossibleIncome *= (1 + CONFIG.bufferPercent / 100);
         return Math.floor(totalPossibleIncome);
@@ -251,28 +187,18 @@ const AntiCheat = (function() {
     function showWarning(realGain, maxGain, ratio) {
         if (warningElement) return;
         warningElement = document.createElement('div');
-        warningElement.id = 'anticheatWarning';
         warningElement.style.cssText = `
-            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-            background: rgba(255, 165, 0, 0.95); color: #0b0c10;
-            padding: 12px 20px; border-radius: 10px; font-weight: bold; font-size: 14px;
-            z-index: 9998; box-shadow: 0 0 30px rgba(255, 165, 0, 0.3);
-            animation: slideDown 0.5s ease-out; text-align: center; max-width: 90%;
-            font-family: 'Segoe UI', sans-serif;
+            position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
+            background:rgba(255,165,0,0.95);color:#0b0c10;padding:12px 20px;
+            border-radius:10px;font-weight:bold;font-size:14px;z-index:9998;
+            text-align:center;max-width:90%;font-family:sans-serif;
         `;
-        warningElement.innerHTML = `
-            ⚠️ ПОДОЗРЕНИЕ: Ваш доход (${realGain}) выше допустимого (${maxGain}) в ${ratio.toFixed(0)}%.
-            <br><span style="font-size:12px;">Если это ошибка — просто продолжайте играть. (${3 - suspicionLevel} попытки до блокировки)</span>
-            <br><span style="font-size:10px;color:#666;">🔒 Античит v${GAME_VERSION}</span>
-        `;
+        warningElement.innerHTML = `⚠️ ПОДОЗРЕНИЕ: Доход (${realGain}) выше допустимого (${maxGain}) в ${ratio.toFixed(0)}%.<br><span style="font-size:12px;">(${3 - suspicionLevel} попытки до блокировки)</span>`;
         document.body.appendChild(warningElement);
     }
     
     function hideWarning() {
-        if (warningElement) {
-            warningElement.remove();
-            warningElement = null;
-        }
+        if (warningElement) { warningElement.remove(); warningElement = null; }
     }
     
     function triggerBan(realGain, maxGain, ratio) {
@@ -281,27 +207,16 @@ const AntiCheat = (function() {
         localStorage.setItem('rat_cheat_detected', 'true');
         
         const banEl = document.createElement('div');
-        banEl.id = 'anticheatBan';
         banEl.style.cssText = `
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(255, 0, 0, 0.95); color: white;
-            padding: 30px 40px; border-radius: 20px; font-weight: bold; font-size: 24px;
-            z-index: 10000; box-shadow: 0 0 60px rgba(255, 0, 0, 0.5);
-            text-align: center; max-width: 90%; animation: banBlink 0.5s ease-in-out 5;
-            border: 3px solid #ffd700; font-family: 'Segoe UI', sans-serif;
+            position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+            background:rgba(255,0,0,0.95);color:white;padding:30px 40px;
+            border-radius:20px;font-weight:bold;font-size:24px;z-index:10000;
+            text-align:center;max-width:90%;border:3px solid #ffd700;font-family:sans-serif;
         `;
         banEl.innerHTML = `
             <div style="font-size:60px;">🚫</div>
             <div style="margin:15px 0;">ОБНАРУЖЕНО ЧИТЕРСТВО!</div>
-            <div style="font-size:16px;opacity:0.8;max-width:400px;">
-                Ваш доход (${realGain}) превышает максимально возможный (${maxGain}) в ${ratio.toFixed(0)}%.
-            </div>
-            <div style="font-size:14px;opacity:0.6;margin-top:10px;">
-                Прогресс будет сброшен через 10 секунд...
-            </div>
-            <div style="font-size:12px;opacity:0.4;margin-top:15px;border-top:1px solid rgba(255,255,255,0.2);padding-top:10px;">
-                🔒 Античит v${GAME_VERSION}
-            </div>
+            <div style="font-size:14px;opacity:0.6;margin-top:10px;">Прогресс сброшен через 10 сек...</div>
         `;
         document.body.appendChild(banEl);
         document.body.style.pointerEvents = 'none';
@@ -337,10 +252,7 @@ const AntiCheat = (function() {
         
         const realGain = score - savedScore;
         const timePassed = totalTimePlayed - savedTime;
-        if (timePassed < 1 || realGain < 0) {
-            lastCheckTime = now;
-            return;
-        }
+        if (timePassed < 1 || realGain < 0) { lastCheckTime = now; return; }
         
         const maxPossibleGain = calculateMaxPossibleIncome(timePassed);
         const ratio = (realGain / maxPossibleGain) * 100;
@@ -349,72 +261,32 @@ const AntiCheat = (function() {
         localStorage.setItem('rat_checked_time', totalTimePlayed);
         lastCheckTime = now;
         
-        if (ratio > CONFIG.banThreshold) {
-            triggerBan(realGain, maxPossibleGain, ratio);
-            return;
-        }
+        if (ratio > CONFIG.banThreshold) { triggerBan(realGain, maxPossibleGain, ratio); return; }
         
         if (ratio > CONFIG.suspicionThreshold) {
             suspicionLevel++;
             isSuspicious = true;
             showWarning(realGain, maxPossibleGain, ratio);
-            if (suspicionLevel >= 3) {
-                triggerBan(realGain, maxPossibleGain, ratio);
-            }
+            if (suspicionLevel >= 3) triggerBan(realGain, maxPossibleGain, ratio);
         } else {
-            if (isSuspicious) {
-                suspicionLevel = 0;
-                isSuspicious = false;
-                hideWarning();
-            }
+            if (isSuspicious) { suspicionLevel = 0; isSuspicious = false; hideWarning(); }
         }
     }
     
     return {
         start: function() {
             if (timer) return;
-            
             if (localStorage.getItem('rat_cheat_detected') === 'true') {
                 setTimeout(() => {
-                    const banEl = document.createElement('div');
-                    banEl.style.cssText = `
-                        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-                        background: rgba(255, 0, 0, 0.9); color: white;
-                        padding: 30px 40px; border-radius: 20px; font-weight: bold; font-size: 24px;
-                        z-index: 10000; box-shadow: 0 0 60px rgba(255, 0, 0, 0.5);
-                        text-align: center; max-width: 90%; border: 3px solid #ffd700;
-                        font-family: 'Segoe UI', sans-serif;
-                    `;
-                    banEl.innerHTML = `
-                        <div style="font-size:60px;">🚫</div>
-                        <div style="margin:15px 0;">ВНИМАНИЕ!</div>
-                        <div style="font-size:16px;opacity:0.8;max-width:400px;">
-                            Ранее было обнаружено читерство. Прогресс сброшен.
-                        </div>
-                        <div style="font-size:14px;opacity:0.6;margin-top:10px;">
-                            Игра будет перезагружена через 5 секунд...
-                        </div>
-                        <div style="font-size:12px;opacity:0.4;margin-top:15px;border-top:1px solid rgba(255,255,255,0.2);padding-top:10px;">
-                            🔒 Античит v${GAME_VERSION} | Играйте честно!
-                        </div>
-                    `;
-                    document.body.appendChild(banEl);
-                    document.body.style.pointerEvents = 'none';
-                    setTimeout(() => {
-                        localStorage.removeItem('rat_cheat_detected');
-                        location.reload();
-                    }, 5000);
-                }, 1000);
+                    localStorage.removeItem('rat_cheat_detected');
+                    location.reload();
+                }, 5000);
                 return;
             }
-            
             timer = setInterval(checkBalance, CONFIG.checkInterval);
         },
         stop: function() {
-            if (timer) {
-                clearInterval(timer);
-                timer = null;
-            }
+            if (timer) { clearInterval(timer); timer = null; }
             hideWarning();
         }
     };
@@ -432,17 +304,10 @@ Object.defineProperty(window, 'AntiCheat', {
     enumerable: false
 });
 
-const blockedCommands = [
-    'disableAntiCheat', 'enableAntiCheat', 'resetBossCooldown',
-    'forceBossDefeat', 'addPlant', 'addPoop', 'addFertilizer'
-];
-
-blockedCommands.forEach(cmd => {
+['disableAntiCheat', 'enableAntiCheat', 'resetBossCooldown',
+ 'forceBossDefeat', 'addPlant', 'addPoop', 'addFertilizer'].forEach(cmd => {
     Object.defineProperty(window, cmd, {
-        get: function() { 
-            console.warn(`🔒 Команда "${cmd}" заблокирована античитом!`);
-            return undefined; 
-        },
+        get: function() { console.warn(`🔒 Команда "${cmd}" заблокирована!`); return undefined; },
         set: function() {},
         configurable: false,
         enumerable: false
@@ -456,10 +321,10 @@ blockedCommands.forEach(cmd => {
 function checkGameVersion() {
     const savedVersion = localStorage.getItem('rat_game_version');
     if (savedVersion !== GAME_VERSION) {
-        console.log(`🔄 Обновление игры! ${savedVersion || 'Новая установка'} → ${GAME_VERSION}`);
+        console.log(`🔄 Обновление: ${savedVersion || 'New'} → ${GAME_VERSION}`);
         localStorage.setItem('rat_game_version', GAME_VERSION);
         showUpdateNotification();
-        if (savedVersion && savedVersion < '2.0.4') {
+        if (savedVersion && savedVersion < '2.1.0') {
             localStorage.setItem('rat_cheat_detected', 'false');
             localStorage.removeItem('rat_checked_score');
             localStorage.removeItem('rat_checked_time');
@@ -468,49 +333,27 @@ function checkGameVersion() {
 }
 
 function showUpdateNotification() {
-    const changes = UPDATE_CHANGELOG[GAME_VERSION] || 'Новые функции и улучшения!';
+    const changes = UPDATE_CHANGELOG[GAME_VERSION] || 'Новые функции!';
     const notification = document.createElement('div');
-    notification.id = 'updateNotification';
     notification.style.cssText = `
-        position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-        background: #1f2833; border: 2px solid #45f3ff; border-radius: 12px;
-        padding: 15px 25px; color: #45f3ff; font-family: sans-serif; font-size: 16px;
-        z-index: 9999; box-shadow: 0 0 40px rgba(69, 243, 255, 0.3);
-        animation: slideDown 0.5s ease-out; text-align: center; max-width: 90%;
+        position:fixed;top:20px;left:50%;transform:translateX(-50%);
+        background:#1f2833;border:2px solid #45f3ff;border-radius:12px;
+        padding:15px 25px;color:#45f3ff;font-family:sans-serif;font-size:16px;
+        z-index:9999;box-shadow:0 0 40px rgba(69,243,255,0.3);text-align:center;max-width:90%;
     `;
     notification.innerHTML = `
         <div style="display:flex;align-items:center;gap:12px;">
             <span style="font-size:24px;">🎉</span>
             <div>
-                <strong>Игра обновлена до версии ${GAME_VERSION}!</strong>
+                <strong>Игра обновлена до v${GAME_VERSION}!</strong>
                 <div style="font-size:13px;color:#66fcf1;margin-top:4px;">${changes}</div>
             </div>
             <button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#45f3ff;font-size:20px;cursor:pointer;">✕</button>
         </div>
     `;
     document.body.appendChild(notification);
-    setTimeout(() => {
-        const el = document.getElementById('updateNotification');
-        if (el) {
-            el.style.opacity = '0';
-            el.style.transition = 'opacity 0.5s';
-            setTimeout(() => el.remove(), 500);
-        }
-    }, 10000);
+    setTimeout(() => { if (notification.parentElement) notification.remove(); }, 10000);
 }
-
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideDown {
-        0% { transform: translateX(-50%) translateY(-100px); opacity: 0; }
-        100% { transform: translateX(-50%) translateY(0); opacity: 1; }
-    }
-    @keyframes banBlink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.3; }
-    }
-`;
-document.head.appendChild(style);
 
 // ============================================================
 // ==================== ПЕРЕМЕННЫЕ ============================
@@ -537,7 +380,6 @@ let hamsterPurchased = localStorage.getItem('rat_hamsterPurchased') === 'true';
 let hamsterLevel = parseInt(localStorage.getItem('rat_hamsterLevel')) || 0;
 let hamsterFood = parseFloat(localStorage.getItem('rat_hamsterFood')) || 0;
 let hamsterMaxFood = 100;
-let hamsterBonus = 1.0;
 let hamsterUpgradeCost = 5000;
 const MAX_HAMSTER_LEVEL = 4;
 
@@ -547,17 +389,30 @@ let poopTimer = null;
 
 let manipulatorPurchased = localStorage.getItem('rat_manipulatorPurchased') === 'true';
 let manipulatorLevel = parseInt(localStorage.getItem('rat_manipulatorLevel')) || 0;
-let manipulatorSettings = JSON.parse(localStorage.getItem('rat_manipulatorSettings') || '[{"enabled":false,"action":"none","target":""},{"enabled":false,"action":"none","target":""},{"enabled":false,"action":"none","target":""}]');
+let advancedLogicPurchased = localStorage.getItem('rat_advancedLogicPurchased') === 'true';
+let manipulatorSettings = JSON.parse(localStorage.getItem('rat_manipulatorSettings') || '[{"enabled":false,"action":"none","target":"","condition":"always","threshold":20,"interval":5},{"enabled":false,"action":"none","target":"","condition":"always","threshold":20,"interval":5},{"enabled":false,"action":"none","target":"","condition":"always","threshold":20,"interval":5}]');
 let manipulatorTimers = [null, null, null];
+
+for (let i = 0; i < manipulatorSettings.length; i++) {
+    if (!manipulatorSettings[i]) {
+        manipulatorSettings[i] = { enabled: false, action: 'none', target: '', condition: 'always', threshold: 20, interval: 5 };
+    } else {
+        if (manipulatorSettings[i].condition === undefined) manipulatorSettings[i].condition = 'always';
+        if (manipulatorSettings[i].threshold === undefined) manipulatorSettings[i].threshold = 20;
+        if (manipulatorSettings[i].interval === undefined) manipulatorSettings[i].interval = 5;
+    }
+}
 
 let combinerPurchased = localStorage.getItem('rat_combinerPurchased') === 'true';
 let combinerLevel = parseInt(localStorage.getItem('rat_combinerLevel')) || 0;
 let combinerSlots = [null, null, null];
-let combinerRunning = [false, false, false];
-let combinerProgress = [0, 0, 0];
+let combinerRunning = JSON.parse(localStorage.getItem('rat_combinerRunning') || '[false,false,false]');
+let combinerProgress = JSON.parse(localStorage.getItem('rat_combinerProgress') || '[0,0,0]');
 let combinerTimer = [null, null, null];
+let combinerRecipes = JSON.parse(localStorage.getItem('rat_combinerRecipes') || '[null,null,null]');
 
-let extracts = JSON.parse(localStorage.getItem('rat_extracts') || '{"gmo_apple": 0, "rat_food": 0}');
+let extracts = JSON.parse(localStorage.getItem('rat_extracts') || '{"gmo_apple": 0, "rat_food": 0, "hay": 0}');
+if (extracts.hay === undefined) extracts.hay = 0;
 
 let extractorPurchased = localStorage.getItem('rat_extractorPurchased') === 'true';
 let extractorQueue = JSON.parse(localStorage.getItem('rat_extractorQueue') || '[]');
@@ -592,7 +447,7 @@ let plantInventory = JSON.parse(localStorage.getItem('rat_plantInventory') || '{
 
 let labPurchased = localStorage.getItem('rat_labPurchased') === 'true';
 let machineLevel = parseInt(localStorage.getItem('rat_machineLevel')) || 0;
-let machineRunning = false;
+let machineRunning = localStorage.getItem('rat_machineRunning') === 'true';
 let machineProgress = parseFloat(localStorage.getItem('rat_machineProgress')) || 0;
 let machineTimer = null;
 let fertilizerCount = parseInt(localStorage.getItem('rat_fertilizerCount')) || 0;
@@ -602,17 +457,25 @@ if (capybaraCooldown > 600) {
     localStorage.setItem('rat_capybaraCooldown', capybaraCooldown);
 }
 
-let inventory = JSON.parse(localStorage.getItem('rat_inventory') || '{"food": 0, "gmo_apple": 0}');
+let inventory = JSON.parse(localStorage.getItem('rat_inventory') || '{"food": 0, "gmo_apple": 0, "hay": 0}');
+if (inventory.hay === undefined) inventory.hay = 0;
 
 let buffActive = localStorage.getItem('rat_buffActive') === 'true';
 let buffTimer = null;
 let buffType = localStorage.getItem('rat_buffType') || null;
+let buffEndTime = parseInt(localStorage.getItem('rat_buffEndTime')) || 0;
 
 let pepperBuffActive = localStorage.getItem('rat_pepperBuffActive') === 'true';
 let pepperBuffTimer = null;
+let pepperBuffEndTime = parseInt(localStorage.getItem('rat_pepperBuffEndTime')) || 0;
+
+let hayBuffActive = localStorage.getItem('rat_hayBuffActive') === 'true';
+let hayBuffTimer = null;
+let hayBuffEndTime = parseInt(localStorage.getItem('rat_hayBuffEndTime')) || 0;
 
 let satietyActive = localStorage.getItem('rat_satietyActive') === 'true';
 let satietyTimer = null;
+let satietyEndTime = parseInt(localStorage.getItem('rat_satietyEndTime')) || 0;
 
 let bossFightActive = false;
 let bossHp = 100;
@@ -665,25 +528,14 @@ let reloadTimerSeconds = 10;
 
 let plantIntervals = [];
 
-const ACCESSORY_BONUS = {
-    hat: 5,
-    glasses: 15,
-    sword: 30,
-    crown: 100
-};
-
-const ACCESSORY_PRICES = {
-    hat: 1000,
-    glasses: 5000,
-    sword: 50000,
-    crown: 10000000
-};
+const ACCESSORY_BONUS = { hat: 5, glasses: 15, sword: 30, crown: 100 };
+const ACCESSORY_PRICES = { hat: 1000, glasses: 5000, sword: 50000, crown: 10000000 };
 
 const PLANT_TYPES = {
-    grass: { name: 'Трава', emoji: '🌿', growTime: 180, cost: 10000, color: '#45f3ff', desc: 'Кормит свинок на 100%' },
-    pepper: { name: 'Болгарский перец', emoji: '🌶️', growTime: 300, cost: 25000, color: '#ff4444', desc: 'Кормит на 100% + x2 буст свинкам на 20 сек' },
-    apple: { name: 'Яблоко', emoji: '🍎', growTime: 480, cost: 40000, color: '#ff6b6b', desc: 'Кормит на 100% + насыщение 1 минуту' },
-    cabbage: { name: 'Капуста', emoji: '🥬', growTime: 120, cost: 15000, color: '#45f3ff', desc: 'Насыщает на 50% + 💩 5 какашек' }
+    grass: { name: 'Трава', emoji: '🌿', growTime: 180, cost: 10000, color: '#45f3ff' },
+    pepper: { name: 'Болгарский перец', emoji: '🌶️', growTime: 300, cost: 25000, color: '#ff4444' },
+    apple: { name: 'Яблоко', emoji: '🍎', growTime: 480, cost: 40000, color: '#ff6b6b' },
+    cabbage: { name: 'Капуста', emoji: '🥬', growTime: 120, cost: 15000, color: '#45f3ff' }
 };
 
 const COMBINER_RECIPES = {
@@ -702,24 +554,21 @@ const COMBINER_RECIPES = {
         time: 300,
         result: 'rat_food_extract',
         resultType: 'extract'
+    },
+    hay_extract: {
+        name: 'Экстракт сена',
+        emoji: '🟡',
+        ingredients: ['grass', 'grass'],
+        time: 180,
+        result: 'hay_extract',
+        resultType: 'extract'
     }
 };
 
 const EXTRACTOR_RECIPES = {
-    gmo_apple_extract: {
-        name: 'ГМО яблоко',
-        emoji: '🍏',
-        time: 60,
-        result: 'gmo_apple',
-        resultType: 'item'
-    },
-    rat_food_extract: {
-        name: 'Крысиный корм',
-        emoji: '🍖',
-        time: 60,
-        result: 'food',
-        resultType: 'item'
-    }
+    gmo_apple_extract: { name: 'ГМО яблоко', emoji: '🍏', time: 60, result: 'gmo_apple', resultType: 'item' },
+    rat_food_extract: { name: 'Крысиный корм', emoji: '🍖', time: 60, result: 'food', resultType: 'item' },
+    hay_extract: { name: 'Сено', emoji: '🌾', time: 45, result: 'hay', resultType: 'item' }
 };
 
 // ============================================================
@@ -756,6 +605,9 @@ const buyCombinerBtn = document.getElementById('buyCombiner');
 const buyCombinerUpgradeBtn = document.getElementById('buyCombinerUpgrade');
 const buyExtractorBtn = document.getElementById('buyExtractor');
 const buyManipulatorBtn = document.getElementById('buyManipulator');
+const advancedLogicShopItem = document.getElementById('advancedLogicShopItem');
+const buyAdvancedLogicBtn = document.getElementById('buyAdvancedLogic');
+const advancedLogicCostEl = document.getElementById('advancedLogicCost');
 
 const clickCostEl = document.getElementById('clickCost');
 const autoCostEl = document.getElementById('autoCost');
@@ -782,7 +634,6 @@ const capybaraShopItem = document.getElementById('capybaraShopItem');
 const capybaraCostEl = document.getElementById('capybaraCost');
 const labShopItem = document.getElementById('labShopItem');
 const labShopCostEl = document.getElementById('labShopCost');
-
 const combinerShopItem = document.getElementById('combinerShopItem');
 const combinerShopCostEl = document.getElementById('combinerShopCost');
 const combinerUpgradeShopItem = document.getElementById('combinerUpgradeShopItem');
@@ -813,13 +664,11 @@ const grainToggle = document.getElementById('grainToggle');
 const grainStatus = document.getElementById('grainStatus');
 const grainLevelDisplay = document.getElementById('grainLevelDisplay');
 const grainBox = document.getElementById('grainBox');
-
 const superGrainToggle = document.getElementById('superGrainToggle');
 const superGrainStatus = document.getElementById('superGrainStatus');
 const superGrainInfo = document.getElementById('superGrainInfo');
 const superGrainBox = document.getElementById('superGrainBox');
 const superIndicator = document.getElementById('superIndicator');
-
 const mouseToggle = document.getElementById('mouseToggle');
 const mouseStatus = document.getElementById('mouseStatus');
 const mouseInfo = document.getElementById('mouseInfo');
@@ -953,8 +802,19 @@ const settingsContent = document.getElementById('settingsContent');
 const buffIndicator = document.getElementById('buffIndicator');
 const musicToggle = document.getElementById('musicToggle');
 
+// Создаём индикатор сена если его нет
+let hayIndicator = document.getElementById('hayIndicator');
+if (!hayIndicator) {
+    hayIndicator = document.createElement('div');
+    hayIndicator.id = 'hayIndicator';
+    hayIndicator.style.cssText = 'display:none;color:#ffd700;font-size:11px;text-align:center;animation:buffPulse 0.5s ease-in-out infinite alternate;';
+    hayIndicator.textContent = '🌾 x1.3 БУСТ СВИНОК!';
+    const enclosureBottom = document.querySelector('.enclosure-bottom');
+    if (enclosureBottom) enclosureBottom.appendChild(hayIndicator);
+}
+
 // ============================================================
-// ==================== ФУНКЦИИ МУЗЫКИ =======================
+// ==================== МУЗЫКА ================================
 // ============================================================
 
 function getYouTubeEmbedUrl(videoId, autoplay = 0) {
@@ -981,16 +841,7 @@ function toggleMusic() {
 function initMusic() {
     const container = document.getElementById('youtubePlayerContainer');
     if (!container) return;
-    container.innerHTML = `
-        <iframe 
-            id="youtubePlayer"
-            width="0" 
-            height="0" 
-            src="${getYouTubeEmbedUrl(musicVideoId, 1)}"
-            frameborder="0" 
-            allow="autoplay; encrypted-media">
-        </iframe>
-    `;
+    container.innerHTML = `<iframe id="youtubePlayer" width="0" height="0" src="${getYouTubeEmbedUrl(musicVideoId, 1)}" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
     musicEnabled = true;
     localStorage.setItem('rat_musicEnabled', 'true');
     if (musicToggle) {
@@ -1021,9 +872,8 @@ function getHamsterBonus() {
     if (!hamsterPurchased) return 1.0;
     if (hamsterFood <= 0) return 1.0;
     let bonus = 1.0 + hamsterLevel * 0.1;
-    if (pepperBuffActive) {
-        bonus = bonus * 2;
-    }
+    if (pepperBuffActive) bonus = bonus * 2;
+    if (hayBuffActive) bonus = bonus * 1.3;
     return bonus;
 }
 
@@ -1032,14 +882,11 @@ function getTotalClickPower() {
     let bonus = getAccessoryBonus();
     let hamsterMult = getHamsterBonus();
     let buffMult = buffActive ? 2 : 1;
-    let power = Math.floor(base * (1 + bonus / 100) * hamsterMult * buffMult);
-    return power;
+    return Math.floor(base * (1 + bonus / 100) * hamsterMult * buffMult);
 }
 
 function getFeedCost() {
-    if (bossMenuPurchased || capybaraPurchased) {
-        return 1500;
-    }
+    if (bossMenuPurchased || capybaraPurchased) return 1500;
     return 100;
 }
 
@@ -1067,9 +914,7 @@ function isAllLabPartsBought() {
 }
 
 function saveGame() {
-    if (window._ratIsActiveTab && !window._ratIsActiveTab()) {
-        return;
-    }
+    if (window._ratIsActiveTab && !window._ratIsActiveTab()) return;
     
     localStorage.setItem('rat_score', score);
     localStorage.setItem('rat_clickPower', clickPower);
@@ -1107,21 +952,31 @@ function saveGame() {
     localStorage.setItem('rat_labPoopCount', labPoopCount);
     localStorage.setItem('rat_labPurchased', labPurchased);
     localStorage.setItem('rat_machineLevel', machineLevel);
+    localStorage.setItem('rat_machineRunning', machineRunning);
     localStorage.setItem('rat_machineProgress', machineProgress);
     localStorage.setItem('rat_fertilizerCount', fertilizerCount);
     localStorage.setItem('rat_combinerPurchased', combinerPurchased);
     localStorage.setItem('rat_combinerLevel', combinerLevel);
+    localStorage.setItem('rat_combinerRunning', JSON.stringify(combinerRunning));
+    localStorage.setItem('rat_combinerProgress', JSON.stringify(combinerProgress));
+    localStorage.setItem('rat_combinerRecipes', JSON.stringify(combinerRecipes));
     localStorage.setItem('rat_extractorPurchased', extractorPurchased);
     localStorage.setItem('rat_extractorQueue', JSON.stringify(extractorQueue));
     localStorage.setItem('rat_extractorProgress', JSON.stringify(extractorProgress));
     localStorage.setItem('rat_extracts', JSON.stringify(extracts));
     localStorage.setItem('rat_manipulatorPurchased', manipulatorPurchased);
     localStorage.setItem('rat_manipulatorLevel', manipulatorLevel);
+    localStorage.setItem('rat_advancedLogicPurchased', advancedLogicPurchased);
     localStorage.setItem('rat_manipulatorSettings', JSON.stringify(manipulatorSettings));
     localStorage.setItem('rat_buffActive', buffActive);
     localStorage.setItem('rat_buffType', buffType || '');
+    localStorage.setItem('rat_buffEndTime', buffEndTime);
     localStorage.setItem('rat_pepperBuffActive', pepperBuffActive);
+    localStorage.setItem('rat_pepperBuffEndTime', pepperBuffEndTime);
+    localStorage.setItem('rat_hayBuffActive', hayBuffActive);
+    localStorage.setItem('rat_hayBuffEndTime', hayBuffEndTime);
     localStorage.setItem('rat_satietyActive', satietyActive);
+    localStorage.setItem('rat_satietyEndTime', satietyEndTime);
 }
 
 function showReloadNotification() {
@@ -1149,31 +1004,22 @@ function clearAllIntervals() {
         mouseMoveInterval, hamsterMoveInterval, foodDepletionInterval,
         reloadTimerInterval, poopTimer, machineTimer,
         bossMoveInterval, bossShootInterval, bossCooldownInterval, bossFightInterval,
-        buffTimer, pepperBuffTimer, satietyTimer,
-        ...combinerTimer,
-        extractorTimer,
-        ...manipulatorTimers,
-        ...plantIntervals
+        buffTimer, pepperBuffTimer, hayBuffTimer, satietyTimer,
+        ...combinerTimer, extractorTimer, ...manipulatorTimers, ...plantIntervals
     ];
     
     intervals.forEach(interval => {
-        if (interval) {
-            clearInterval(interval);
-            clearTimeout(interval);
-        }
+        if (interval) { clearInterval(interval); clearTimeout(interval); }
     });
     
     for (let i = 0; i < combinerTimer.length; i++) {
         combinerTimer[i] = null;
         combinerRunning[i] = false;
         combinerProgress[i] = 0;
+        combinerRecipes[i] = null;
     }
-    for (let i = 0; i < manipulatorTimers.length; i++) {
-        manipulatorTimers[i] = null;
-    }
-    for (let i = 0; i < plantIntervals.length; i++) {
-        plantIntervals[i] = null;
-    }
+    for (let i = 0; i < manipulatorTimers.length; i++) manipulatorTimers[i] = null;
+    for (let i = 0; i < plantIntervals.length; i++) plantIntervals[i] = null;
     
     grainSpawnTimeout = null;
     grainTimerInterval = null;
@@ -1190,89 +1036,51 @@ function clearAllIntervals() {
     bossFightInterval = null;
     buffTimer = null;
     pepperBuffTimer = null;
+    hayBuffTimer = null;
     satietyTimer = null;
     extractorTimer = null;
 }
 
 function resetAllProgress() {
-    score = 0;
-    clickPower = 1;
-    autoClickers = 0;
-    clickLevel = 0;
-    autoLevel = 0;
-    grainLevel = 0;
-    grainBase = 3;
-    grainActive = false;
-    ownedAccessories = [];
-    equippedAccessory = null;
-    grainPurchased = 0;
-    superGrainPurchased = false;
-    superGrainActive = false;
-    mousePurchased = false;
-    mouseActive = false;
-    hamsterPurchased = false;
-    hamsterLevel = 0;
-    hamsterFood = 0;
-    bossMenuPurchased = false;
-    capybaraPurchased = false;
-    capybaraCooldown = 0;
-    capybaraDefeated = false;
-    inventory = { food: 0, gmo_apple: 0 };
-    buffActive = false;
-    buffType = null;
-    pepperBuffActive = false;
-    satietyActive = false;
-    plantPurchased = false;
-    plantLevel = 0;
-    plantUpgrade1 = false;
-    plantUpgrade2 = false;
-    plantTypeGrass = false;
-    plantTypePepper = false;
-    plantTypeApple = false;
-    plantTypeCabbage = false;
+    score = 0; clickPower = 1; autoClickers = 0; clickLevel = 0; autoLevel = 0;
+    grainLevel = 0; grainBase = 3; grainActive = false;
+    ownedAccessories = []; equippedAccessory = null; grainPurchased = 0;
+    superGrainPurchased = false; superGrainActive = false;
+    mousePurchased = false; mouseActive = false;
+    hamsterPurchased = false; hamsterLevel = 0; hamsterFood = 0;
+    bossMenuPurchased = false; capybaraPurchased = false; capybaraCooldown = 0; capybaraDefeated = false;
+    inventory = { food: 0, gmo_apple: 0, hay: 0 };
+    buffActive = false; buffType = null; buffEndTime = 0;
+    pepperBuffActive = false; pepperBuffEndTime = 0;
+    hayBuffActive = false; hayBuffEndTime = 0;
+    satietyActive = false; satietyEndTime = 0;
+    plantPurchased = false; plantLevel = 0; plantUpgrade1 = false; plantUpgrade2 = false;
+    plantTypeGrass = false; plantTypePepper = false; plantTypeApple = false; plantTypeCabbage = false;
     plantInventory = { grass: 0, pepper: 0, apple: 0, cabbage: 0 };
     plantData = [
         { stage: 'idle', progress: 0, type: null, fertilizer: false },
         { stage: 'idle', progress: 0, type: null, fertilizer: false },
         { stage: 'idle', progress: 0, type: null, fertilizer: false }
     ];
-    poopCount = 0;
-    labPoopCount = 0;
-    labPurchased = false;
-    machineLevel = 0;
-    machineProgress = 0;
-    machineRunning = false;
-    fertilizerCount = 0;
-    combinerPurchased = false;
-    combinerLevel = 0;
+    poopCount = 0; labPoopCount = 0; labPurchased = false;
+    machineLevel = 0; machineProgress = 0; machineRunning = false; fertilizerCount = 0;
+    combinerPurchased = false; combinerLevel = 0;
     combinerSlots = [null, null, null];
     combinerRunning = [false, false, false];
     combinerProgress = [0, 0, 0];
-    extractorPurchased = false;
-    extractorQueue = [];
-    extractorProgress = [];
-    extracts = { gmo_apple: 0, rat_food: 0 };
-    manipulatorPurchased = false;
-    manipulatorLevel = 0;
+    combinerRecipes = [null, null, null];
+    extractorPurchased = false; extractorQueue = []; extractorProgress = [];
+    extracts = { gmo_apple: 0, rat_food: 0, hay: 0 };
+    manipulatorPurchased = false; manipulatorLevel = 0; advancedLogicPurchased = false;
     manipulatorSettings = [
-        { enabled: false, action: 'none', target: '' },
-        { enabled: false, action: 'none', target: '' },
-        { enabled: false, action: 'none', target: '' }
+        { enabled: false, action: 'none', target: '', condition: 'always', threshold: 20, interval: 5 },
+        { enabled: false, action: 'none', target: '', condition: 'always', threshold: 20, interval: 5 },
+        { enabled: false, action: 'none', target: '', condition: 'always', threshold: 20, interval: 5 }
     ];
     MAX_CLICK_LEVEL = 10;
     
     clearAllIntervals();
     AntiCheat.stop();
-    
-    localStorage.removeItem('rat_cheat_detected');
-    localStorage.removeItem('rat_checked_score');
-    localStorage.removeItem('rat_checked_time');
-    localStorage.removeItem('rat_totalClicks');
-    localStorage.removeItem('rat_totalTimePlayed');
-    localStorage.removeItem('rat_buffActive');
-    localStorage.removeItem('rat_buffType');
-    localStorage.removeItem('rat_pepperBuffActive');
-    localStorage.removeItem('rat_satietyActive');
     
     localStorage.clear();
     saveGame();
@@ -1293,9 +1101,7 @@ function resetAllProgress() {
 }
 
 reloadBtn.addEventListener('click', function() {
-    if (!this.disabled) {
-        location.reload();
-    }
+    if (!this.disabled) location.reload();
 });
 
 // ============================================================
@@ -1317,16 +1123,11 @@ function startPoopProduction() {
 }
 
 // ============================================================
-// ==================== СИСТЕМА РАСТЕНИЙ ======================
+// ==================== РАСТЕНИЯ ==============================
 // ============================================================
 
 function getPlantMaxTime(type, hasFertilizer = false) {
-    let base = 0;
-    if (type === 'grass') base = 180;
-    else if (type === 'pepper') base = 300;
-    else if (type === 'apple') base = 480;
-    else if (type === 'cabbage') base = 120;
-    else base = 180;
+    let base = type === 'grass' ? 180 : type === 'pepper' ? 300 : type === 'apple' ? 480 : 120;
     if (hasFertilizer) base = base / 2;
     return base;
 }
@@ -1352,9 +1153,7 @@ function getPlantEmoji(type, stage) {
 
 function getPlantStatusText(stage, progress) {
     if (stage === 'idle') return '💧 Полить';
-    if (stage === 'growing') {
-        return `🌱 ${Math.round(progress)}%`;
-    }
+    if (stage === 'growing') return `🌱 ${Math.round(progress)}%`;
     if (stage === 'ready') return '✅ Собрать!';
     return '💧 Полить';
 }
@@ -1369,8 +1168,7 @@ function getPlantStatusClass(stage) {
 function updatePlantsUI() {
     const container = document.getElementById('plantsContainer');
     const grid = document.getElementById('plantsGrid');
-    const totalPlants = plantLevel;
-    if (totalPlants === 0 || !plantPurchased) {
+    if (plantLevel === 0 || !plantPurchased) {
         container.style.display = 'none';
         container.classList.remove('visible');
         return;
@@ -1378,12 +1176,14 @@ function updatePlantsUI() {
     container.style.display = 'flex';
     container.classList.add('visible');
     grid.innerHTML = '';
-    for (let i = 0; i < totalPlants; i++) {
+    
+    for (let i = 0; i < plantLevel; i++) {
         const data = plantData[i];
         if (!data) continue;
         const pot = document.createElement('div');
         pot.className = 'plant-pot';
         pot.dataset.index = i;
+        
         const typeLabel = document.createElement('div');
         typeLabel.className = 'plant-type';
         if (data.type) {
@@ -1393,33 +1193,38 @@ function updatePlantsUI() {
             typeLabel.textContent = 'Пусто';
             typeLabel.style.color = '#555';
         }
+        
         const emoji = document.createElement('div');
         emoji.className = 'plant-emoji';
         if (data.stage === 'growing') emoji.classList.add('growing');
         if (data.stage === 'ready') emoji.classList.add('ready');
         emoji.textContent = getPlantEmoji(data.type, data.stage);
+        
         const status = document.createElement('div');
         status.className = 'plant-status ' + getPlantStatusClass(data.stage);
         status.textContent = getPlantStatusText(data.stage, data.progress);
+        
         const progressBar = document.createElement('div');
         progressBar.className = 'plant-progress';
         const fill = document.createElement('div');
         fill.className = 'plant-progress-fill';
         fill.style.width = (data.stage === 'growing' || data.stage === 'ready') ? Math.min(100, data.progress) + '%' : '0%';
         progressBar.appendChild(fill);
+        
         pot.appendChild(typeLabel);
         pot.appendChild(emoji);
         pot.appendChild(status);
         pot.appendChild(progressBar);
+        
         if (data.fertilizer && data.stage !== 'idle') {
             const buffInd = document.createElement('div');
             buffInd.className = 'plant-buff-indicator active';
             buffInd.textContent = '🧪';
             pot.appendChild(buffInd);
         }
+        
         pot.addEventListener('click', function() {
-            const index = parseInt(this.dataset.index);
-            interactWithPlant(index);
+            interactWithPlant(parseInt(this.dataset.index));
         });
         grid.appendChild(pot);
     }
@@ -1437,7 +1242,7 @@ function interactWithPlant(index) {
         if (plantTypeCabbage) availableTypes.push('cabbage');
 
         if (availableTypes.length === 0) {
-            alert('🌱 У вас нет семян! Купите тип растения в магазине (вкладка "Бусты").');
+            alert('🌱 У вас нет семян!');
             return;
         }
 
@@ -1458,18 +1263,16 @@ function interactWithPlant(index) {
             savePlantData();
             updatePlantsUI();
             updateUI();
-            alert(`🌱 Вы выбрали ${PLANT_TYPES[data.type].name}! Теперь полейте горшок.`);
         }
         return;
     }
 
     if (data.stage === 'idle') {
-        if (fertilizerCount > 0 && confirm('🧪 Использовать удобрение для ускорения роста в 2 раза?')) {
+        if (fertilizerCount > 0 && confirm('🧪 Использовать удобрение?')) {
             fertilizerCount--;
             data.fertilizer = true;
             saveGame();
             savePlantData();
-            alert('🧪 Удобрение применено! Растение будет расти в 2 раза быстрее!');
         }
         data.stage = 'growing';
         data.progress = 0;
@@ -1481,49 +1284,30 @@ function interactWithPlant(index) {
 
     if (data.stage === 'ready') {
         const type = data.type;
-        if (!type) {
-            alert('❌ Ошибка: тип растения не определён!');
-            return;
-        }
-
-        if (!PLANT_TYPES[type]) {
-            alert('❌ Ошибка: неизвестный тип растения!');
-            return;
-        }
-
-        if (plantInventory[type] === undefined) {
-            plantInventory[type] = 0;
-        }
-        plantInventory[type] = plantInventory[type] + 1;
-
+        if (!type) return;
+        if (plantInventory[type] === undefined) plantInventory[type] = 0;
+        plantInventory[type]++;
         data.stage = 'idle';
         data.progress = 0;
         data.type = null;
         data.fertilizer = false;
-
         savePlantData();
         saveGame();
         updatePlantsUI();
         updateUI();
-
-        const info = PLANT_TYPES[type];
-        alert(`🌿 ${info.name} собрана в инвентарь! (x${plantInventory[type]})`);
+        alert(`🌿 ${PLANT_TYPES[type].name} собрана! (x${plantInventory[type]})`);
         return;
     }
 
     if (data.stage === 'growing') {
-        alert('🌱 Растение ещё растёт! Подождите немного.');
-        return;
+        alert('🌱 Растение ещё растёт!');
     }
 }
 
 function startPlantGrowth(index) {
     const data = plantData[index];
     if (!data || !data.type) return;
-    if (plantIntervals[index]) {
-        clearInterval(plantIntervals[index]);
-        plantIntervals[index] = null;
-    }
+    if (plantIntervals[index]) clearInterval(plantIntervals[index]);
     const maxTime = getPlantMaxTime(data.type, data.fertilizer);
     plantIntervals[index] = setInterval(() => {
         const d = plantData[index];
@@ -1559,15 +1343,7 @@ function loadPlantData() {
     if (saved) {
         try {
             const parsed = JSON.parse(saved);
-            if (parsed.length === 3) {
-                plantData = parsed;
-                for (let i = 0; i < plantData.length; i++) {
-                    if (plantData[i].stage === 'growing') {
-                        startPlantGrowth(i);
-                    }
-                }
-                return;
-            }
+            if (parsed.length === 3) { plantData = parsed; return; }
         } catch(e) {}
     }
     plantData = [
@@ -1575,17 +1351,10 @@ function loadPlantData() {
         { stage: 'idle', progress: 0, type: null, fertilizer: false },
         { stage: 'idle', progress: 0, type: null, fertilizer: false }
     ];
-    const savedInv = localStorage.getItem('rat_plantInventory');
-    if (savedInv) {
-        try {
-            const parsed = JSON.parse(savedInv);
-            if (parsed.grass !== undefined) plantInventory = parsed;
-        } catch(e) {}
-    }
 }
 
 // ============================================================
-// ==================== СИСТЕМА ЛАБОРАТОРИИ ===================
+// ==================== ЛАБОРАТОРИЯ ===========================
 // ============================================================
 
 function updateLabUI() {
@@ -1604,7 +1373,7 @@ function updateLabUI() {
         machineStatus.className = 'machine-status complete';
         machineProgressDiv.style.display = 'block';
         machineBtn.disabled = false;
-        machineBtn.textContent = '🧪 Собрать удобрение';
+        machineBtn.textContent = '🧪 Собрать удобрение (+1)';
     } else {
         machineStatus.textContent = '⏸️ Бездействует';
         machineStatus.className = 'machine-status';
@@ -1618,8 +1387,7 @@ function updateLabUI() {
     machineProgressFill.style.width = percent + '%';
     machineProgressText.textContent = Math.round(percent) + '%';
 
-    const timeMinutes = Math.floor(maxTime / 60);
-    machineTimeDisplay.textContent = timeMinutes;
+    machineTimeDisplay.textContent = Math.floor(maxTime / 60);
     machineLevelDisplay.textContent = machineLevel;
 
     if (machineLevel >= 5) {
@@ -1632,26 +1400,7 @@ function updateLabUI() {
     }
 }
 
-function startMachine() {
-    if (machineRunning) {
-        alert('⏳ Станок уже работает!');
-        return;
-    }
-
-    if (labPoopCount < 7) {
-        alert('💩 Нужно 7 какашек для запуска станка! Сейчас: ' + labPoopCount);
-        return;
-    }
-
-    labPoopCount = labPoopCount - 7;
-    machineRunning = true;
-    machineProgress = 0;
-    const maxTime = getMachineTime();
-
-    saveGame();
-    updateLabUI();
-    updateUI();
-
+function restartMachineTimer(maxTime) {
     if (machineTimer) clearInterval(machineTimer);
     machineTimer = setInterval(() => {
         machineProgress++;
@@ -1662,12 +1411,24 @@ function startMachine() {
             machineTimer = null;
             machineRunning = false;
             machineProgress = maxTime;
-            fertilizerCount = fertilizerCount + 1;
-            updateLabUI();
             saveGame();
-            alert('🧪 Станок завершил работу!\n7 какашек → 1 удобрение!');
+            updateLabUI();
         }
     }, 1000);
+}
+
+function startMachine() {
+    if (machineRunning) { alert('⏳ Станок уже работает!'); return; }
+    if (labPoopCount < 7) { alert('💩 Нужно 7 какашек! Сейчас: ' + labPoopCount); return; }
+
+    labPoopCount -= 7;
+    machineRunning = true;
+    machineProgress = 0;
+    const maxTime = getMachineTime();
+    saveGame();
+    updateLabUI();
+    updateUI();
+    restartMachineTimer(maxTime);
 }
 
 function collectFertilizer() {
@@ -1677,19 +1438,14 @@ function collectFertilizer() {
     machineRunning = false;
     saveGame();
     updateLabUI();
-    alert('🧪 Удобрение получено!');
+    updateUI();
+    alert('🧪 Удобрение получено! (Всего: ' + fertilizerCount + ')');
 }
 
 function upgradeMachine() {
-    if (machineLevel >= 5) {
-        alert('⭐ Максимальный уровень достигнут!');
-        return;
-    }
+    if (machineLevel >= 5) { alert('⭐ MAX!'); return; }
     const cost = getMachineUpgradeCost();
-    if (score < cost) {
-        alert(`Не хватает монет! Нужно ${cost} $RAT`);
-        return;
-    }
+    if (score < cost) { alert(`Не хватает! Нужно ${cost} $RAT`); return; }
     score -= cost;
     machineLevel++;
     saveGame();
@@ -1699,7 +1455,7 @@ function upgradeMachine() {
 }
 
 // ============================================================
-// ==================== СИСТЕМА КОМБИНАТОРА ===================
+// ==================== КОМБИНАТОР ============================
 // ============================================================
 
 function checkRecipe(ingredients) {
@@ -1709,17 +1465,16 @@ function checkRecipe(ingredients) {
     for (let [recipeId, recipe] of Object.entries(COMBINER_RECIPES)) {
         let recipeCopy = [...recipe.ingredients];
         let matched = true;
-
-        for (let item of valid) {
-            let index = recipeCopy.indexOf(item);
-            if (index === -1) {
-                matched = false;
-                break;
-            }
-            recipeCopy.splice(index, 1);
+        let tempCopy = [...recipeCopy];
+        let tempValid = [...valid];
+        
+        for (let item of tempValid) {
+            let index = tempCopy.indexOf(item);
+            if (index === -1) { matched = false; break; }
+            tempCopy.splice(index, 1);
         }
-
-        if (matched && recipeCopy.length === 0) {
+        
+        if (matched && tempCopy.length === 0 && tempValid.length === recipe.ingredients.length) {
             return recipeId;
         }
     }
@@ -1741,7 +1496,6 @@ function updateCombinerUI() {
         if (item) {
             let displayName = '';
             let emoji = '';
-
             if (item === 'apple') { displayName = 'Яблоко'; emoji = '🍎'; }
             else if (item === 'grass') { displayName = 'Трава'; emoji = '🌿'; }
             else if (item === 'pepper') { displayName = 'Перец'; emoji = '🌶️'; }
@@ -1755,13 +1509,8 @@ function updateCombinerUI() {
                 </div>
             `;
         } else {
-            slot.innerHTML = `
-                <div class="slot-empty" onclick="selectForCombiner(${i})">
-                    ➕ Пусто
-                </div>
-            `;
+            slot.innerHTML = `<div class="slot-empty" onclick="selectForCombiner(${i})">➕ Пусто</div>`;
         }
-
         combinerSlotsContainer.appendChild(slot);
     }
 
@@ -1785,10 +1534,7 @@ function updateCombinerUI() {
     } else if (isRunning) {
         let progress = 0;
         for (let i = 0; i < combinerRunning.length; i++) {
-            if (combinerRunning[i]) {
-                progress = combinerProgress[i] || 0;
-                break;
-            }
+            if (combinerRunning[i]) { progress = combinerProgress[i] || 0; break; }
         }
         resultSlot.innerHTML = `
             <div class="result-item">
@@ -1799,12 +1545,7 @@ function updateCombinerUI() {
             </div>
         `;
     } else {
-        resultSlot.innerHTML = `
-            <div class="result-item empty">
-                <div class="result-emoji">❓</div>
-                <div class="result-name">Положите ингредиенты</div>
-            </div>
-        `;
+        resultSlot.innerHTML = `<div class="result-item empty"><div class="result-emoji">❓</div><div class="result-name">Положите ингредиенты</div></div>`;
     }
 
     combinerSlotsContainer.appendChild(resultSlot);
@@ -1817,30 +1558,18 @@ function selectForCombiner(index) {
     if (plantInventory.pepper > 0) availableItems.push({ id: 'pepper', name: 'Перец', emoji: '🌶️', count: plantInventory.pepper });
     if (fertilizerCount > 0) availableItems.push({ id: 'fertilizer', name: 'Удобрение', emoji: '🧪', count: fertilizerCount });
 
-    if (availableItems.length === 0) {
-        alert('❌ У вас нет предметов для крафта!');
-        return;
-    }
+    if (availableItems.length === 0) { alert('❌ Нет предметов!'); return; }
 
-    let choices = availableItems.map((item, i) => {
-        return `${i+1}. ${item.emoji} ${item.name} (x${item.count})`;
-    }).join('\n');
-
+    let choices = availableItems.map((item, i) => `${i+1}. ${item.emoji} ${item.name} (x${item.count})`).join('\n');
     let choice = prompt(`Выберите предмет для слота ${index+1}:\n\n${choices}`, '1');
     if (choice === null) return;
 
     let idx = parseInt(choice) - 1;
     if (idx >= 0 && idx < availableItems.length) {
         const item = availableItems[idx];
-
         let countInSlots = combinerSlots.filter(s => s === item.id).length;
         let maxCount = item.id === 'fertilizer' ? fertilizerCount : plantInventory[item.id] || 0;
-
-        if (countInSlots >= maxCount) {
-            alert(`❌ У вас нет столько ${item.name}!`);
-            return;
-        }
-
+        if (countInSlots >= maxCount) { alert(`❌ Нет столько ${item.name}!`); return; }
         combinerSlots[index] = item.id;
         saveGame();
         updateCombinerUI();
@@ -1848,43 +1577,35 @@ function selectForCombiner(index) {
     }
 }
 
-function removeFromCombiner(index) {
+window.removeFromCombiner = function(index) {
     combinerSlots[index] = null;
     saveGame();
     updateCombinerUI();
     updateUI();
-}
+};
 
-function startCraft(recipeId) {
-    if (combinerRunning.some(r => r)) {
-        alert('⏳ Комбинатор уже работает!');
-        return;
-    }
+window.selectForCombiner = selectForCombiner;
 
+window.startCraft = function(recipeId) {
+    if (combinerRunning.some(r => r)) { alert('⏳ Комбинатор уже работает!'); return; }
     const recipe = COMBINER_RECIPES[recipeId];
     if (!recipe) return;
 
     const slotIngredients = combinerSlots.filter(s => s !== null);
     let recipeCopy = [...recipe.ingredients];
-    for (let item of slotIngredients) {
-        let index = recipeCopy.indexOf(item);
-        if (index === -1) {
-            alert('❌ Ошибка: ингредиенты не совпадают с рецептом!');
-            return;
-        }
-        recipeCopy.splice(index, 1);
+    let tempCopy = [...recipeCopy];
+    let tempValid = [...slotIngredients];
+    
+    for (let item of tempValid) {
+        let index = tempCopy.indexOf(item);
+        if (index === -1) { alert('❌ Ингредиенты не совпадают!'); return; }
+        tempCopy.splice(index, 1);
     }
-    if (recipeCopy.length !== 0) {
-        alert('❌ Ошибка: не все ингредиенты для рецепта!');
-        return;
-    }
+    if (tempCopy.length !== 0) { alert('❌ Не все ингредиенты!'); return; }
 
     for (let item of slotIngredients) {
-        if (item === 'fertilizer') {
-            fertilizerCount--;
-        } else {
-            plantInventory[item]--;
-        }
+        if (item === 'fertilizer') fertilizerCount--;
+        else plantInventory[item]--;
     }
 
     let slotIndex = combinerRunning.indexOf(false);
@@ -1892,16 +1613,14 @@ function startCraft(recipeId) {
 
     combinerRunning[slotIndex] = true;
     combinerProgress[slotIndex] = 0;
+    combinerRecipes[slotIndex] = recipeId;
     combinerSlots = [null, null, null];
 
     saveGame();
     updateCombinerUI();
     updateUI();
 
-    if (combinerTimer[slotIndex]) {
-        clearInterval(combinerTimer[slotIndex]);
-        combinerTimer[slotIndex] = null;
-    }
+    if (combinerTimer[slotIndex]) clearInterval(combinerTimer[slotIndex]);
 
     combinerTimer[slotIndex] = setInterval(() => {
         combinerProgress[slotIndex] += (100 / recipe.time);
@@ -1911,29 +1630,24 @@ function startCraft(recipeId) {
             combinerTimer[slotIndex] = null;
 
             const result = recipe.result;
-            const resultType = recipe.resultType;
-
-            if (resultType === 'extract') {
-                if (extractorPurchased) {
-                    extractorQueue.push(result);
-                    extractorProgress.push(0);
-                    saveGame();
-                    updateCombinerUI();
-                    updateUI();
-                    updateExtractorUI();
-                    alert('✅ ' + recipe.name + ' создан и отправлен в аппарат превращения!');
-                } else {
-                    if (extracts[result] === undefined) extracts[result] = 0;
-                    extracts[result]++;
-                    saveGame();
-                    updateCombinerUI();
-                    updateUI();
-                    alert('⚠️ ' + recipe.name + ' создан! Нужен Аппарат превращения (20 000 $RAT в магазине).');
-                }
+            if (extractorPurchased) {
+                extractorQueue.push(result);
+                extractorProgress.push(0);
+                saveGame();
+                updateExtractorUI();
+                // ИСПРАВЛЕНО: правильное название
+                alert('✅ ' + recipe.name + ' создан и отправлен в аппарат превращения!');
+            } else {
+                if (extracts[result] === undefined) extracts[result] = 0;
+                extracts[result]++;
+                saveGame();
+                // ИСПРАВЛЕНО: правильное название
+                alert('⚠️ ' + recipe.name + ' создан! Нужен Аппарат превращения!');
             }
 
             combinerRunning[slotIndex] = false;
             combinerProgress[slotIndex] = 0;
+            combinerRecipes[slotIndex] = null;
             saveGame();
             updateCombinerUI();
             updateUI();
@@ -1941,10 +1655,10 @@ function startCraft(recipeId) {
         saveGame();
         updateCombinerUI();
     }, 1000);
-}
+};
 
 // ============================================================
-// ==================== СИСТЕМА ЭКСТРАКТОРА ===================
+// ==================== ЭКСТРАКТОР ============================
 // ============================================================
 
 function updateExtractorUI() {
@@ -1974,11 +1688,7 @@ function updateExtractorUI() {
 }
 
 function startExtractorProcessing() {
-    if (extractorTimer) {
-        clearInterval(extractorTimer);
-        extractorTimer = null;
-    }
-
+    if (extractorTimer) { clearInterval(extractorTimer); extractorTimer = null; }
     if (extractorQueue.length === 0) return;
 
     const item = extractorQueue[0];
@@ -2008,26 +1718,25 @@ function startExtractorProcessing() {
             const finishedItem = extractorQueue.shift();
             extractorProgress.shift();
 
-            const finishedRecipe = EXTRACTOR_RECIPES[finishedItem];
-            if (finishedRecipe) {
-                if (finishedItem === 'rat_food_extract') {
-                    if (!inventory.food) inventory.food = 0;
-                    inventory.food++;
-                    alert('🍖 Крысиный корм готов!');
-                } else if (finishedItem === 'gmo_apple_extract') {
-                    if (!inventory.gmo_apple) inventory.gmo_apple = 0;
-                    inventory.gmo_apple++;
-                    alert('🍏 ГМО яблоко готово!');
-                }
+            if (finishedItem === 'rat_food_extract') {
+                if (!inventory.food) inventory.food = 0;
+                inventory.food++;
+                alert('🍖 Крысиный корм готов!');
+            } else if (finishedItem === 'gmo_apple_extract') {
+                if (!inventory.gmo_apple) inventory.gmo_apple = 0;
+                inventory.gmo_apple++;
+                alert('🍏 ГМО яблоко готово!');
+            } else if (finishedItem === 'hay_extract') {
+                if (!inventory.hay) inventory.hay = 0;
+                inventory.hay++;
+                alert('🌾 Сено готово!');
             }
 
             saveGame();
             updateExtractorUI();
             updateUI();
 
-            if (extractorQueue.length > 0) {
-                startExtractorProcessing();
-            }
+            if (extractorQueue.length > 0) startExtractorProcessing();
         }
         saveGame();
         updateExtractorUI();
@@ -2035,17 +1744,16 @@ function startExtractorProcessing() {
 }
 
 // ============================================================
-// ==================== СИСТЕМА МАНИПУЛЯТОРОВ =================
+// ==================== МАНИПУЛЯТОРЫ ==========================
 // ============================================================
 
 function updateManipulatorUI() {
     const count = getManipulatorCount();
-
     if (count === 0 || !manipulatorPurchased) {
         if (manipulatorContainer) manipulatorContainer.style.display = 'none';
+        updateAutomationIndicators();
         return;
     }
-
     if (manipulatorContainer) manipulatorContainer.style.display = 'flex';
 
     for (let i = 0; i < 3; i++) {
@@ -2056,13 +1764,17 @@ function updateManipulatorUI() {
         const label = manipLabels[i];
 
         if (i < count) {
-            if (box) box.style.display = 'flex';
+            if (box) {
+                box.style.display = 'flex';
+                if (advancedLogicPurchased) box.classList.add('advanced');
+                else box.classList.remove('advanced');
+            }
             if (toggle) toggle.style.display = 'flex';
             if (status) status.style.display = 'block';
             if (settingsBtn) settingsBtn.style.display = 'block';
             if (label) label.style.display = 'block';
 
-            const setting = manipulatorSettings[i] || { enabled: false, action: 'none', target: '' };
+            const setting = manipulatorSettings[i] || { enabled: false, action: 'none', target: '', condition: 'always', threshold: 20, interval: 5 };
 
             if (toggle) {
                 toggle.classList.toggle('active', setting.enabled);
@@ -2071,9 +1783,9 @@ function updateManipulatorUI() {
                 manipToggles[i] = newToggle;
                 newToggle.addEventListener('click', function() {
                     const idx = parseInt(this.id.replace('manipToggle', '')) - 1;
-                    const setting = manipulatorSettings[idx] || { enabled: false, action: 'none', target: '' };
-                    setting.enabled = !setting.enabled;
-                    manipulatorSettings[idx] = setting;
+                    const s = manipulatorSettings[idx] || { enabled: false, action: 'none', target: '', condition: 'always', threshold: 20, interval: 5 };
+                    s.enabled = !s.enabled;
+                    manipulatorSettings[idx] = s;
                     localStorage.setItem('rat_manipulatorSettings', JSON.stringify(manipulatorSettings));
                     saveGame();
                     updateManipulatorUI();
@@ -2083,27 +1795,29 @@ function updateManipulatorUI() {
             }
 
             if (status) {
-                if (setting.enabled) {
-                    status.textContent = 'Вкл';
-                    status.className = 'manip-status on';
-                } else {
-                    status.textContent = 'Выкл';
-                    status.className = 'manip-status';
-                }
+                status.textContent = setting.enabled ? 'Вкл' : 'Выкл';
+                status.className = setting.enabled ? 'manip-status on' : 'manip-status';
             }
 
             let actionText = '🤖 Бездействует';
-            if (setting.action === 'feed_hamsters') {
-                actionText = '🤖 Кормит свинок';
-            } else if (setting.action === 'craft_gmo_apple') {
-                actionText = '🤖 Крафтит 🍏 ГМО яблоко';
-            } else if (setting.action === 'craft_rat_food') {
-                actionText = '🤖 Крафтит 🔴 экстракт корма';
-            } else if (setting.action === 'move_extracts') {
-                actionText = '🤖 Перекладывает экстракты';
-            } else if (setting.action === 'make_fertilizer') {
-                actionText = '🤖 Делает удобрения';
+            if (setting.action === 'click_rat') actionText = '🤖 Кликает по крысе';
+            else if (setting.action === 'feed_hamsters') {
+                if (setting.condition === 'below') actionText = '🤖 Кормит (<' + setting.threshold + '%)';
+                else if (setting.condition === 'above') actionText = '🤖 Кормит (>' + setting.threshold + '%)';
+                else actionText = '🤖 Кормит свинок';
+            } else if (setting.action === 'craft') {
+                if (setting.target === 'gmo_apple') actionText = '🤖 Крафтит 🟢 экстракт ГМО';
+                else if (setting.target === 'rat_food') actionText = '🤖 Крафтит 🔴 экстракт корма';
+                else if (setting.target === 'hay') actionText = '🤖 Крафтит 🟡 экстракт сена';
+                else actionText = '🤖 Крафтит';
+            } else if (setting.action === 'move_extracts') actionText = '🤖 Перекладывает экстракты';
+            else if (setting.action === 'make_fertilizer') {
+                if (setting.condition === 'below') actionText = '🤖 Делает удобрения (<' + setting.threshold + ')';
+                else if (setting.condition === 'above') actionText = '🤖 Делает удобрения (>' + setting.threshold + ')';
+                else actionText = '🤖 Делает удобрения';
             }
+            
+            if (advancedLogicPurchased && setting.interval) actionText += ' ⏱️' + setting.interval + 'с';
             if (label) label.textContent = actionText;
 
             if (settingsBtn) {
@@ -2115,7 +1829,6 @@ function updateManipulatorUI() {
                     openManipulatorSettings(idx);
                 });
             }
-
         } else {
             if (box) box.style.display = 'none';
             if (toggle) toggle.style.display = 'none';
@@ -2124,31 +1837,48 @@ function updateManipulatorUI() {
             if (label) label.style.display = 'none';
         }
     }
+    updateAutomationIndicators();
 }
 
 function openManipulatorSettings(index) {
-    const setting = manipulatorSettings[index] || { enabled: false, action: 'none', target: '' };
+    const setting = manipulatorSettings[index] || { enabled: false, action: 'none', target: '', condition: 'always', threshold: 20, interval: 5 };
+    const showAdvanced = advancedLogicPurchased;
 
     let html = `
         <div class="settings-section">
             <h3>🤖 Манипулятор ${index + 1}</h3>
+            ${!showAdvanced ? `
+                <div style="background:rgba(255,107,0,0.15);border:2px solid #ff6b00;border-radius:10px;padding:10px;margin-bottom:15px;text-align:center;">
+                    <div style="color:#ff6b00;font-weight:bold;font-size:14px;">🔒 Улучшенная логика НЕ куплена</div>
+                    <div style="color:#66fcf1;font-size:12px;margin-top:5px;">Купите её в магазине за 20 000 $RAT!</div>
+                </div>
+            ` : `
+                <div style="background:rgba(69,243,255,0.1);border:2px solid #45f3ff;border-radius:10px;padding:8px;margin-bottom:15px;text-align:center;">
+                    <div style="color:#45f3ff;font-weight:bold;font-size:13px;">✅ Улучшенная логика активна</div>
+                </div>
+            `}
             <div class="settings-row">
                 <label>Действие:</label>
                 <select id="manipAction">
-                    <option value="none" ${setting.action === 'none' ? 'selected' : ''}>Бездействует</option>
+                    <option value="none" ${setting.action === 'none' ? 'selected' : ''}>❌ Бездействует</option>
+                    <option value="click_rat" ${setting.action === 'click_rat' ? 'selected' : ''}>🎯 Кликать по крысе</option>
                     <option value="feed_hamsters" ${setting.action === 'feed_hamsters' ? 'selected' : ''}>🍖 Кормить свинок</option>
                     <option value="craft" ${setting.action === 'craft' ? 'selected' : ''}>🔧 Крафтить</option>
                     <option value="move_extracts" ${setting.action === 'move_extracts' ? 'selected' : ''}>🔄 Перекладывать экстракты</option>
                     <option value="make_fertilizer" ${setting.action === 'make_fertilizer' ? 'selected' : ''}>🧪 Делать удобрения</option>
                 </select>
             </div>
-            <div class="settings-row" id="craftRow" style="${setting.action === 'craft' ? '' : 'display:none;'}">
-                <label>Что крафтить:</label>
-                <select id="craftTarget">
-                    <option value="gmo_apple" ${setting.target === 'gmo_apple' ? 'selected' : ''}>🍏 ГМО яблоко (Яблоко + Удобрение)</option>
-                    <option value="rat_food" ${setting.target === 'rat_food' ? 'selected' : ''}>🔴 Экстракт корма (Яблоко + Трава + Перец)</option>
+            ${showAdvanced ? `
+            <div class="settings-row" id="intervalRow" style="${setting.action !== 'none' ? '' : 'display:none;'}">
+                <label>⏱️ Интервал:</label>
+                <select id="manipInterval">
+                    <option value="5" ${setting.interval === 5 ? 'selected' : ''}>5 секунд</option>
+                    <option value="10" ${setting.interval === 10 ? 'selected' : ''}>10 секунд</option>
+                    <option value="30" ${setting.interval === 30 ? 'selected' : ''}>30 секунд</option>
+                    <option value="60" ${setting.interval === 60 ? 'selected' : ''}>60 секунд</option>
                 </select>
             </div>
+            ` : ''}
             <div class="settings-row" id="feedRow" style="${setting.action === 'feed_hamsters' ? '' : 'display:none;'}">
                 <label>Чем кормить:</label>
                 <select id="feedTarget">
@@ -2156,6 +1886,41 @@ function openManipulatorSettings(index) {
                     <option value="grass" ${setting.target === 'grass' ? 'selected' : ''}>🌿 Трава</option>
                     <option value="apple" ${setting.target === 'apple' ? 'selected' : ''}>🍎 Яблоко</option>
                     <option value="cabbage" ${setting.target === 'cabbage' ? 'selected' : ''}>🥬 Капуста</option>
+                    <option value="hay" ${setting.target === 'hay' ? 'selected' : ''}>🌾 Сено</option>
+                </select>
+            </div>
+            ${showAdvanced ? `
+            <div class="settings-row" id="feedConditionRow" style="${setting.action === 'feed_hamsters' ? '' : 'display:none;'}">
+                <label>Условие:</label>
+                <select id="feedCondition">
+                    <option value="always" ${setting.condition === 'always' ? 'selected' : ''}>🔁 Всегда</option>
+                    <option value="below" ${setting.condition === 'below' ? 'selected' : ''}>📉 Голод МЕНЬШЕ N%</option>
+                    <option value="above" ${setting.condition === 'above' ? 'selected' : ''}>📈 Голод БОЛЬШЕ N%</option>
+                </select>
+            </div>
+            <div class="settings-row" id="feedThresholdRow" style="${setting.action === 'feed_hamsters' && setting.condition !== 'always' ? '' : 'display:none;'}">
+                <label>Порог (1-100):</label>
+                <input type="number" id="feedThreshold" min="1" max="100" value="${setting.threshold || 20}">
+            </div>
+            <div class="settings-row" id="fertConditionRow" style="${setting.action === 'make_fertilizer' ? '' : 'display:none;'}">
+                <label>Условие:</label>
+                <select id="fertCondition">
+                    <option value="always" ${setting.condition === 'always' ? 'selected' : ''}>🔁 Всегда</option>
+                    <option value="below" ${setting.condition === 'below' ? 'selected' : ''}>📉 Удобрений МЕНЬШЕ N</option>
+                    <option value="above" ${setting.condition === 'above' ? 'selected' : ''}>📈 Удобрений БОЛЬШЕ N</option>
+                </select>
+            </div>
+            <div class="settings-row" id="fertThresholdRow" style="${setting.action === 'make_fertilizer' && setting.condition !== 'always' ? '' : 'display:none;'}">
+                <label>Порог (1-100):</label>
+                <input type="number" id="fertThreshold" min="1" max="100" value="${setting.threshold || 2}">
+            </div>
+            ` : ''}
+            <div class="settings-row" id="craftRow" style="${setting.action === 'craft' ? '' : 'display:none;'}">
+                <label>Что крафтить:</label>
+                <select id="craftTarget">
+                    <option value="gmo_apple" ${setting.target === 'gmo_apple' ? 'selected' : ''}>🟢 Экстракт ГМО яблока</option>
+                    <option value="rat_food" ${setting.target === 'rat_food' ? 'selected' : ''}>🔴 Экстракт крысиного корма</option>
+                    <option value="hay" ${setting.target === 'hay' ? 'selected' : ''}>🟡 Экстракт сена</option>
                 </select>
             </div>
             <button class="settings-save-btn" onclick="saveManipulatorSettings(${index})">💾 Сохранить</button>
@@ -2166,36 +1931,81 @@ function openManipulatorSettings(index) {
     settingsModal.classList.add('open');
     settingsModal.style.display = 'flex';
 
-    document.getElementById('manipAction').addEventListener('change', function() {
-        const craftRow = document.getElementById('craftRow');
+    const actionSelect = document.getElementById('manipAction');
+    actionSelect.addEventListener('change', function() {
         const feedRow = document.getElementById('feedRow');
-        if (this.value === 'craft') {
-            craftRow.style.display = '';
-            feedRow.style.display = 'none';
-        } else if (this.value === 'feed_hamsters') {
-            craftRow.style.display = 'none';
-            feedRow.style.display = '';
-        } else {
-            craftRow.style.display = 'none';
-            feedRow.style.display = 'none';
+        const craftRow = document.getElementById('craftRow');
+        const feedConditionRow = document.getElementById('feedConditionRow');
+        const feedThresholdRow = document.getElementById('feedThresholdRow');
+        const fertConditionRow = document.getElementById('fertConditionRow');
+        const fertThresholdRow = document.getElementById('fertThresholdRow');
+        const intervalRow = document.getElementById('intervalRow');
+        
+        if (feedRow) feedRow.style.display = 'none';
+        if (craftRow) craftRow.style.display = 'none';
+        if (feedConditionRow) feedConditionRow.style.display = 'none';
+        if (feedThresholdRow) feedThresholdRow.style.display = 'none';
+        if (fertConditionRow) fertConditionRow.style.display = 'none';
+        if (fertThresholdRow) fertThresholdRow.style.display = 'none';
+        if (intervalRow) intervalRow.style.display = 'none';
+        
+        if (this.value !== 'none' && intervalRow) intervalRow.style.display = '';
+        
+        if (this.value === 'craft') { if (craftRow) craftRow.style.display = ''; }
+        else if (this.value === 'feed_hamsters') {
+            if (feedRow) feedRow.style.display = '';
+            if (feedConditionRow) feedConditionRow.style.display = '';
+            const cond = document.getElementById('feedCondition');
+            if (cond && cond.value !== 'always' && feedThresholdRow) feedThresholdRow.style.display = '';
+        } else if (this.value === 'make_fertilizer') {
+            if (fertConditionRow) fertConditionRow.style.display = '';
+            const cond = document.getElementById('fertCondition');
+            if (cond && cond.value !== 'always' && fertThresholdRow) fertThresholdRow.style.display = '';
         }
+    });
+    
+    const feedCondition = document.getElementById('feedCondition');
+    if (feedCondition) feedCondition.addEventListener('change', function() {
+        const feedThresholdRow = document.getElementById('feedThresholdRow');
+        if (feedThresholdRow) feedThresholdRow.style.display = this.value === 'always' ? 'none' : '';
+    });
+    
+    const fertCondition = document.getElementById('fertCondition');
+    if (fertCondition) fertCondition.addEventListener('change', function() {
+        const fertThresholdRow = document.getElementById('fertThresholdRow');
+        if (fertThresholdRow) fertThresholdRow.style.display = this.value === 'always' ? 'none' : '';
     });
 }
 
-function saveManipulatorSettings(index) {
+window.saveManipulatorSettings = function(index) {
     const action = document.getElementById('manipAction').value;
     let target = '';
+    let condition = 'always';
+    let threshold = 20;
+    let interval = 5;
 
-    if (action === 'craft') {
-        target = document.getElementById('craftTarget').value;
-    } else if (action === 'feed_hamsters') {
+    if (action === 'craft') target = document.getElementById('craftTarget').value;
+    else if (action === 'feed_hamsters') {
         target = document.getElementById('feedTarget').value;
+        const condEl = document.getElementById('feedCondition');
+        if (condEl) condition = condEl.value;
+        const threshEl = document.getElementById('feedThreshold');
+        if (threshEl) threshold = Math.max(1, Math.min(100, parseInt(threshEl.value) || 20));
+    } else if (action === 'make_fertilizer') {
+        const condEl = document.getElementById('fertCondition');
+        if (condEl) condition = condEl.value;
+        const threshEl = document.getElementById('fertThreshold');
+        if (threshEl) threshold = Math.max(1, Math.min(100, parseInt(threshEl.value) || 2));
+    }
+    
+    if (advancedLogicPurchased) {
+        const intEl = document.getElementById('manipInterval');
+        if (intEl) interval = parseInt(intEl.value) || 5;
     }
 
     manipulatorSettings[index] = {
         enabled: manipulatorSettings[index]?.enabled || false,
-        action: action,
-        target: target
+        action, target, condition, threshold, interval
     };
 
     localStorage.setItem('rat_manipulatorSettings', JSON.stringify(manipulatorSettings));
@@ -2205,38 +2015,111 @@ function saveManipulatorSettings(index) {
 
     settingsModal.classList.remove('open');
     settingsModal.style.display = 'none';
-
     restartManipulators();
-}
+};
 
 function restartManipulators() {
     for (let i = 0; i < manipulatorTimers.length; i++) {
-        if (manipulatorTimers[i]) {
-            clearInterval(manipulatorTimers[i]);
-            manipulatorTimers[i] = null;
-        }
+        if (manipulatorTimers[i]) { clearInterval(manipulatorTimers[i]); manipulatorTimers[i] = null; }
     }
-
     for (let i = 0; i < getManipulatorCount(); i++) {
         const setting = manipulatorSettings[i];
-        if (setting && setting.enabled && setting.action !== 'none') {
-            startManipulator(i);
-        }
+        if (setting && setting.enabled && setting.action !== 'none') startManipulator(i);
     }
+    updateAutomationIndicators();
 }
 
 function startManipulator(index) {
-    if (manipulatorTimers[index]) {
-        clearInterval(manipulatorTimers[index]);
-        manipulatorTimers[index] = null;
-    }
-
+    if (manipulatorTimers[index]) { clearInterval(manipulatorTimers[index]); manipulatorTimers[index] = null; }
     const setting = manipulatorSettings[index];
     if (!setting || !setting.enabled || setting.action === 'none') return;
 
+    let intervalMs = 5000;
+    if (advancedLogicPurchased && setting.interval) intervalMs = setting.interval * 1000;
+
     manipulatorTimers[index] = setInterval(() => {
         executeManipulatorAction(index);
-    }, 5000);
+    }, intervalMs);
+}
+
+function applyPepperBuff() {
+    pepperBuffActive = true;
+    pepperBuffEndTime = Date.now() + 20000;
+    localStorage.setItem('rat_pepperBuffActive', 'true');
+    localStorage.setItem('rat_pepperBuffEndTime', pepperBuffEndTime);
+    if (pepperIndicator) {
+        pepperIndicator.classList.add('active');
+        pepperIndicator.style.display = 'block';
+    }
+    if (pepperBuffTimer) clearInterval(pepperBuffTimer);
+    pepperBuffTimer = setInterval(() => {
+        if (Date.now() >= pepperBuffEndTime) {
+            pepperBuffActive = false;
+            pepperBuffEndTime = 0;
+            localStorage.setItem('rat_pepperBuffActive', 'false');
+            localStorage.setItem('rat_pepperBuffEndTime', 0);
+            if (pepperIndicator) {
+                pepperIndicator.classList.remove('active');
+                pepperIndicator.style.display = 'none';
+            }
+            clearInterval(pepperBuffTimer);
+            pepperBuffTimer = null;
+            saveGame();
+            updateUI();
+        }
+    }, 1000);
+}
+
+function applyHayBuff() {
+    hayBuffActive = true;
+    hayBuffEndTime = Date.now() + 20000;
+    localStorage.setItem('rat_hayBuffActive', 'true');
+    localStorage.setItem('rat_hayBuffEndTime', hayBuffEndTime);
+    if (hayIndicator) {
+        hayIndicator.classList.add('active');
+        hayIndicator.style.display = 'block';
+    }
+    if (hayBuffTimer) clearInterval(hayBuffTimer);
+    hayBuffTimer = setInterval(() => {
+        if (Date.now() >= hayBuffEndTime) {
+            hayBuffActive = false;
+            hayBuffEndTime = 0;
+            localStorage.setItem('rat_hayBuffActive', 'false');
+            localStorage.setItem('rat_hayBuffEndTime', 0);
+            if (hayIndicator) {
+                hayIndicator.classList.remove('active');
+                hayIndicator.style.display = 'none';
+            }
+            clearInterval(hayBuffTimer);
+            hayBuffTimer = null;
+            saveGame();
+            updateUI();
+        }
+    }, 1000);
+}
+
+function applySatietyBuff(duration) {
+    satietyActive = true;
+    satietyEndTime = Date.now() + duration;
+    localStorage.setItem('rat_satietyActive', 'true');
+    localStorage.setItem('rat_satietyEndTime', satietyEndTime);
+    enclosureSatiety.classList.add('active');
+    enclosureSatiety.style.display = 'block';
+    if (satietyTimer) clearInterval(satietyTimer);
+    satietyTimer = setInterval(() => {
+        if (Date.now() >= satietyEndTime) {
+            satietyActive = false;
+            satietyEndTime = 0;
+            localStorage.setItem('rat_satietyActive', 'false');
+            localStorage.setItem('rat_satietyEndTime', 0);
+            enclosureSatiety.classList.remove('active');
+            enclosureSatiety.style.display = 'none';
+            clearInterval(satietyTimer);
+            satietyTimer = null;
+            saveGame();
+            updateUI();
+        }
+    }, 1000);
 }
 
 function executeManipulatorAction(index) {
@@ -2244,9 +2127,32 @@ function executeManipulatorAction(index) {
     if (!setting || !setting.enabled) return;
 
     switch (setting.action) {
+        case 'click_rat':
+            if (isBanned) return;
+            const totalPower = getTotalClickPower();
+            score += totalPower;
+            saveGame();
+            updateUI();
+            
+            const pop = document.createElement('div');
+            pop.className = 'click-pop' + (buffActive ? ' buffed' : '');
+            pop.innerText = '+' + totalPower + ' 🤖';
+            const rect = clickArea.getBoundingClientRect();
+            pop.style.left = (rect.width / 2 - 30 + Math.random() * 60) + 'px';
+            pop.style.top = (rect.height / 2 - 50 + Math.random() * 40) + 'px';
+            clickArea.appendChild(pop);
+            setTimeout(() => pop.remove(), 500);
+            
+            ratBody.style.transform = 'scale(0.9) rotate(-3deg)';
+            setTimeout(() => { ratBody.style.transform = ''; }, 100);
+            break;
+
         case 'feed_hamsters':
             if (!hamsterPurchased) return;
             if (hamsterFood >= hamsterMaxFood) return;
+            
+            if (setting.condition === 'below' && hamsterFood >= (setting.threshold || 20)) return;
+            if (setting.condition === 'above' && hamsterFood <= (setting.threshold || 20)) return;
 
             if (setting.target === 'money') {
                 let cost = getFeedCost();
@@ -2258,9 +2164,35 @@ function executeManipulatorAction(index) {
                 }
             } else {
                 let item = setting.target;
-                if (plantInventory[item] > 0) {
+                if (item === 'hay') {
+                    // Сено из инвентаря (готовый предмет)
+                    if (inventory.hay > 0) {
+                        inventory.hay--;
+                        hamsterFood = hamsterMaxFood;
+                        applyHayBuff();
+                        saveGame();
+                        updateUI();
+                        updateInventoryUI();
+                    }
+                } else if (plantInventory[item] > 0) {
                     plantInventory[item]--;
-                    hamsterFood = Math.min(hamsterMaxFood, hamsterFood + 20);
+                    
+                    // ИСПРАВЛЕНО: применяем баффы!
+                    if (item === 'cabbage') {
+                        let addFood = hamsterMaxFood * 0.5;
+                        hamsterFood = Math.min(hamsterMaxFood, hamsterFood + addFood);
+                        poopCount += 5;
+                    } else if (item === 'pepper') {
+                        hamsterFood = hamsterMaxFood;
+                        applyPepperBuff();
+                    } else if (item === 'apple') {
+                        hamsterFood = hamsterMaxFood;
+                        applySatietyBuff(60000);
+                    } else {
+                        // Трава — просто кормит
+                        hamsterFood = hamsterMaxFood;
+                    }
+                    
                     saveGame();
                     updateUI();
                 }
@@ -2276,74 +2208,112 @@ function executeManipulatorAction(index) {
             } else if (setting.target === 'rat_food') {
                 if (plantInventory.apple < 1 || plantInventory.grass < 1 || plantInventory.pepper < 1) return;
                 combinerSlots = ['apple', 'grass', 'pepper'];
+            } else if (setting.target === 'hay') {
+                if (plantInventory.grass < 2) return;
+                combinerSlots = ['grass', 'grass', null];
             } else {
                 return;
             }
             
             let recipeId = checkRecipe(combinerSlots);
-            if (recipeId) {
-                startCraft(recipeId);
-            }
-            break;
-
-        case 'move_extracts':
+            if (recipeId) startCraft(recipeId);
             break;
 
         case 'make_fertilizer':
             if (machineRunning) return;
-            if (labPoopCount >= 7) {
-                startMachine();
+            if (setting.condition === 'below' && fertilizerCount >= (setting.threshold || 2)) return;
+            if (setting.condition === 'above' && fertilizerCount <= (setting.threshold || 2)) return;
+            if (labPoopCount >= 7) startMachine();
+            break;
+
+        case 'move_extracts':
+            if (!extractorPurchased) return;
+            if (extracts.gmo_apple > 0) {
+                extracts.gmo_apple--;
+                extractorQueue.push('gmo_apple_extract');
+                extractorProgress.push(0);
             }
+            if (extracts.rat_food > 0) {
+                extracts.rat_food--;
+                extractorQueue.push('rat_food_extract');
+                extractorProgress.push(0);
+            }
+            if (extracts.hay > 0) {
+                extracts.hay--;
+                extractorQueue.push('hay_extract');
+                extractorProgress.push(0);
+            }
+            saveGame();
+            updateExtractorUI();
+            updateUI();
             break;
     }
 }
 
 // ============================================================
-// ==================== ФУНКЦИЯ ПРИМЕНЕНИЯ УДОБРЕНИЯ =========
+// ============== ИНДИКАТОРЫ АВТОМАТИЗАЦИИ ====================
+// ============================================================
+
+function updateAutomationIndicators() {
+    let ratAutoActive = false;
+    let hamsterAutoActive = false;
+    let fertilizerAutoActive = false;
+    let combinerAutoActive = false;
+    let manipNum = 0;
+    
+    for (let i = 0; i < manipulatorLevel; i++) {
+        const setting = manipulatorSettings[i];
+        if (!setting || !setting.enabled || setting.action === 'none') continue;
+        if (setting.action === 'click_rat') { ratAutoActive = true; manipNum = i + 1; }
+        if (setting.action === 'feed_hamsters') hamsterAutoActive = true;
+        if (setting.action === 'make_fertilizer') fertilizerAutoActive = true;
+        if (setting.action === 'craft') combinerAutoActive = true;
+    }
+    
+    const ratInd = document.getElementById('ratAutoIndicator');
+    const ratNum = document.getElementById('ratAutoManipNum');
+    if (ratInd) {
+        if (ratAutoActive) {
+            ratInd.style.display = 'inline-block';
+            if (ratNum) ratNum.textContent = manipNum;
+        } else ratInd.style.display = 'none';
+    }
+    
+    const hamsterBadge = document.getElementById('hamsterAutoBadge');
+    if (hamsterBadge) hamsterBadge.style.display = hamsterAutoActive ? 'inline-block' : 'none';
+    
+    const fertBadge = document.getElementById('fertilizerAutoBadge');
+    if (fertBadge) fertBadge.style.display = fertilizerAutoActive ? 'inline-block' : 'none';
+    
+    const combBadge = document.getElementById('combinerAutoBadge');
+    if (combBadge) combBadge.style.display = combinerAutoActive ? 'inline-block' : 'none';
+}
+
+// ============================================================
+// ==================== УДОБРЕНИЕ =============================
 // ============================================================
 
 function useFertilizer() {
-    if (fertilizerCount <= 0) {
-        alert('🧪 У вас нет удобрений! Сначала получите их в лаборатории.');
-        return;
-    }
-
+    if (fertilizerCount <= 0) { alert('🧪 Нет удобрений!'); return; }
     let availablePlants = [];
     for (let i = 0; i < plantData.length; i++) {
         if (plantData[i].stage === 'idle' || (plantData[i].stage === 'growing' && !plantData[i].fertilizer && plantData[i].type)) {
             availablePlants.push({
                 index: i,
-                type: plantData[i].type,
-                progress: plantData[i].progress,
-                stage: plantData[i].stage,
                 name: plantData[i].type ? (PLANT_TYPES[plantData[i].type]?.name || 'Неизвестно') : 'Пустой горшок',
                 emoji: plantData[i].type ? (PLANT_TYPES[plantData[i].type]?.emoji || '🪴') : '🪴'
             });
         }
     }
-
-    if (availablePlants.length === 0) {
-        alert('🌱 Нет горшков для применения удобрения!');
-        return;
-    }
-
+    if (availablePlants.length === 0) { alert('🌱 Нет горшков!'); return; }
     if (availablePlants.length === 1) {
-        let plant = availablePlants[0];
-        if (confirm('🧪 Применить удобрение к ' + plant.emoji + ' ' + plant.name + ' (горшок ' + (plant.index + 1) + ')?')) {
-            fertilizerCount--;
-            applyFertilizerToPlant(plant.index);
-        }
+        fertilizerCount--;
+        applyFertilizerToPlant(availablePlants[0].index);
         return;
     }
-
-    let choices = availablePlants.map((p, i) => {
-        let statusText = p.stage === 'idle' ? '💧 пустой' : '🌱 растёт (' + Math.round(p.progress) + '%)';
-        return (i + 1) + '. ' + p.emoji + ' ' + p.name + ' (горшок ' + (p.index + 1) + ') — ' + statusText;
-    }).join('\n');
-
-    let choice = prompt('🧪 Выберите горшок для удобрения:\n\n' + choices, '1');
+    let choices = availablePlants.map((p, i) => `${i+1}. ${p.emoji} ${p.name} (горшок ${p.index+1})`).join('\n');
+    let choice = prompt('🧪 Выберите горшок:\n\n' + choices, '1');
     if (choice === null) return;
-
     let idx = parseInt(choice) - 1;
     if (idx >= 0 && idx < availablePlants.length) {
         fertilizerCount--;
@@ -2353,27 +2323,19 @@ function useFertilizer() {
 
 function applyFertilizerToPlant(index) {
     const data = plantData[index];
-    if (!data) {
-        alert('❌ Ошибка: растение не найдено!');
-        return;
-    }
-
+    if (!data) return;
     if (data.stage === 'idle') {
         data.fertilizer = true;
-        alert('🧪 Удобрение применено! При посадке растения оно ускорит рост в 2 раза!');
+        alert('🧪 Удобрение применено!');
     } else if (data.stage === 'growing' && !data.fertilizer) {
         data.fertilizer = true;
-        if (plantIntervals[index]) {
-            clearInterval(plantIntervals[index]);
-            plantIntervals[index] = null;
-        }
+        if (plantIntervals[index]) { clearInterval(plantIntervals[index]); plantIntervals[index] = null; }
         startPlantGrowth(index);
-        alert('🧪 Удобрение применено! Растение ускорено в 2 раза!');
+        alert('🧪 Удобрение применено!');
     } else {
-        alert('❌ На этом растении уже есть удобрение или оно не подходит!');
+        alert('❌ Уже есть удобрение!');
         return;
     }
-
     saveGame();
     savePlantData();
     updatePlantsUI();
@@ -2382,7 +2344,7 @@ function applyFertilizerToPlant(index) {
 }
 
 // ============================================================
-// ==================== ФУНКЦИЯ ОБНОВЛЕНИЯ СТАТУСА БОССА =====
+// ==================== БОСС ==================================
 // ============================================================
 
 function updateBossStatus() {
@@ -2394,19 +2356,14 @@ function updateBossStatus() {
         fightBtn.disabled = true;
         return;
     }
-    if (capybaraDefeated && capybaraCooldown <= 0) {
-        capybaraDefeated = false;
-        localStorage.setItem('rat_capybaraDefeated', 'false');
-        saveGame();
-    }
     if (capybaraCooldown > 0) {
-        let minutes = Math.floor(capybaraCooldown / 60);
-        let seconds = capybaraCooldown % 60;
-        statusEl.textContent = `⏳ Перезарядка: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        let m = Math.floor(capybaraCooldown / 60);
+        let s = capybaraCooldown % 60;
+        statusEl.textContent = `⏳ ${m}:${s.toString().padStart(2, '0')}`;
         statusEl.className = 'boss-status';
         fightBtn.disabled = true;
     } else if (capybaraDefeated) {
-        statusEl.textContent = '✅ Побеждена! (ожидание)';
+        statusEl.textContent = '✅ Побеждена!';
         statusEl.className = 'boss-status available';
         fightBtn.disabled = true;
     } else {
@@ -2417,15 +2374,11 @@ function updateBossStatus() {
 }
 
 function startBossCooldownTimer() {
-    if (bossCooldownInterval) {
-        clearInterval(bossCooldownInterval);
-        bossCooldownInterval = null;
-    }
+    if (bossCooldownInterval) { clearInterval(bossCooldownInterval); bossCooldownInterval = null; }
     if (capybaraCooldown <= 0) {
         if (capybaraDefeated) {
             capybaraDefeated = false;
             localStorage.setItem('rat_capybaraDefeated', 'false');
-            saveGame();
         }
         updateBossStatus();
         return;
@@ -2441,16 +2394,11 @@ function startBossCooldownTimer() {
             if (capybaraDefeated) {
                 capybaraDefeated = false;
                 localStorage.setItem('rat_capybaraDefeated', 'false');
-                saveGame();
             }
             updateBossStatus();
         }
     }, 1000);
 }
-
-// ============================================================
-// ==================== БОССФАЙТ ===============================
-// ============================================================
 
 function startBossFight() {
     if (bossFightActive) return;
@@ -2458,15 +2406,12 @@ function startBossFight() {
     bossHp = bossMaxHp;
     bossX = 50;
     bossDirection = 1;
-    bossBullets = [];
     bossFightModal.classList.add('open');
     bossFightModal.style.display = 'flex';
     shootBtn.disabled = false;
     bossTimer.textContent = '⚔️ БОЙ НАЧАЛСЯ!';
     bossTimer.className = 'boss-timer ready';
-    
     bossEnemy.style.left = bossX + '%';
-    bossEnemy.style.bottom = bossY + '%';
     updateBossHp();
     
     bossMoveInterval = setInterval(() => {
@@ -2492,14 +2437,11 @@ function startBossFight() {
         bullets.forEach(b => {
             const rect = b.getBoundingClientRect();
             const ratRect = ratContainer.getBoundingClientRect();
-            if (rect.left < ratRect.right && rect.right > ratRect.left &&
-                rect.top < ratRect.bottom && rect.bottom > ratRect.top) {
+            if (rect.left < ratRect.right && rect.right > ratRect.left && rect.top < ratRect.bottom && rect.bottom > ratRect.top) {
                 b.remove();
                 bossHp -= 5;
                 updateBossHp();
-                if (bossHp <= 0) {
-                    bossDefeated();
-                }
+                if (bossHp <= 0) bossDefeated();
             }
         });
     }, 100);
@@ -2519,31 +2461,22 @@ function shootBoss() {
     if (!bossFightActive || !canShoot) return;
     canShoot = false;
     shootBtn.disabled = true;
-    
     playerProjectile.style.display = 'block';
     playerProjectile.style.left = '50%';
     playerProjectile.style.bottom = '10%';
     playerProjectile.style.transform = 'translateX(-50%)';
     playerProjectile.textContent = '💨';
-    
     setTimeout(() => {
         const projRect = playerProjectile.getBoundingClientRect();
         const bossRect = bossEnemy.getBoundingClientRect();
-        if (projRect.left < bossRect.right && projRect.right > bossRect.left &&
-            projRect.top < bossRect.bottom && projRect.bottom > bossRect.top) {
+        if (projRect.left < bossRect.right && projRect.right > bossRect.left && projRect.top < bossRect.bottom && projRect.bottom > bossRect.top) {
             bossHp -= 15;
             updateBossHp();
-            if (bossHp <= 0) {
-                bossDefeated();
-            }
+            if (bossHp <= 0) bossDefeated();
         }
         playerProjectile.style.display = 'none';
     }, 600);
-    
-    setTimeout(() => {
-        canShoot = true;
-        shootBtn.disabled = false;
-    }, shootCooldown);
+    setTimeout(() => { canShoot = true; shootBtn.disabled = false; }, shootCooldown);
 }
 
 function updateBossHp() {
@@ -2563,25 +2496,23 @@ function bossDefeated() {
     saveGame();
     updateUI();
     startBossCooldownTimer();
-    alert('🎉 БОСС ПОБЕЖДЁН!\n🍖 Получен Корм для крысы! (x2 буст на 30 сек)');
+    alert('🎉 БОСС ПОБЕЖДЁН! Получен Корм для крысы!');
 }
 
 shootBtn.addEventListener('click', shootBoss);
 retreatBtn.addEventListener('click', () => {
-    if (confirm('🏃 Вы уверены, что хотите отступить?')) {
+    if (confirm('🏃 Отступить?')) {
         stopBossFight();
         capybaraCooldown = 300;
         localStorage.setItem('rat_capybaraCooldown', capybaraCooldown);
         saveGame();
         updateUI();
         startBossCooldownTimer();
-        alert('⏳ Вы отступили! Перезарядка: 5 минут');
     }
 });
-
 closeFightBtn.addEventListener('click', () => {
     if (bossFightActive) {
-        if (confirm('🏃 Вы уверены, что хотите выйти из боя?')) {
+        if (confirm('🏃 Выйти?')) {
             stopBossFight();
             capybaraCooldown = 300;
             localStorage.setItem('rat_capybaraCooldown', capybaraCooldown);
@@ -2589,25 +2520,7 @@ closeFightBtn.addEventListener('click', () => {
             updateUI();
             startBossCooldownTimer();
         }
-    } else {
-        stopBossFight();
-    }
-});
-
-bossFightModal.addEventListener('click', function(e) {
-    if (e.target === this && bossFightActive) {
-        if (confirm('🏃 Вы уверены, что хотите выйти из боя?')) {
-            stopBossFight();
-            capybaraCooldown = 300;
-            localStorage.setItem('rat_capybaraCooldown', capybaraCooldown);
-            saveGame();
-            updateUI();
-            startBossCooldownTimer();
-        }
-    } else if (e.target === this) {
-        this.style.display = 'none';
-        this.classList.remove('open');
-    }
+    } else stopBossFight();
 });
 
 // ============================================================
@@ -2617,6 +2530,7 @@ bossFightModal.addEventListener('click', function(e) {
 function updateInventoryUI() {
     inventoryGrid.innerHTML = '';
     let hasItems = false;
+    
     if (inventory.food > 0) {
         hasItems = true;
         const slot = document.createElement('div');
@@ -2638,6 +2552,18 @@ function updateInventoryUI() {
             <div class="item-name">ГМО яблоко</div>
             <div class="item-count">x${inventory.gmo_apple}</div>
             <button class="use-btn" data-item="gmo_apple">Использовать</button>
+        `;
+        inventoryGrid.appendChild(slot);
+    }
+    if (inventory.hay > 0) {
+        hasItems = true;
+        const slot = document.createElement('div');
+        slot.className = 'inventory-slot';
+        slot.innerHTML = `
+            <div class="item-icon">🌾</div>
+            <div class="item-name">Сено</div>
+            <div class="item-count">x${inventory.hay}</div>
+            <button class="use-btn" data-item="hay">Использовать</button>
         `;
         inventoryGrid.appendChild(slot);
     }
@@ -2701,16 +2627,15 @@ function updateInventoryUI() {
         `;
         inventoryGrid.appendChild(slot);
     }
-    if (hasItems) {
-        inventoryEmpty.style.display = 'none';
-    } else {
-        inventoryEmpty.style.display = 'block';
-    }
+    
+    inventoryEmpty.style.display = hasItems ? 'none' : 'block';
+    
     document.querySelectorAll('.use-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const item = this.dataset.item;
             if (item === 'food') useFoodItem();
             else if (item === 'gmo_apple') useGmoApple();
+            else if (item === 'hay') useHayItem();
             else if (item === 'grass') usePlantItem('grass');
             else if (item === 'pepper') usePlantItem('pepper');
             else if (item === 'apple') usePlantItem('apple');
@@ -2722,56 +2647,55 @@ function updateInventoryUI() {
 
 function useFoodItem() {
     if (inventory.food <= 0) return;
-    if (buffActive) {
-        alert('⚡ Буст уже активен!');
-        return;
-    }
+    if (buffActive) { alert('⚡ Буст уже активен!'); return; }
     inventory.food--;
     buffActive = true;
     buffType = 'food';
+    buffEndTime = Date.now() + 30000;
     ratBody.classList.add('buffed');
     buffIndicator.style.display = 'block';
     saveGame();
     updateUI();
     if (buffTimer) clearInterval(buffTimer);
-    buffTimer = setTimeout(() => {
-        buffActive = false;
-        buffType = null;
-        ratBody.classList.remove('buffed');
-        buffIndicator.style.display = 'none';
-        localStorage.setItem('rat_buffActive', 'false');
-        localStorage.setItem('rat_buffType', '');
-        saveGame();
-        updateUI();
-    }, 30000);
+    buffTimer = setInterval(() => {
+        if (Date.now() >= buffEndTime) {
+            buffActive = false;
+            buffType = null;
+            buffEndTime = 0;
+            ratBody.classList.remove('buffed');
+            buffIndicator.style.display = 'none';
+            localStorage.setItem('rat_buffActive', 'false');
+            localStorage.setItem('rat_buffEndTime', 0);
+            clearInterval(buffTimer);
+            buffTimer = null;
+            saveGame();
+            updateUI();
+        }
+    }, 1000);
     updateInventoryUI();
 }
 
 function useGmoApple() {
     if (inventory.gmo_apple <= 0) return;
-    if (satietyActive) {
-        alert('🍏 Насыщение уже активно!');
-        return;
-    }
+    if (satietyActive) { alert('🍏 Насыщение уже активно!'); return; }
     inventory.gmo_apple--;
-    satietyActive = true;
-    localStorage.setItem('rat_satietyActive', 'true');
-    enclosureSatiety.classList.add('active');
-    enclosureSatiety.style.display = 'block';
-    enclosureSatiety.textContent = '🍏 ГМО насыщение: 2:30';
-    if (satietyTimer) clearInterval(satietyTimer);
-    satietyTimer = setTimeout(() => {
-        satietyActive = false;
-        localStorage.setItem('rat_satietyActive', 'false');
-        enclosureSatiety.classList.remove('active');
-        enclosureSatiety.style.display = 'none';
-        saveGame();
-        updateUI();
-    }, 150000);
+    applySatietyBuff(150000);
     saveGame();
     updateUI();
     updateInventoryUI();
-    alert('🍏 ГМО яблоко использовано!\nСвинки не будут тратить голод 2 минуты 30 секунд!');
+    alert('🍏 ГМО яблоко использовано!\nСвинки не тратят голод 2:30!');
+}
+
+function useHayItem() {
+    if (inventory.hay <= 0) return;
+    if (!hamsterPurchased) { alert('🐹 Сначала купите вольер!'); return; }
+    inventory.hay--;
+    hamsterFood = hamsterMaxFood;
+    applyHayBuff();
+    saveGame();
+    updateUI();
+    updateInventoryUI();
+    alert('🌾 Сено использовано!\nСвинки накормлены + x1.3 буст на 20 сек!');
 }
 
 function usePlantItem(type) {
@@ -2779,64 +2703,33 @@ function usePlantItem(type) {
     const info = PLANT_TYPES[type];
     if (!info) return;
     plantInventory[type]--;
+    
+    if (!hamsterPurchased) { alert('🐹 Сначала купите вольер!'); return; }
 
     if (type === 'cabbage') {
         let addFood = hamsterMaxFood * 0.5;
         hamsterFood = Math.min(hamsterMaxFood, hamsterFood + addFood);
         poopCount += 5;
-        saveGame();
-        updateUI();
-        alert(`🥬 Капуста использована! Свинки накормлены на 50% и дали 5 какашек! (💩 ${poopCount})`);
+        alert(`🥬 Капуста использована! +50% еды, +5 какашек!`);
+    } else if (type === 'pepper') {
+        hamsterFood = hamsterMaxFood;
+        applyPepperBuff();
+        alert('🌶️ Перец использован! x2 буст на 20 сек!');
+    } else if (type === 'apple') {
+        hamsterFood = hamsterMaxFood;
+        applySatietyBuff(60000);
+        alert('🍎 Яблоко использовано! Насыщение 1 минуту!');
     } else {
-        if (hamsterFood < hamsterMaxFood) {
-            hamsterFood = hamsterMaxFood;
-        }
-        if (type === 'pepper') {
-            pepperBuffActive = true;
-            localStorage.setItem('rat_pepperBuffActive', 'true');
-            if (pepperIndicator) {
-                pepperIndicator.classList.add('active');
-                pepperIndicator.style.display = 'block';
-            }
-            if (pepperBuffTimer) clearInterval(pepperBuffTimer);
-            pepperBuffTimer = setTimeout(() => {
-                pepperBuffActive = false;
-                localStorage.setItem('rat_pepperBuffActive', 'false');
-                if (pepperIndicator) {
-                    pepperIndicator.classList.remove('active');
-                    pepperIndicator.style.display = 'none';
-                }
-                saveGame();
-                updateUI();
-            }, 20000);
-            alert('🌶️ Болгарский перец использован! Свинки дают x2 бонус на 20 секунд!');
-        } else if (type === 'apple') {
-            satietyActive = true;
-            localStorage.setItem('rat_satietyActive', 'true');
-            enclosureSatiety.classList.add('active');
-            enclosureSatiety.style.display = 'block';
-            if (satietyTimer) clearInterval(satietyTimer);
-            satietyTimer = setTimeout(() => {
-                satietyActive = false;
-                localStorage.setItem('rat_satietyActive', 'false');
-                enclosureSatiety.classList.remove('active');
-                enclosureSatiety.style.display = 'none';
-                saveGame();
-                updateUI();
-            }, 60000);
-            alert('🍎 Яблоко использовано! Свинки не будут тратить голод 1 минуту!');
-        } else {
-            alert(`🌿 ${info.name} использована! Свинки накормлены!`);
-        }
+        hamsterFood = hamsterMaxFood;
+        alert(`🌿 ${info.name} использована!`);
     }
-
     saveGame();
     updateUI();
     updateInventoryUI();
 }
 
 // ============================================================
-// ==================== СИСТЕМА ВОЛЬЕРА =======================
+// ==================== ВОЛЬЕР ================================
 // ============================================================
 
 function startHamsterMovement() {
@@ -2846,29 +2739,15 @@ function startHamsterMovement() {
         for (let i = 0; i < visibleCount; i++) {
             if (Math.random() < 0.3) {
                 hamsterElements[i].classList.add('moving');
-                setTimeout(() => {
-                    hamsterElements[i].classList.remove('moving');
-                }, 800);
+                setTimeout(() => hamsterElements[i].classList.remove('moving'), 800);
             }
         }
     }, 2000);
 }
 
-function stopHamsterMovement() {
-    if (hamsterMoveInterval) {
-        clearInterval(hamsterMoveInterval);
-        hamsterMoveInterval = null;
-    }
-}
-
 function startFoodDepletion() {
-    if (foodDepletionInterval) {
-        clearInterval(foodDepletionInterval);
-        foodDepletionInterval = null;
-    }
-    if (!hamsterPurchased) return;
-    if (hamsterFood <= 0) return;
-    if (satietyActive) return;
+    if (foodDepletionInterval) { clearInterval(foodDepletionInterval); foodDepletionInterval = null; }
+    if (!hamsterPurchased || hamsterFood <= 0 || satietyActive) return;
     foodDepletionInterval = setInterval(() => {
         if (satietyActive) return;
         if (hamsterPurchased && hamsterFood > 0) {
@@ -2877,38 +2756,30 @@ function startFoodDepletion() {
             saveGame();
             updateUI();
         } else if (hamsterFood <= 0) {
-            stopFoodDepletion();
+            if (foodDepletionInterval) { clearInterval(foodDepletionInterval); foodDepletionInterval = null; }
             updateUI();
         }
     }, 1000);
 }
 
 function stopFoodDepletion() {
-    if (foodDepletionInterval) {
-        clearInterval(foodDepletionInterval);
-        foodDepletionInterval = null;
-    }
+    if (foodDepletionInterval) { clearInterval(foodDepletionInterval); foodDepletionInterval = null; }
 }
 
 function feedHamsters() {
     if (!hamsterPurchased) return;
     if (hamsterFood >= hamsterMaxFood) return;
     let feedCost = getFeedCost();
-    if (score < feedCost) {
-        alert(`Не хватает монет! Нужно ${feedCost} $RAT`);
-        return;
-    }
+    if (score < feedCost) { alert(`Не хватает! Нужно ${feedCost} $RAT`); return; }
     score -= feedCost;
     hamsterFood = Math.min(hamsterMaxFood, hamsterFood + 20);
     saveGame();
     updateUI();
-    if (hamsterFood > 0 && !foodDepletionInterval && !satietyActive) {
-        startFoodDepletion();
-    }
+    if (hamsterFood > 0 && !foodDepletionInterval && !satietyActive) startFoodDepletion();
 }
 
 // ============================================================
-// ==================== ФУНКЦИЯ ОБНОВЛЕНИЯ UI ================
+// ==================== ОБНОВЛЕНИЕ UI =========================
 // ============================================================
 
 function updateUI() {
@@ -2928,17 +2799,10 @@ function updateUI() {
     grainBaseEl.innerText = grainBase;
     grainCostEl.innerText = 1000 * (grainLevel + 1);
     grainLevelDisplay.innerText = 'Ур. ' + grainLevel;
-
     superGrainInfo.innerText = 'Базовое: ' + SUPER_GRAIN_BASE;
-
-    let bonus = getAccessoryBonus();
-    accessoryBonusDisplay.innerText = '+' + bonus + '%';
-
-    if (buffActive) {
-        buffIndicator.style.display = 'block';
-    } else {
-        buffIndicator.style.display = 'none';
-    }
+    accessoryBonusDisplay.innerText = '+' + getAccessoryBonus() + '%';
+    
+    buffIndicator.style.display = buffActive ? 'block' : 'none';
 
     if (superGrainPurchased) {
         if (grainActive && superGrainActive) {
@@ -2949,7 +2813,6 @@ function updateUI() {
             superIndicator.className = 'indicator-text';
         }
     }
-
     if (mousePurchased) {
         if (currentGrainElement && mouseActive) {
             mouseIndicator.textContent = '🎯 Цель найдена!';
@@ -2963,329 +2826,193 @@ function updateUI() {
         }
     }
 
+    // Кнопки покупок
     if (clickLevel >= currentMaxClick) {
-        buyClickBtn.disabled = true;
-        clickItem.classList.add('disabled');
-        buyClickBtn.textContent = 'MAX';
-        buyClickBtn.style.backgroundColor = '#555';
-        buyClickBtn.style.color = '#888';
+        buyClickBtn.disabled = true; clickItem.classList.add('disabled');
+        buyClickBtn.textContent = 'MAX'; buyClickBtn.style.backgroundColor = '#555'; buyClickBtn.style.color = '#888';
     } else {
-        buyClickBtn.disabled = false;
-        clickItem.classList.remove('disabled');
-        buyClickBtn.textContent = 'Купить';
-        buyClickBtn.style.backgroundColor = '#45f3ff';
-        buyClickBtn.style.color = '#0b0c10';
+        buyClickBtn.disabled = false; clickItem.classList.remove('disabled');
+        buyClickBtn.textContent = 'Купить'; buyClickBtn.style.backgroundColor = '#45f3ff'; buyClickBtn.style.color = '#0b0c10';
     }
-
     if (autoLevel >= MAX_AUTO_LEVEL) {
-        buyAutoBtn.disabled = true;
-        autoItem.classList.add('disabled');
-        buyAutoBtn.textContent = 'MAX';
-        buyAutoBtn.style.backgroundColor = '#555';
-        buyAutoBtn.style.color = '#888';
+        buyAutoBtn.disabled = true; autoItem.classList.add('disabled');
+        buyAutoBtn.textContent = 'MAX'; buyAutoBtn.style.backgroundColor = '#555'; buyAutoBtn.style.color = '#888';
     } else {
-        buyAutoBtn.disabled = false;
-        autoItem.classList.remove('disabled');
-        buyAutoBtn.textContent = 'Купить';
-        buyAutoBtn.style.backgroundColor = '#45f3ff';
-        buyAutoBtn.style.color = '#0b0c10';
+        buyAutoBtn.disabled = false; autoItem.classList.remove('disabled');
+        buyAutoBtn.textContent = 'Купить'; buyAutoBtn.style.backgroundColor = '#45f3ff'; buyAutoBtn.style.color = '#0b0c10';
     }
 
     if (clickLevel >= currentMaxClick && autoLevel >= MAX_AUTO_LEVEL) {
         grainItem.style.display = 'flex';
         if (grainPurchased === 0) {
-            buyGrainBtn.disabled = false;
-            grainItem.classList.remove('disabled');
-            grainCostEl.innerText = 1000;
-            buyGrainBtn.textContent = 'Купить';
-            buyGrainBtn.style.backgroundColor = '#ffd700';
-            buyGrainBtn.style.color = '#0b0c10';
+            buyGrainBtn.disabled = false; grainItem.classList.remove('disabled');
+            grainCostEl.innerText = 1000; buyGrainBtn.textContent = 'Купить';
+            buyGrainBtn.style.backgroundColor = '#ffd700'; buyGrainBtn.style.color = '#0b0c10';
         } else if (grainLevel >= MAX_GRAIN_LEVEL) {
-            buyGrainBtn.disabled = true;
-            grainItem.classList.add('disabled');
-            buyGrainBtn.textContent = 'MAX';
-            buyGrainBtn.style.backgroundColor = '#555';
-            buyGrainBtn.style.color = '#888';
+            buyGrainBtn.disabled = true; grainItem.classList.add('disabled');
+            buyGrainBtn.textContent = 'MAX'; buyGrainBtn.style.backgroundColor = '#555'; buyGrainBtn.style.color = '#888';
         } else {
-            buyGrainBtn.disabled = false;
-            grainItem.classList.remove('disabled');
-            grainCostEl.innerText = 1000 * (grainLevel + 1);
-            buyGrainBtn.textContent = 'Улучшить';
-            buyGrainBtn.style.backgroundColor = '#45f3ff';
-            buyGrainBtn.style.color = '#0b0c10';
+            buyGrainBtn.disabled = false; grainItem.classList.remove('disabled');
+            grainCostEl.innerText = 1000 * (grainLevel + 1); buyGrainBtn.textContent = 'Улучшить';
+            buyGrainBtn.style.backgroundColor = '#45f3ff'; buyGrainBtn.style.color = '#0b0c10';
         }
     } else {
-        grainItem.style.display = 'none';
-        grainItem.classList.remove('disabled');
+        grainItem.style.display = 'none'; grainItem.classList.remove('disabled');
     }
 
     if (grainLevel >= MAX_GRAIN_LEVEL) {
         superGrainItem.style.display = 'flex';
         if (superGrainPurchased) {
-            buySuperGrainBtn.disabled = true;
-            superGrainItem.classList.add('disabled');
-            superGrainCostEl.innerText = '—';
-            buySuperGrainBtn.textContent = 'Куплено';
-            buySuperGrainBtn.style.backgroundColor = '#555';
-            buySuperGrainBtn.style.color = '#888';
+            buySuperGrainBtn.disabled = true; superGrainItem.classList.add('disabled');
+            superGrainCostEl.innerText = '—'; buySuperGrainBtn.textContent = 'Куплено';
+            buySuperGrainBtn.style.backgroundColor = '#555'; buySuperGrainBtn.style.color = '#888';
         } else {
-            buySuperGrainBtn.disabled = false;
-            superGrainItem.classList.remove('disabled');
-            buySuperGrainBtn.textContent = 'Купить';
-            buySuperGrainBtn.style.backgroundColor = '#ff007f';
-            buySuperGrainBtn.style.color = 'white';
-            superGrainCostEl.innerText = '10000';
+            buySuperGrainBtn.disabled = false; superGrainItem.classList.remove('disabled');
+            buySuperGrainBtn.textContent = 'Купить'; buySuperGrainBtn.style.backgroundColor = '#ff007f';
+            buySuperGrainBtn.style.color = 'white'; superGrainCostEl.innerText = '10000';
         }
     } else {
-        superGrainItem.style.display = 'none';
-        superGrainItem.classList.remove('disabled');
+        superGrainItem.style.display = 'none'; superGrainItem.classList.remove('disabled');
     }
 
     if (superGrainPurchased) {
         mouseShopItem.style.display = 'flex';
         if (mousePurchased) {
-            buyMouseShopBtn.disabled = true;
-            mouseShopItem.classList.add('disabled');
-            mouseShopCostEl.innerText = '—';
-            buyMouseShopBtn.textContent = 'Куплено';
-            buyMouseShopBtn.style.backgroundColor = '#555';
-            buyMouseShopBtn.style.color = '#888';
+            buyMouseShopBtn.disabled = true; mouseShopItem.classList.add('disabled');
+            mouseShopCostEl.innerText = '—'; buyMouseShopBtn.textContent = 'Куплено';
+            buyMouseShopBtn.style.backgroundColor = '#555'; buyMouseShopBtn.style.color = '#888';
         } else {
-            buyMouseShopBtn.disabled = false;
-            mouseShopItem.classList.remove('disabled');
-            buyMouseShopBtn.textContent = 'Купить';
-            buyMouseShopBtn.style.backgroundColor = '#66fcf1';
-            buyMouseShopBtn.style.color = '#0b0c10';
-            mouseShopCostEl.innerText = '15000';
+            buyMouseShopBtn.disabled = false; mouseShopItem.classList.remove('disabled');
+            buyMouseShopBtn.textContent = 'Купить'; buyMouseShopBtn.style.backgroundColor = '#66fcf1';
+            buyMouseShopBtn.style.color = '#0b0c10'; mouseShopCostEl.innerText = '15000';
         }
     } else {
-        mouseShopItem.style.display = 'none';
-        mouseShopItem.classList.remove('disabled');
+        mouseShopItem.style.display = 'none'; mouseShopItem.classList.remove('disabled');
     }
 
     if (mousePurchased) {
         hamsterShopItem.style.display = 'flex';
         if (hamsterPurchased) {
-            buyHamsterShopBtn.disabled = true;
-            hamsterShopItem.classList.add('disabled');
-            hamsterShopCostEl.innerText = '—';
-            buyHamsterShopBtn.textContent = 'Куплено';
-            buyHamsterShopBtn.style.backgroundColor = '#555';
-            buyHamsterShopBtn.style.color = '#888';
+            buyHamsterShopBtn.disabled = true; hamsterShopItem.classList.add('disabled');
+            hamsterShopCostEl.innerText = '—'; buyHamsterShopBtn.textContent = 'Куплено';
+            buyHamsterShopBtn.style.backgroundColor = '#555'; buyHamsterShopBtn.style.color = '#888';
         } else {
-            buyHamsterShopBtn.disabled = false;
-            hamsterShopItem.classList.remove('disabled');
-            buyHamsterShopBtn.textContent = 'Купить';
-            buyHamsterShopBtn.style.backgroundColor = '#ffd700';
-            buyHamsterShopBtn.style.color = '#0b0c10';
-            hamsterShopCostEl.innerText = '20000';
+            buyHamsterShopBtn.disabled = false; hamsterShopItem.classList.remove('disabled');
+            buyHamsterShopBtn.textContent = 'Купить'; buyHamsterShopBtn.style.backgroundColor = '#ffd700';
+            buyHamsterShopBtn.style.color = '#0b0c10'; hamsterShopCostEl.innerText = '20000';
         }
     } else {
-        hamsterShopItem.style.display = 'none';
-        hamsterShopItem.classList.remove('disabled');
+        hamsterShopItem.style.display = 'none'; hamsterShopItem.classList.remove('disabled');
     }
 
     if (hamsterPurchased) {
         hamsterUpgradeShopItem.style.display = 'flex';
         if (hamsterLevel >= MAX_HAMSTER_LEVEL) {
-            buyHamsterUpgradeBtn.disabled = true;
-            hamsterUpgradeShopItem.classList.add('disabled');
-            hamsterUpgradeCostEl.innerText = '—';
-            buyHamsterUpgradeBtn.textContent = 'MAX';
-            buyHamsterUpgradeBtn.style.backgroundColor = '#555';
-            buyHamsterUpgradeBtn.style.color = '#888';
+            buyHamsterUpgradeBtn.disabled = true; hamsterUpgradeShopItem.classList.add('disabled');
+            hamsterUpgradeCostEl.innerText = '—'; buyHamsterUpgradeBtn.textContent = 'MAX';
+            buyHamsterUpgradeBtn.style.backgroundColor = '#555'; buyHamsterUpgradeBtn.style.color = '#888';
         } else {
-            buyHamsterUpgradeBtn.disabled = false;
-            hamsterUpgradeShopItem.classList.remove('disabled');
-            buyHamsterUpgradeBtn.textContent = 'Улучшить';
-            buyHamsterUpgradeBtn.style.backgroundColor = '#66fcf1';
-            buyHamsterUpgradeBtn.style.color = '#0b0c10';
-            hamsterUpgradeCostEl.innerText = hamsterUpgradeCost;
+            buyHamsterUpgradeBtn.disabled = false; hamsterUpgradeShopItem.classList.remove('disabled');
+            buyHamsterUpgradeBtn.textContent = 'Улучшить'; buyHamsterUpgradeBtn.style.backgroundColor = '#66fcf1';
+            buyHamsterUpgradeBtn.style.color = '#0b0c10'; hamsterUpgradeCostEl.innerText = hamsterUpgradeCost;
         }
         hamsterUpgradeLevelEl.innerText = hamsterLevel;
         hamsterUpgradeCurrentBonusEl.innerText = 'x' + getHamsterBonus().toFixed(1);
     } else {
-        hamsterUpgradeShopItem.style.display = 'none';
-        hamsterUpgradeShopItem.classList.remove('disabled');
+        hamsterUpgradeShopItem.style.display = 'none'; hamsterUpgradeShopItem.classList.remove('disabled');
     }
 
     if (hamsterLevel >= MAX_HAMSTER_LEVEL) {
         bossMenuShopItem.style.display = 'flex';
         if (bossMenuPurchased) {
-            buyBossMenuBtn.disabled = true;
-            bossMenuShopItem.classList.add('disabled');
-            bossMenuCostEl.innerText = '—';
-            buyBossMenuBtn.textContent = 'Куплено';
-            buyBossMenuBtn.style.backgroundColor = '#555';
-            buyBossMenuBtn.style.color = '#888';
+            buyBossMenuBtn.disabled = true; bossMenuShopItem.classList.add('disabled');
+            bossMenuCostEl.innerText = '—'; buyBossMenuBtn.textContent = 'Куплено';
+            buyBossMenuBtn.style.backgroundColor = '#555'; buyBossMenuBtn.style.color = '#888';
         } else {
-            buyBossMenuBtn.disabled = false;
-            bossMenuShopItem.classList.remove('disabled');
-            buyBossMenuBtn.textContent = 'Купить';
-            buyBossMenuBtn.style.backgroundColor = '#ff0033';
-            buyBossMenuBtn.style.color = 'white';
-            bossMenuCostEl.innerText = '50000';
+            buyBossMenuBtn.disabled = false; bossMenuShopItem.classList.remove('disabled');
+            buyBossMenuBtn.textContent = 'Купить'; buyBossMenuBtn.style.backgroundColor = '#ff0033';
+            buyBossMenuBtn.style.color = 'white'; bossMenuCostEl.innerText = '50000';
         }
     } else {
-        bossMenuShopItem.style.display = 'none';
-        bossMenuShopItem.classList.remove('disabled');
+        bossMenuShopItem.style.display = 'none'; bossMenuShopItem.classList.remove('disabled');
     }
 
     if (bossMenuPurchased) {
         capybaraShopItem.style.display = 'flex';
         if (capybaraPurchased) {
-            buyCapybaraBtn.disabled = true;
-            capybaraShopItem.classList.add('disabled');
-            capybaraCostEl.innerText = '—';
-            buyCapybaraBtn.textContent = 'Куплено';
-            buyCapybaraBtn.style.backgroundColor = '#555';
-            buyCapybaraBtn.style.color = '#888';
+            buyCapybaraBtn.disabled = true; capybaraShopItem.classList.add('disabled');
+            capybaraCostEl.innerText = '—'; buyCapybaraBtn.textContent = 'Куплено';
+            buyCapybaraBtn.style.backgroundColor = '#555'; buyCapybaraBtn.style.color = '#888';
         } else {
-            buyCapybaraBtn.disabled = false;
-            capybaraShopItem.classList.remove('disabled');
-            buyCapybaraBtn.textContent = 'Купить';
-            buyCapybaraBtn.style.backgroundColor = '#8B6B3D';
-            buyCapybaraBtn.style.color = 'white';
-            capybaraCostEl.innerText = '100000';
+            buyCapybaraBtn.disabled = false; capybaraShopItem.classList.remove('disabled');
+            buyCapybaraBtn.textContent = 'Купить'; buyCapybaraBtn.style.backgroundColor = '#8B6B3D';
+            buyCapybaraBtn.style.color = 'white'; capybaraCostEl.innerText = '100000';
         }
     } else {
-        capybaraShopItem.style.display = 'none';
-        capybaraShopItem.classList.remove('disabled');
+        capybaraShopItem.style.display = 'none'; capybaraShopItem.classList.remove('disabled');
     }
 
     if (hamsterLevel >= MAX_HAMSTER_LEVEL) {
         plantShopItem.style.display = 'flex';
         if (plantPurchased) {
-            buyPlantBtn.disabled = true;
-            plantShopItem.classList.add('disabled');
-            plantShopCostEl.innerText = '—';
-            buyPlantBtn.textContent = 'Куплено';
-            buyPlantBtn.style.backgroundColor = '#555';
-            buyPlantBtn.style.color = '#888';
+            buyPlantBtn.disabled = true; plantShopItem.classList.add('disabled');
+            plantShopCostEl.innerText = '—'; buyPlantBtn.textContent = 'Куплено';
+            buyPlantBtn.style.backgroundColor = '#555'; buyPlantBtn.style.color = '#888';
         } else {
-            buyPlantBtn.disabled = false;
-            plantShopItem.classList.remove('disabled');
-            buyPlantBtn.textContent = 'Купить';
-            buyPlantBtn.style.backgroundColor = '#45f3ff';
-            buyPlantBtn.style.color = '#0b0c10';
-            plantShopCostEl.innerText = '30000';
+            buyPlantBtn.disabled = false; plantShopItem.classList.remove('disabled');
+            buyPlantBtn.textContent = 'Купить'; buyPlantBtn.style.backgroundColor = '#45f3ff';
+            buyPlantBtn.style.color = '#0b0c10'; plantShopCostEl.innerText = '30000';
         }
     } else {
-        plantShopItem.style.display = 'none';
-        plantShopItem.classList.remove('disabled');
+        plantShopItem.style.display = 'none'; plantShopItem.classList.remove('disabled');
     }
 
     if (plantPurchased && plantLevel === 1 && !plantUpgrade1) {
         plantUpgrade1ShopItem.style.display = 'flex';
-        buyPlantUpgrade1Btn.disabled = false;
-        plantUpgrade1ShopItem.classList.remove('disabled');
-        plantUpgrade1CostEl.innerText = '50000';
-        buyPlantUpgrade1Btn.textContent = 'Купить';
-        buyPlantUpgrade1Btn.style.backgroundColor = '#66fcf1';
-        buyPlantUpgrade1Btn.style.color = '#0b0c10';
+        buyPlantUpgrade1Btn.disabled = false; plantUpgrade1ShopItem.classList.remove('disabled');
+        plantUpgrade1CostEl.innerText = '50000'; buyPlantUpgrade1Btn.textContent = 'Купить';
+        buyPlantUpgrade1Btn.style.backgroundColor = '#66fcf1'; buyPlantUpgrade1Btn.style.color = '#0b0c10';
     } else if (plantUpgrade1) {
         plantUpgrade1ShopItem.style.display = 'flex';
-        buyPlantUpgrade1Btn.disabled = true;
-        plantUpgrade1ShopItem.classList.add('disabled');
-        plantUpgrade1CostEl.innerText = '—';
-        buyPlantUpgrade1Btn.textContent = 'Куплено';
-        buyPlantUpgrade1Btn.style.backgroundColor = '#555';
-        buyPlantUpgrade1Btn.style.color = '#888';
+        buyPlantUpgrade1Btn.disabled = true; plantUpgrade1ShopItem.classList.add('disabled');
+        plantUpgrade1CostEl.innerText = '—'; buyPlantUpgrade1Btn.textContent = 'Куплено';
+        buyPlantUpgrade1Btn.style.backgroundColor = '#555'; buyPlantUpgrade1Btn.style.color = '#888';
     } else {
-        plantUpgrade1ShopItem.style.display = 'none';
-        plantUpgrade1ShopItem.classList.remove('disabled');
+        plantUpgrade1ShopItem.style.display = 'none'; plantUpgrade1ShopItem.classList.remove('disabled');
     }
 
     if (plantUpgrade1 && plantLevel === 2 && !plantUpgrade2) {
         plantUpgrade2ShopItem.style.display = 'flex';
-        buyPlantUpgrade2Btn.disabled = false;
-        plantUpgrade2ShopItem.classList.remove('disabled');
-        plantUpgrade2CostEl.innerText = '70000';
-        buyPlantUpgrade2Btn.textContent = 'Купить';
-        buyPlantUpgrade2Btn.style.backgroundColor = '#ffd700';
-        buyPlantUpgrade2Btn.style.color = '#0b0c10';
+        buyPlantUpgrade2Btn.disabled = false; plantUpgrade2ShopItem.classList.remove('disabled');
+        plantUpgrade2CostEl.innerText = '70000'; buyPlantUpgrade2Btn.textContent = 'Купить';
+        buyPlantUpgrade2Btn.style.backgroundColor = '#ffd700'; buyPlantUpgrade2Btn.style.color = '#0b0c10';
     } else if (plantUpgrade2) {
         plantUpgrade2ShopItem.style.display = 'flex';
-        buyPlantUpgrade2Btn.disabled = true;
-        plantUpgrade2ShopItem.classList.add('disabled');
-        plantUpgrade2CostEl.innerText = '—';
-        buyPlantUpgrade2Btn.textContent = 'MAX';
-        buyPlantUpgrade2Btn.style.backgroundColor = '#555';
-        buyPlantUpgrade2Btn.style.color = '#888';
+        buyPlantUpgrade2Btn.disabled = true; plantUpgrade2ShopItem.classList.add('disabled');
+        plantUpgrade2CostEl.innerText = '—'; buyPlantUpgrade2Btn.textContent = 'MAX';
+        buyPlantUpgrade2Btn.style.backgroundColor = '#555'; buyPlantUpgrade2Btn.style.color = '#888';
     } else {
-        plantUpgrade2ShopItem.style.display = 'none';
-        plantUpgrade2ShopItem.classList.remove('disabled');
+        plantUpgrade2ShopItem.style.display = 'none'; plantUpgrade2ShopItem.classList.remove('disabled');
     }
 
     if (plantLevel >= 1) {
-        if (!plantTypeGrass) {
-            plantTypeGrassItem.style.display = 'flex';
-            plantTypeGrassItem.classList.remove('disabled');
-            plantTypeGrassCostEl.innerText = '10000';
-            buyPlantTypeGrassBtn.textContent = 'Купить';
-            buyPlantTypeGrassBtn.disabled = false;
-            buyPlantTypeGrassBtn.style.backgroundColor = '#45f3ff';
-            buyPlantTypeGrassBtn.style.color = '#0b0c10';
-        } else {
-            plantTypeGrassItem.style.display = 'flex';
-            plantTypeGrassItem.classList.add('disabled');
-            plantTypeGrassCostEl.innerText = '—';
-            buyPlantTypeGrassBtn.textContent = 'Куплено';
-            buyPlantTypeGrassBtn.disabled = true;
-            buyPlantTypeGrassBtn.style.backgroundColor = '#555';
-            buyPlantTypeGrassBtn.style.color = '#888';
-        }
-        if (!plantTypePepper) {
-            plantTypePepperItem.style.display = 'flex';
-            plantTypePepperItem.classList.remove('disabled');
-            plantTypePepperCostEl.innerText = '25000';
-            buyPlantTypePepperBtn.textContent = 'Купить';
-            buyPlantTypePepperBtn.disabled = false;
-            buyPlantTypePepperBtn.style.backgroundColor = '#ff4444';
-            buyPlantTypePepperBtn.style.color = 'white';
-        } else {
-            plantTypePepperItem.style.display = 'flex';
-            plantTypePepperItem.classList.add('disabled');
-            plantTypePepperCostEl.innerText = '—';
-            buyPlantTypePepperBtn.textContent = 'Куплено';
-            buyPlantTypePepperBtn.disabled = true;
-            buyPlantTypePepperBtn.style.backgroundColor = '#555';
-            buyPlantTypePepperBtn.style.color = '#888';
-        }
-        if (!plantTypeApple) {
-            plantTypeAppleItem.style.display = 'flex';
-            plantTypeAppleItem.classList.remove('disabled');
-            plantTypeAppleCostEl.innerText = '40000';
-            buyPlantTypeAppleBtn.textContent = 'Купить';
-            buyPlantTypeAppleBtn.disabled = false;
-            buyPlantTypeAppleBtn.style.backgroundColor = '#ff6b6b';
-            buyPlantTypeAppleBtn.style.color = 'white';
-        } else {
-            plantTypeAppleItem.style.display = 'flex';
-            plantTypeAppleItem.classList.add('disabled');
-            plantTypeAppleCostEl.innerText = '—';
-            buyPlantTypeAppleBtn.textContent = 'Куплено';
-            buyPlantTypeAppleBtn.disabled = true;
-            buyPlantTypeAppleBtn.style.backgroundColor = '#555';
-            buyPlantTypeAppleBtn.style.color = '#888';
-        }
-        if (!plantTypeCabbage) {
-            plantTypeCabbageItem.style.display = 'flex';
-            plantTypeCabbageItem.classList.remove('disabled');
-            plantTypeCabbageCostEl.innerText = '15000';
-            buyPlantTypeCabbageBtn.textContent = 'Купить';
-            buyPlantTypeCabbageBtn.disabled = false;
-            buyPlantTypeCabbageBtn.style.backgroundColor = '#45f3ff';
-            buyPlantTypeCabbageBtn.style.color = '#0b0c10';
-        } else {
-            plantTypeCabbageItem.style.display = 'flex';
-            plantTypeCabbageItem.classList.add('disabled');
-            plantTypeCabbageCostEl.innerText = '—';
-            buyPlantTypeCabbageBtn.textContent = 'Куплено';
-            buyPlantTypeCabbageBtn.disabled = true;
-            buyPlantTypeCabbageBtn.style.backgroundColor = '#555';
-            buyPlantTypeCabbageBtn.style.color = '#888';
-        }
+        const types = [
+            { id: 'grass', item: plantTypeGrassItem, btn: buyPlantTypeGrassBtn, cost: plantTypeGrassCostEl, purchased: plantTypeGrass, price: 10000, color: '#45f3ff', textColor: '#0b0c10' },
+            { id: 'pepper', item: plantTypePepperItem, btn: buyPlantTypePepperBtn, cost: plantTypePepperCostEl, purchased: plantTypePepper, price: 25000, color: '#ff4444', textColor: 'white' },
+            { id: 'apple', item: plantTypeAppleItem, btn: buyPlantTypeAppleBtn, cost: plantTypeAppleCostEl, purchased: plantTypeApple, price: 40000, color: '#ff6b6b', textColor: 'white' },
+            { id: 'cabbage', item: plantTypeCabbageItem, btn: buyPlantTypeCabbageBtn, cost: plantTypeCabbageCostEl, purchased: plantTypeCabbage, price: 15000, color: '#45f3ff', textColor: '#0b0c10' }
+        ];
+        types.forEach(t => {
+            if (!t.purchased) {
+                t.item.style.display = 'flex'; t.item.classList.remove('disabled');
+                t.cost.innerText = t.price; t.btn.textContent = 'Купить';
+                t.btn.disabled = false; t.btn.style.backgroundColor = t.color; t.btn.style.color = t.textColor;
+            } else {
+                t.item.style.display = 'flex'; t.item.classList.add('disabled');
+                t.cost.innerText = '—'; t.btn.textContent = 'Куплено';
+                t.btn.disabled = true; t.btn.style.backgroundColor = '#555'; t.btn.style.color = '#888';
+            }
+        });
     } else {
         plantTypeGrassItem.style.display = 'none';
         plantTypePepperItem.style.display = 'none';
@@ -3293,121 +3020,107 @@ function updateUI() {
         plantTypeCabbageItem.style.display = 'none';
     }
 
-    const allPlantsBought = plantPurchased && plantUpgrade1 && plantUpgrade2 && 
-                           plantTypeGrass && plantTypePepper && plantTypeApple && plantTypeCabbage;
-
+    const allPlantsBought = plantPurchased && plantUpgrade1 && plantUpgrade2 && plantTypeGrass && plantTypePepper && plantTypeApple && plantTypeCabbage;
     if (allPlantsBought) {
         labShopItem.style.display = 'flex';
         if (labPurchased) {
-            buyLabBtn.disabled = true;
-            labShopItem.classList.add('disabled');
-            labShopCostEl.innerText = '—';
-            buyLabBtn.textContent = 'Куплено';
-            buyLabBtn.style.backgroundColor = '#555';
-            buyLabBtn.style.color = '#888';
+            buyLabBtn.disabled = true; labShopItem.classList.add('disabled');
+            labShopCostEl.innerText = '—'; buyLabBtn.textContent = 'Куплено';
+            buyLabBtn.style.backgroundColor = '#555'; buyLabBtn.style.color = '#888';
         } else {
-            buyLabBtn.disabled = false;
-            labShopItem.classList.remove('disabled');
-            buyLabBtn.textContent = 'Купить';
-            buyLabBtn.style.backgroundColor = '#9b59b6';
-            buyLabBtn.style.color = 'white';
-            labShopCostEl.innerText = '50000';
+            buyLabBtn.disabled = false; labShopItem.classList.remove('disabled');
+            buyLabBtn.textContent = 'Купить'; buyLabBtn.style.backgroundColor = '#9b59b6';
+            buyLabBtn.style.color = 'white'; labShopCostEl.innerText = '50000';
         }
     } else {
-        labShopItem.style.display = 'none';
-        labShopItem.classList.remove('disabled');
+        labShopItem.style.display = 'none'; labShopItem.classList.remove('disabled');
     }
 
     if (labPurchased) {
         combinerShopItem.style.display = 'flex';
         if (combinerPurchased) {
-            buyCombinerBtn.disabled = true;
-            combinerShopItem.classList.add('disabled');
-            combinerShopCostEl.innerText = '—';
-            buyCombinerBtn.textContent = 'Куплено';
-            buyCombinerBtn.style.backgroundColor = '#555';
-            buyCombinerBtn.style.color = '#888';
+            buyCombinerBtn.disabled = true; combinerShopItem.classList.add('disabled');
+            combinerShopCostEl.innerText = '—'; buyCombinerBtn.textContent = 'Куплено';
+            buyCombinerBtn.style.backgroundColor = '#555'; buyCombinerBtn.style.color = '#888';
         } else {
-            buyCombinerBtn.disabled = false;
-            combinerShopItem.classList.remove('disabled');
-            buyCombinerBtn.textContent = 'Купить';
-            buyCombinerBtn.style.backgroundColor = '#ff6b00';
-            buyCombinerBtn.style.color = 'white';
-            combinerShopCostEl.innerText = '30000';
+            buyCombinerBtn.disabled = false; combinerShopItem.classList.remove('disabled');
+            buyCombinerBtn.textContent = 'Купить'; buyCombinerBtn.style.backgroundColor = '#ff6b00';
+            buyCombinerBtn.style.color = 'white'; combinerShopCostEl.innerText = '30000';
         }
     } else {
-        combinerShopItem.style.display = 'none';
-        combinerShopItem.classList.remove('disabled');
+        combinerShopItem.style.display = 'none'; combinerShopItem.classList.remove('disabled');
     }
 
     if (combinerPurchased) {
         combinerUpgradeShopItem.style.display = 'flex';
         if (combinerLevel >= 1) {
-            buyCombinerUpgradeBtn.disabled = true;
-            combinerUpgradeShopItem.classList.add('disabled');
-            combinerUpgradeCostEl.innerText = '—';
-            buyCombinerUpgradeBtn.textContent = 'MAX';
-            buyCombinerUpgradeBtn.style.backgroundColor = '#555';
-            buyCombinerUpgradeBtn.style.color = '#888';
+            buyCombinerUpgradeBtn.disabled = true; combinerUpgradeShopItem.classList.add('disabled');
+            combinerUpgradeCostEl.innerText = '—'; buyCombinerUpgradeBtn.textContent = 'MAX';
+            buyCombinerUpgradeBtn.style.backgroundColor = '#555'; buyCombinerUpgradeBtn.style.color = '#888';
             combinerLevelEl.innerText = 'Уровень 2 (3 слота)';
         } else {
-            buyCombinerUpgradeBtn.disabled = false;
-            combinerUpgradeShopItem.classList.remove('disabled');
-            buyCombinerUpgradeBtn.textContent = 'Улучшить';
-            buyCombinerUpgradeBtn.style.backgroundColor = '#ff6b00';
-            buyCombinerUpgradeBtn.style.color = 'white';
-            combinerUpgradeCostEl.innerText = '60000';
+            buyCombinerUpgradeBtn.disabled = false; combinerUpgradeShopItem.classList.remove('disabled');
+            buyCombinerUpgradeBtn.textContent = 'Улучшить'; buyCombinerUpgradeBtn.style.backgroundColor = '#ff6b00';
+            buyCombinerUpgradeBtn.style.color = 'white'; combinerUpgradeCostEl.innerText = '60000';
             combinerLevelEl.innerText = 'Уровень 1 (2 слота)';
         }
     } else {
-        combinerUpgradeShopItem.style.display = 'none';
-        combinerUpgradeShopItem.classList.remove('disabled');
+        combinerUpgradeShopItem.style.display = 'none'; combinerUpgradeShopItem.classList.remove('disabled');
     }
 
     if (combinerPurchased) {
         extractorShopItem.style.display = 'flex';
         if (extractorPurchased) {
-            buyExtractorBtn.disabled = true;
-            extractorShopItem.classList.add('disabled');
-            extractorShopCostEl.innerText = '—';
-            buyExtractorBtn.textContent = 'Куплено';
-            buyExtractorBtn.style.backgroundColor = '#555';
-            buyExtractorBtn.style.color = '#888';
+            buyExtractorBtn.disabled = true; extractorShopItem.classList.add('disabled');
+            extractorShopCostEl.innerText = '—'; buyExtractorBtn.textContent = 'Куплено';
+            buyExtractorBtn.style.backgroundColor = '#555'; buyExtractorBtn.style.color = '#888';
         } else {
-            buyExtractorBtn.disabled = false;
-            extractorShopItem.classList.remove('disabled');
-            buyExtractorBtn.textContent = 'Купить';
-            buyExtractorBtn.style.backgroundColor = '#45f3ff';
-            buyExtractorBtn.style.color = '#0b0c10';
-            extractorShopCostEl.innerText = '20000';
+            buyExtractorBtn.disabled = false; extractorShopItem.classList.remove('disabled');
+            buyExtractorBtn.textContent = 'Купить'; buyExtractorBtn.style.backgroundColor = '#45f3ff';
+            buyExtractorBtn.style.color = '#0b0c10'; extractorShopCostEl.innerText = '20000';
         }
     } else {
-        extractorShopItem.style.display = 'none';
-        extractorShopItem.classList.remove('disabled');
+        extractorShopItem.style.display = 'none'; extractorShopItem.classList.remove('disabled');
     }
 
     if (isAllLabPartsBought()) {
         manipulatorShopItem.style.display = 'flex';
         if (manipulatorLevel >= 3) {
-            buyManipulatorBtn.disabled = true;
-            manipulatorShopItem.classList.add('disabled');
-            manipulatorShopCostEl.innerText = '—';
-            buyManipulatorBtn.textContent = 'MAX';
-            buyManipulatorBtn.style.backgroundColor = '#555';
-            buyManipulatorBtn.style.color = '#888';
+            buyManipulatorBtn.disabled = true; manipulatorShopItem.classList.add('disabled');
+            manipulatorShopCostEl.innerText = '—'; buyManipulatorBtn.textContent = 'MAX';
+            buyManipulatorBtn.style.backgroundColor = '#555'; buyManipulatorBtn.style.color = '#888';
             manipulatorLevelEl.innerText = '3/3 🤖';
         } else {
-            buyManipulatorBtn.disabled = false;
-            manipulatorShopItem.classList.remove('disabled');
-            buyManipulatorBtn.textContent = 'Купить манипулятор';
-            buyManipulatorBtn.style.backgroundColor = '#ffd700';
-            buyManipulatorBtn.style.color = '#0b0c10';
-            manipulatorShopCostEl.innerText = '10000';
+            buyManipulatorBtn.disabled = false; manipulatorShopItem.classList.remove('disabled');
+            buyManipulatorBtn.textContent = 'Купить манипулятор'; buyManipulatorBtn.style.backgroundColor = '#ffd700';
+            buyManipulatorBtn.style.color = '#0b0c10'; manipulatorShopCostEl.innerText = '10000';
             manipulatorLevelEl.innerText = manipulatorLevel + '/3 🤖';
         }
     } else {
-        manipulatorShopItem.style.display = 'none';
-        manipulatorShopItem.classList.remove('disabled');
+        manipulatorShopItem.style.display = 'none'; manipulatorShopItem.classList.remove('disabled');
+    }
+
+    if (advancedLogicShopItem) {
+        if (manipulatorLevel >= 1) {
+            advancedLogicShopItem.style.display = 'flex';
+            if (advancedLogicPurchased) {
+                if (buyAdvancedLogicBtn) {
+                    buyAdvancedLogicBtn.disabled = true; advancedLogicShopItem.classList.add('disabled');
+                    if (advancedLogicCostEl) advancedLogicCostEl.innerText = '—';
+                    buyAdvancedLogicBtn.textContent = 'Куплено';
+                    buyAdvancedLogicBtn.style.backgroundColor = '#555'; buyAdvancedLogicBtn.style.color = '#888';
+                }
+            } else {
+                if (buyAdvancedLogicBtn) {
+                    buyAdvancedLogicBtn.disabled = false; advancedLogicShopItem.classList.remove('disabled');
+                    buyAdvancedLogicBtn.textContent = 'Купить';
+                    buyAdvancedLogicBtn.style.backgroundColor = '#45f3ff'; buyAdvancedLogicBtn.style.color = '#0b0c10';
+                    if (advancedLogicCostEl) advancedLogicCostEl.innerText = '20000';
+                }
+            }
+        } else {
+            advancedLogicShopItem.style.display = 'none'; advancedLogicShopItem.classList.remove('disabled');
+        }
     }
 
     updateManipulatorUI();
@@ -3421,91 +3134,62 @@ function updateUI() {
     }
 
     if (labPurchased && hamsterPurchased) {
-        poopBtn.style.display = 'block';
-        poopBtn.classList.add('visible');
+        poopBtn.style.display = 'block'; poopBtn.classList.add('visible');
         poopBtn.textContent = '💩 Собрать (' + poopCount + ')';
         poopBtn.disabled = (poopCount <= 0);
     } else {
-        poopBtn.style.display = 'none';
-        poopBtn.classList.remove('visible');
-        poopBtn.textContent = '💩 Собрать (0)';
-        poopBtn.disabled = true;
+        poopBtn.style.display = 'none'; poopBtn.classList.remove('visible');
+        poopBtn.textContent = '💩 Собрать (0)'; poopBtn.disabled = true;
     }
 
     if (bossMenuPurchased) {
-        bossSkull.style.display = 'flex';
-        bossSkull.classList.add('visible');
-        bossSkull.style.pointerEvents = 'auto';
-        bossSkull.style.zIndex = '50';
+        bossSkull.style.display = 'flex'; bossSkull.classList.add('visible');
+        bossSkull.style.pointerEvents = 'auto'; bossSkull.style.zIndex = '50';
     } else {
-        bossSkull.style.display = 'none';
-        bossSkull.classList.remove('visible');
+        bossSkull.style.display = 'none'; bossSkull.classList.remove('visible');
     }
 
     updateBossStatus();
 
     if (grainPurchased > 0) {
         grainBox.classList.add('visible');
-        if (grainActive) {
-            grainToggle.classList.add('active');
-            grainStatus.innerText = 'Вкл';
-        } else {
-            grainToggle.classList.remove('active');
-            grainStatus.innerText = 'Выкл';
-        }
+        if (grainActive) { grainToggle.classList.add('active'); grainStatus.innerText = 'Вкл'; }
+        else { grainToggle.classList.remove('active'); grainStatus.innerText = 'Выкл'; }
     } else {
         grainBox.classList.remove('visible');
-        if (grainActive) {
-            toggleGrain(false);
-        }
+        if (grainActive) toggleGrain(false);
     }
 
     if (superGrainPurchased) {
         superGrainBox.style.display = 'flex';
-        if (superGrainActive) {
-            superGrainToggle.classList.add('active');
-            superGrainStatus.innerText = 'Вкл';
-        } else {
-            superGrainToggle.classList.remove('active');
-            superGrainStatus.innerText = 'Выкл';
-        }
+        if (superGrainActive) { superGrainToggle.classList.add('active'); superGrainStatus.innerText = 'Вкл'; }
+        else { superGrainToggle.classList.remove('active'); superGrainStatus.innerText = 'Выкл'; }
     } else {
         superGrainBox.style.display = 'none';
-        if (superGrainActive) {
-            toggleSuperGrain(false);
-        }
+        if (superGrainActive) toggleSuperGrain(false);
     }
 
     if (mousePurchased) {
         mouseBox.style.display = 'flex';
-        if (mouseActive) {
-            mouseToggle.classList.add('active');
-            mouseStatus.innerText = 'Вкл';
-        } else {
-            mouseToggle.classList.remove('active');
-            mouseStatus.innerText = 'Выкл';
-        }
+        if (mouseActive) { mouseToggle.classList.add('active'); mouseStatus.innerText = 'Вкл'; }
+        else { mouseToggle.classList.remove('active'); mouseStatus.innerText = 'Выкл'; }
     } else {
         mouseBox.style.display = 'none';
-        if (mouseActive) {
-            toggleMouse(false);
-        }
+        if (mouseActive) toggleMouse(false);
     }
 
     if (hamsterPurchased) {
-        enclosure.style.display = 'flex';
-        enclosure.classList.add('visible');
-        if (hamsterFood > 0 && !foodDepletionInterval && !satietyActive) {
-            startFoodDepletion();
-        }
+        enclosure.style.display = 'flex'; enclosure.classList.add('visible');
+        if (hamsterFood > 0 && !foodDepletionInterval && !satietyActive) startFoodDepletion();
         if (satietyActive) {
             enclosureSatiety.classList.add('active');
             enclosureSatiety.style.display = 'block';
-            enclosureSatiety.textContent = inventory.gmo_apple > 0 ? '🍏 ГМО насыщение: 2:30' : '🍽️ Насыщение: активно';
         }
         if (pepperBuffActive && pepperIndicator) {
-            pepperIndicator.classList.add('active');
-            pepperIndicator.style.display = 'block';
+            pepperIndicator.classList.add('active'); pepperIndicator.style.display = 'block';
+        }
+        if (hayBuffActive && hayIndicator) {
+            hayIndicator.classList.add('active'); hayIndicator.style.display = 'block';
         }
         if (hamsterFood > 0) {
             enclosureStatus.textContent = '✅ Сытые';
@@ -3513,20 +3197,13 @@ function updateUI() {
         } else {
             enclosureStatus.textContent = '🔴 Голодные!';
             enclosureStatus.className = 'enclosure-status';
-            if (foodDepletionInterval) {
-                stopFoodDepletion();
-            }
+            if (foodDepletionInterval) stopFoodDepletion();
         }
         let percent = (hamsterFood / hamsterMaxFood) * 100;
         foodBarFill.style.width = Math.min(100, percent) + '%';
         foodBarText.innerText = Math.round(percent) + '%';
-        if (hamsterFood < hamsterMaxFood && score >= feedCost) {
-            feedBtn.disabled = false;
-            feedBtn.textContent = '🍖 Покормить (' + feedCost + ')';
-        } else {
-            feedBtn.disabled = true;
-            feedBtn.textContent = '🍖 Покормить (' + feedCost + ')';
-        }
+        feedBtn.disabled = !(hamsterFood < hamsterMaxFood && score >= feedCost);
+        feedBtn.textContent = '🍖 Покормить (' + feedCost + ')';
         if (hamsterFood > 0) {
             enclosureBonus.textContent = '🐹 Бонус: x' + hamsterMult.toFixed(1);
             enclosureBonus.className = 'enclosure-bonus active';
@@ -3545,8 +3222,7 @@ function updateUI() {
             }
         }
     } else {
-        enclosure.style.display = 'none';
-        enclosure.classList.remove('visible');
+        enclosure.style.display = 'none'; enclosure.classList.remove('visible');
     }
 
     updatePlantsUI();
@@ -3559,15 +3235,9 @@ function updateUI() {
         if (isOwned) {
             btn.disabled = false;
             btn.innerText = isEquipped ? 'Снять' : 'Надеть';
-            if (isEquipped) {
-                btn.classList.add('equipped');
-            } else {
-                btn.classList.remove('equipped');
-            }
+            if (isEquipped) btn.classList.add('equipped'); else btn.classList.remove('equipped');
         } else {
-            btn.disabled = false;
-            btn.innerText = 'Купить';
-            btn.classList.remove('equipped');
+            btn.disabled = false; btn.innerText = 'Купить'; btn.classList.remove('equipped');
         }
     });
 
@@ -3577,21 +3247,15 @@ function updateUI() {
     if (combinerPurchased) updateCombinerUI();
     if (extractorPurchased) updateExtractorUI();
 
-    if (combinerPurchased) {
-        openCombinerBtn.style.display = 'block';
-        openCombinerBtn.classList.add('visible');
-    } else {
-        openCombinerBtn.style.display = 'none';
-        openCombinerBtn.classList.remove('visible');
-    }
+    openCombinerBtn.style.display = combinerPurchased ? 'block' : 'none';
+    if (combinerPurchased) openCombinerBtn.classList.add('visible');
+    else openCombinerBtn.classList.remove('visible');
 
-    if (extractorPurchased) {
-        openExtractorBtn.style.display = 'block';
-        openExtractorBtn.classList.add('visible');
-    } else {
-        openExtractorBtn.style.display = 'none';
-        openExtractorBtn.classList.remove('visible');
-    }
+    openExtractorBtn.style.display = extractorPurchased ? 'block' : 'none';
+    if (extractorPurchased) openExtractorBtn.classList.add('visible');
+    else openExtractorBtn.classList.remove('visible');
+    
+    updateAutomationIndicators();
 }
 
 function updateRatAccessories() {
@@ -3610,17 +3274,14 @@ function shouldSpawnSuper() {
 }
 
 // ============================================================
-// ==================== МЫШЬ-СОБИРАТОР ========================
+// ==================== МЫШЬ ==================================
 // ============================================================
 
 function createMouse() {
     if (mouseElement) return;
     mouseElement = document.createElement('div');
     mouseElement.className = 'mouse-runner';
-    mouseElement.innerHTML = `
-                🐁
-                <div class="mouse-shadow"></div>
-            `;
+    mouseElement.innerHTML = '🐁<div class="mouse-shadow"></div>';
     const rect = clickArea.getBoundingClientRect();
     mouseElement.style.left = (Math.random() * (rect.width - 60) + 10) + 'px';
     mouseElement.style.top = (Math.random() * (rect.height - 60) + 10) + 'px';
@@ -3628,14 +3289,8 @@ function createMouse() {
 }
 
 function removeMouse() {
-    if (mouseMoveInterval) {
-        clearInterval(mouseMoveInterval);
-        mouseMoveInterval = null;
-    }
-    if (mouseElement) {
-        mouseElement.remove();
-        mouseElement = null;
-    }
+    if (mouseMoveInterval) { clearInterval(mouseMoveInterval); mouseMoveInterval = null; }
+    if (mouseElement) { mouseElement.remove(); mouseElement = null; }
 }
 
 function moveMouseToTarget() {
@@ -3655,12 +3310,7 @@ function moveMouseToTarget() {
             mouseCollectCooldown = true;
             mouseElement.classList.add('collecting');
             const isSuper = currentGrainElement.classList.contains('super');
-            let value = 0;
-            if (isSuper) {
-                value = SUPER_GRAIN_BASE * getTotalClickPower();
-            } else {
-                value = grainBase * getTotalClickPower();
-            }
+            let value = isSuper ? SUPER_GRAIN_BASE * getTotalClickPower() : grainBase * getTotalClickPower();
             score += value;
             saveGame();
             updateUI();
@@ -3673,11 +3323,9 @@ function moveMouseToTarget() {
             pop.style.top = (rect.top - areaRect2.top - 10) + 'px';
             clickArea.appendChild(pop);
             setTimeout(() => pop.remove(), 700);
-            if (currentGrainElement) {
-                currentGrainElement.style.transform = 'scale(0.3)';
-                currentGrainElement.style.opacity = '0';
-                removeGrain();
-            }
+            currentGrainElement.style.transform = 'scale(0.3)';
+            currentGrainElement.style.opacity = '0';
+            removeGrain();
             setTimeout(() => {
                 mouseElement.classList.remove('collecting');
                 mouseCollectCooldown = false;
@@ -3686,19 +3334,13 @@ function moveMouseToTarget() {
         return;
     }
     const speed = Math.min(dist / 20, 8);
-    const moveX = (dx / dist) * speed;
-    const moveY = (dy / dist) * speed;
-    let newX = currentX + moveX;
-    let newY = currentY + moveY;
+    let newX = currentX + (dx / dist) * speed;
+    let newY = currentY + (dy / dist) * speed;
     const areaRect2 = clickArea.getBoundingClientRect();
     newX = Math.max(5, Math.min(areaRect2.width - 55, newX));
     newY = Math.max(5, Math.min(areaRect2.height - 55, newY));
     mouseElement.style.left = newX + 'px';
     mouseElement.style.top = newY + 'px';
-    if (currentGrainElement) {
-        mouseIndicator.textContent = '🎯 Цель найдена!';
-        mouseIndicator.className = 'indicator-text active';
-    }
 }
 
 function toggleMouse(state) {
@@ -3706,12 +3348,8 @@ function toggleMouse(state) {
     if (mouseActive) {
         createMouse();
         if (mouseMoveInterval) clearInterval(mouseMoveInterval);
-        mouseMoveInterval = setInterval(() => {
-            moveMouseToTarget();
-        }, 50);
-    } else {
-        removeMouse();
-    }
+        mouseMoveInterval = setInterval(moveMouseToTarget, 50);
+    } else removeMouse();
     saveGame();
     updateUI();
 }
@@ -3723,102 +3361,58 @@ function toggleMouse(state) {
 function spawnGrain() {
     if (isGrainActive) return;
     if (!grainActive || grainLevel === 0) return;
-    const useSuper = shouldSpawnSuper();
-    if (useSuper) {
-        spawnSuperGrainInternal();
-    } else if (!superGrainActive || !superGrainPurchased) {
-        spawnNormalGrainInternal();
-    }
+    if (shouldSpawnSuper()) spawnSuperGrainInternal();
+    else if (!superGrainActive || !superGrainPurchased) spawnNormalGrainInternal();
 }
 
 function spawnNormalGrainInternal() {
     if (isGrainActive) return;
     if (!grainActive || grainLevel === 0) return;
-    if (currentGrainElement) {
-        removeGrain();
-    }
+    if (currentGrainElement) removeGrain();
     isGrainActive = true;
-    const totalPower = getTotalClickPower();
-    const grainValue = grainBase * totalPower;
+    const grainValue = grainBase * getTotalClickPower();
     const grain = document.createElement('div');
     grain.className = 'grain-object';
-    grain.innerHTML = `
-                🌽
-                <span class="grain-value">+${grainValue}</span>
-                <div class="timer-bar"><div class="fill" style="width:100%;"></div></div>
-            `;
+    grain.innerHTML = `🌽<span class="grain-value">+${grainValue}</span><div class="timer-bar"><div class="fill" style="width:100%;"></div></div>`;
     const rect = clickArea.getBoundingClientRect();
-    const size = 60;
-    grain.style.left = (Math.random() * (rect.width - size - 40) + 20) + 'px';
-    grain.style.top = (Math.random() * (rect.height - size - 40) + 20) + 'px';
-    grain.addEventListener('click', function(e) {
-        e.stopPropagation();
-        collectGrain(grainValue);
-    });
+    grain.style.left = (Math.random() * (rect.width - 100) + 20) + 'px';
+    grain.style.top = (Math.random() * (rect.height - 100) + 20) + 'px';
+    grain.addEventListener('click', e => { e.stopPropagation(); collectGrain(grainValue); });
     clickArea.appendChild(grain);
     currentGrainElement = grain;
-    if (mouseActive) {
-        mouseIndicator.textContent = '🎯 Цель найдена!';
-        mouseIndicator.className = 'indicator-text active';
-    }
     let timeLeft = GRAIN_LIFETIME / 1000;
     const fill = grain.querySelector('.fill');
     grainTimerInterval = setInterval(() => {
         timeLeft -= 0.1;
-        const percent = (timeLeft / (GRAIN_LIFETIME / 1000)) * 100;
-        if (fill) fill.style.width = Math.max(0, percent) + '%';
-        if (timeLeft <= 0) {
-            removeGrain();
-        }
+        if (fill) fill.style.width = Math.max(0, (timeLeft / (GRAIN_LIFETIME / 1000)) * 100) + '%';
+        if (timeLeft <= 0) removeGrain();
     }, 100);
-    grainLifeTimeout = setTimeout(() => {
-        removeGrain();
-    }, GRAIN_LIFETIME);
+    grainLifeTimeout = setTimeout(removeGrain, GRAIN_LIFETIME);
 }
 
 function spawnSuperGrainInternal() {
     if (isGrainActive) return;
     if (!grainActive || !superGrainActive || !superGrainPurchased) return;
-    if (currentGrainElement) {
-        removeGrain();
-    }
+    if (currentGrainElement) removeGrain();
     isGrainActive = true;
-    const totalPower = getTotalClickPower();
-    const grainValue = SUPER_GRAIN_BASE * totalPower;
+    const grainValue = SUPER_GRAIN_BASE * getTotalClickPower();
     const grain = document.createElement('div');
     grain.className = 'grain-object super';
-    grain.innerHTML = `
-                🌽
-                <span class="grain-value">⭐ +${grainValue}</span>
-                <div class="timer-bar"><div class="fill" style="width:100%;"></div></div>
-            `;
+    grain.innerHTML = `🌽<span class="grain-value">⭐ +${grainValue}</span><div class="timer-bar"><div class="fill" style="width:100%;"></div></div>`;
     const rect = clickArea.getBoundingClientRect();
-    const size = 60;
-    grain.style.left = (Math.random() * (rect.width - size - 40) + 20) + 'px';
-    grain.style.top = (Math.random() * (rect.height - size - 40) + 20) + 'px';
-    grain.addEventListener('click', function(e) {
-        e.stopPropagation();
-        collectGrain(grainValue);
-    });
+    grain.style.left = (Math.random() * (rect.width - 100) + 20) + 'px';
+    grain.style.top = (Math.random() * (rect.height - 100) + 20) + 'px';
+    grain.addEventListener('click', e => { e.stopPropagation(); collectGrain(grainValue); });
     clickArea.appendChild(grain);
     currentGrainElement = grain;
-    if (mouseActive) {
-        mouseIndicator.textContent = '🎯 Цель найдена!';
-        mouseIndicator.className = 'indicator-text active';
-    }
     let timeLeft = GRAIN_LIFETIME / 1000;
     const fill = grain.querySelector('.fill');
     grainTimerInterval = setInterval(() => {
         timeLeft -= 0.1;
-        const percent = (timeLeft / (GRAIN_LIFETIME / 1000)) * 100;
-        if (fill) fill.style.width = Math.max(0, percent) + '%';
-        if (timeLeft <= 0) {
-            removeGrain();
-        }
+        if (fill) fill.style.width = Math.max(0, (timeLeft / (GRAIN_LIFETIME / 1000)) * 100) + '%';
+        if (timeLeft <= 0) removeGrain();
     }, 100);
-    grainLifeTimeout = setTimeout(() => {
-        removeGrain();
-    }, GRAIN_LIFETIME);
+    grainLifeTimeout = setTimeout(removeGrain, GRAIN_LIFETIME);
 }
 
 function collectGrain(value) {
@@ -3843,34 +3437,20 @@ function collectGrain(value) {
 
 function removeGrain() {
     isGrainActive = false;
-    if (grainTimerInterval) {
-        clearInterval(grainTimerInterval);
-        grainTimerInterval = null;
-    }
-    if (grainLifeTimeout) {
-        clearTimeout(grainLifeTimeout);
-        grainLifeTimeout = null;
-    }
-    if (currentGrainElement) {
-        currentGrainElement.remove();
-        currentGrainElement = null;
-    }
+    if (grainTimerInterval) { clearInterval(grainTimerInterval); grainTimerInterval = null; }
+    if (grainLifeTimeout) { clearTimeout(grainLifeTimeout); grainLifeTimeout = null; }
+    if (currentGrainElement) { currentGrainElement.remove(); currentGrainElement = null; }
     if (mouseActive) {
         mouseIndicator.textContent = '⏳ Ожидание зерна...';
         mouseIndicator.className = 'indicator-text';
     }
     if (grainActive && grainLevel > 0) {
         const useSuper = shouldSpawnSuper();
-        let delay;
-        if (useSuper) {
-            delay = SUPER_GRAIN_SPAWN_MIN + Math.random() * (SUPER_GRAIN_SPAWN_MAX - SUPER_GRAIN_SPAWN_MIN);
-        } else {
-            delay = GRAIN_SPAWN_MIN + Math.random() * (GRAIN_SPAWN_MAX - GRAIN_SPAWN_MIN);
-        }
+        const delay = useSuper ? 
+            SUPER_GRAIN_SPAWN_MIN + Math.random() * (SUPER_GRAIN_SPAWN_MAX - SUPER_GRAIN_SPAWN_MIN) :
+            GRAIN_SPAWN_MIN + Math.random() * (GRAIN_SPAWN_MAX - GRAIN_SPAWN_MIN);
         if (grainSpawnTimeout) clearTimeout(grainSpawnTimeout);
-        grainSpawnTimeout = setTimeout(() => {
-            spawnGrain();
-        }, delay);
+        grainSpawnTimeout = setTimeout(spawnGrain, delay);
     }
 }
 
@@ -3879,20 +3459,12 @@ function toggleGrain(state) {
     if (grainActive) {
         if (grainSpawnTimeout) clearTimeout(grainSpawnTimeout);
         const useSuper = shouldSpawnSuper();
-        let delay;
-        if (useSuper) {
-            delay = SUPER_GRAIN_SPAWN_MIN + Math.random() * (SUPER_GRAIN_SPAWN_MAX - SUPER_GRAIN_SPAWN_MIN);
-        } else {
-            delay = GRAIN_SPAWN_MIN + Math.random() * (GRAIN_SPAWN_MAX - GRAIN_SPAWN_MIN);
-        }
-        grainSpawnTimeout = setTimeout(() => {
-            spawnGrain();
-        }, delay);
+        const delay = useSuper ? 
+            SUPER_GRAIN_SPAWN_MIN + Math.random() * (SUPER_GRAIN_SPAWN_MAX - SUPER_GRAIN_SPAWN_MIN) :
+            GRAIN_SPAWN_MIN + Math.random() * (GRAIN_SPAWN_MAX - GRAIN_SPAWN_MIN);
+        grainSpawnTimeout = setTimeout(spawnGrain, delay);
     } else {
-        if (grainSpawnTimeout) {
-            clearTimeout(grainSpawnTimeout);
-            grainSpawnTimeout = null;
-        }
+        if (grainSpawnTimeout) { clearTimeout(grainSpawnTimeout); grainSpawnTimeout = null; }
         removeGrain();
     }
     saveGame();
@@ -3905,20 +3477,190 @@ function toggleSuperGrain(state) {
         removeGrain();
         if (grainActive && grainLevel > 0) {
             if (grainSpawnTimeout) clearTimeout(grainSpawnTimeout);
-            const delay = GRAIN_SPAWN_MIN + Math.random() * (GRAIN_SPAWN_MAX - GRAIN_SPAWN_MIN);
-            grainSpawnTimeout = setTimeout(() => {
-                spawnGrain();
-            }, delay);
+            grainSpawnTimeout = setTimeout(spawnGrain, 5000);
         }
-    } else if (superGrainActive && grainActive) {
+    } else if (grainActive) {
         removeGrain();
         if (grainSpawnTimeout) clearTimeout(grainSpawnTimeout);
         const delay = SUPER_GRAIN_SPAWN_MIN + Math.random() * (SUPER_GRAIN_SPAWN_MAX - SUPER_GRAIN_SPAWN_MIN);
-        grainSpawnTimeout = setTimeout(() => {
-            spawnGrain();
-        }, delay);
+        grainSpawnTimeout = setTimeout(spawnGrain, delay);
     }
     saveGame();
+    updateUI();
+}
+
+// ============================================================
+// ==================== ВОССТАНОВЛЕНИЕ ========================
+// ============================================================
+
+function restartCombinerTimer(slotIndex) {
+    if (combinerTimer[slotIndex]) clearInterval(combinerTimer[slotIndex]);
+    const recipeId = combinerRecipes[slotIndex];
+    const recipe = recipeId ? COMBINER_RECIPES[recipeId] : null;
+    const timePerTick = recipe ? (100 / recipe.time) : (100 / 300);
+    
+    combinerTimer[slotIndex] = setInterval(() => {
+        combinerProgress[slotIndex] += timePerTick;
+        if (combinerProgress[slotIndex] >= 100) {
+            combinerProgress[slotIndex] = 100;
+            clearInterval(combinerTimer[slotIndex]);
+            combinerTimer[slotIndex] = null;
+            
+            const currentRecipeId = combinerRecipes[slotIndex];
+            const currentRecipe = currentRecipeId ? COMBINER_RECIPES[currentRecipeId] : null;
+            
+            if (currentRecipe) {
+                const result = currentRecipe.result;
+                if (extractorPurchased) {
+                    extractorQueue.push(result);
+                    extractorProgress.push(0);
+                    saveGame();
+                    updateExtractorUI();
+                } else {
+                    if (extracts[result] === undefined) extracts[result] = 0;
+                    extracts[result]++;
+                }
+            }
+            
+            combinerRunning[slotIndex] = false;
+            combinerProgress[slotIndex] = 0;
+            combinerRecipes[slotIndex] = null;
+            saveGame();
+            updateCombinerUI();
+            updateUI();
+        }
+        saveGame();
+        updateCombinerUI();
+    }, 1000);
+}
+
+function restoreGameState() {
+    console.log('🔄 Восстановление...');
+    
+    if (grainPurchased > 0 && grainActive) {
+        if (grainSpawnTimeout) clearTimeout(grainSpawnTimeout);
+        const useSuper = shouldSpawnSuper();
+        const delay = useSuper ? 
+            SUPER_GRAIN_SPAWN_MIN + Math.random() * (SUPER_GRAIN_SPAWN_MAX - SUPER_GRAIN_SPAWN_MIN) :
+            GRAIN_SPAWN_MIN + Math.random() * (GRAIN_SPAWN_MAX - GRAIN_SPAWN_MIN);
+        grainSpawnTimeout = setTimeout(spawnGrain, delay);
+    }
+    
+    if (mousePurchased && mouseActive) {
+        if (mouseElement) mouseElement.remove();
+        mouseElement = null;
+        createMouse();
+        if (mouseMoveInterval) clearInterval(mouseMoveInterval);
+        mouseMoveInterval = setInterval(moveMouseToTarget, 50);
+    }
+    
+    if (hamsterPurchased) {
+        startHamsterMovement();
+        startPoopProduction();
+        if (hamsterFood > 0 && !satietyActive) startFoodDepletion();
+    }
+    
+    if (buffActive && buffEndTime > 0) {
+        const timeLeft = buffEndTime - Date.now();
+        if (timeLeft > 0) {
+            ratBody.classList.add('buffed');
+            buffIndicator.style.display = 'block';
+            if (buffTimer) clearInterval(buffTimer);
+            buffTimer = setInterval(() => {
+                if (Date.now() >= buffEndTime) {
+                    buffActive = false; buffEndTime = 0;
+                    ratBody.classList.remove('buffed');
+                    buffIndicator.style.display = 'none';
+                    localStorage.setItem('rat_buffActive', 'false');
+                    clearInterval(buffTimer); buffTimer = null;
+                    saveGame(); updateUI();
+                }
+            }, 1000);
+        } else { buffActive = false; buffEndTime = 0; }
+    }
+    
+    if (pepperBuffActive && pepperBuffEndTime > 0) {
+        const timeLeft = pepperBuffEndTime - Date.now();
+        if (timeLeft > 0) {
+            if (pepperIndicator) pepperIndicator.style.display = 'block';
+            if (pepperBuffTimer) clearInterval(pepperBuffTimer);
+            pepperBuffTimer = setInterval(() => {
+                if (Date.now() >= pepperBuffEndTime) {
+                    pepperBuffActive = false; pepperBuffEndTime = 0;
+                    if (pepperIndicator) pepperIndicator.style.display = 'none';
+                    clearInterval(pepperBuffTimer); pepperBuffTimer = null;
+                    saveGame(); updateUI();
+                }
+            }, 1000);
+        } else { pepperBuffActive = false; pepperBuffEndTime = 0; }
+    }
+    
+    if (hayBuffActive && hayBuffEndTime > 0) {
+        const timeLeft = hayBuffEndTime - Date.now();
+        if (timeLeft > 0) {
+            if (hayIndicator) hayIndicator.style.display = 'block';
+            if (hayBuffTimer) clearInterval(hayBuffTimer);
+            hayBuffTimer = setInterval(() => {
+                if (Date.now() >= hayBuffEndTime) {
+                    hayBuffActive = false; hayBuffEndTime = 0;
+                    if (hayIndicator) hayIndicator.style.display = 'none';
+                    clearInterval(hayBuffTimer); hayBuffTimer = null;
+                    saveGame(); updateUI();
+                }
+            }, 1000);
+        } else { hayBuffActive = false; hayBuffEndTime = 0; }
+    }
+    
+    if (satietyActive && satietyEndTime > 0) {
+        const timeLeft = satietyEndTime - Date.now();
+        if (timeLeft > 0) {
+            enclosureSatiety.classList.add('active');
+            enclosureSatiety.style.display = 'block';
+            if (satietyTimer) clearInterval(satietyTimer);
+            satietyTimer = setInterval(() => {
+                if (Date.now() >= satietyEndTime) {
+                    satietyActive = false; satietyEndTime = 0;
+                    enclosureSatiety.classList.remove('active');
+                    enclosureSatiety.style.display = 'none';
+                    clearInterval(satietyTimer); satietyTimer = null;
+                    saveGame(); updateUI();
+                }
+            }, 1000);
+        } else { satietyActive = false; satietyEndTime = 0; }
+    }
+    
+    if (labPurchased && machineRunning && machineProgress > 0) {
+        const maxTime = getMachineTime();
+        if (machineProgress >= maxTime) {
+            machineRunning = false;
+            updateLabUI();
+            saveGame();
+        } else restartMachineTimer(maxTime);
+    }
+    
+    if (combinerPurchased) {
+        for (let i = 0; i < combinerRunning.length; i++) {
+            if (combinerRunning[i] && combinerProgress[i] < 100) restartCombinerTimer(i);
+            else if (combinerRunning[i] && combinerProgress[i] >= 100) {
+                combinerRunning[i] = false;
+                combinerProgress[i] = 0;
+                combinerRecipes[i] = null;
+            }
+        }
+        saveGame();
+    }
+    
+    if (extractorPurchased && extractorQueue.length > 0 && !extractorTimer) startExtractorProcessing();
+    
+    if (manipulatorPurchased && manipulatorLevel > 0) restartManipulators();
+    
+    if (plantPurchased) {
+        for (let i = 0; i < plantData.length; i++) {
+            if (plantData[i].stage === 'growing') startPlantGrowth(i);
+        }
+    }
+    
+    console.log('✅ Восстановлено!');
     updateUI();
 }
 
@@ -3950,24 +3692,18 @@ codeInput.addEventListener('input', function() {
     if (entered === currentCode) {
         confirmBox.classList.add('show');
         confirmResetBtn.disabled = false;
-        resetStatus.textContent = '✅ Код верный! Нажмите "СБРОСИТЬ" для подтверждения.';
+        resetStatus.textContent = '✅ Код верный!';
         resetStatus.style.color = '#45f3ff';
     } else {
         confirmBox.classList.remove('show');
         confirmResetBtn.disabled = true;
-        if (entered.length > 0) {
-            resetStatus.textContent = '❌ Неверный код!';
-            resetStatus.style.color = '#ff0033';
-        } else {
-            resetStatus.textContent = '';
-        }
+        resetStatus.textContent = entered.length > 0 ? '❌ Неверный код!' : '';
+        resetStatus.style.color = '#ff0033';
     }
 });
 
 confirmResetBtn.addEventListener('click', function() {
-    if (codeInput.value.trim() === currentCode) {
-        resetAllProgress();
-    }
+    if (codeInput.value.trim() === currentCode) resetAllProgress();
 });
 
 resetModal.addEventListener('click', function(e) {
@@ -3981,22 +3717,17 @@ resetModal.addEventListener('click', function(e) {
 });
 
 // ============================================================
-// ==================== ОБРАБОТЧИКИ ===========================
+// ==================== ЗАПУСК ================================
 // ============================================================
 
 initMusic();
-
 checkGameVersion();
-
+loadPlantData();
 updateUI();
 
-if (hamsterPurchased) {
-    startPoopProduction();
-}
+if (hamsterPurchased) startPoopProduction();
 
-setTimeout(() => {
-    AntiCheat.start();
-}, 500);
+setTimeout(() => AntiCheat.start(), 500);
 
 // ============================================================
 // ==================== МАГАЗИН ===============================
@@ -4022,15 +3753,9 @@ document.querySelectorAll('.equip-btn').forEach(btn => {
                 ownedAccessories.push(accessory);
                 saveGame();
                 updateUI();
-            } else {
-                alert("Не хватает монет! Нужно " + price + " $RAT");
-            }
+            } else alert("Не хватает! Нужно " + price + " $RAT");
         } else {
-            if (equippedAccessory === accessory) {
-                equippedAccessory = null;
-            } else {
-                equippedAccessory = accessory;
-            }
+            equippedAccessory = (equippedAccessory === accessory) ? null : accessory;
             saveGame();
             updateUI();
         }
@@ -4043,18 +3768,17 @@ ratContainer.addEventListener('click', (e) => {
     if (lastClickTime !== 0) {
         const interval = currentTime - lastClickTime;
         if (interval < 35) {
-            triggerAntiCheat("⚠️ СЛИШКОМ БЫСТРО! КАПКАН ЗАКРЫЛСЯ НА 5 СЕК ⚠️");
+            triggerAntiCheat("⚠️ СЛИШКОМ БЫСТРО! КАПКАН НА 5 СЕК ⚠️");
             lastClickTime = currentTime;
             return;
         }
         clickIntervals.push(interval);
-        if (clickIntervals.length > maxIntervalHistory) { clickIntervals.shift(); }
+        if (clickIntervals.length > maxIntervalHistory) clickIntervals.shift();
         if (clickIntervals.length === maxIntervalHistory) {
             const sum = clickIntervals.reduce((a, b) => a + b, 0);
             const avgInterval = sum / clickIntervals.length;
-            const isPerfectRhythm = clickIntervals.every(intv => Math.abs(intv - avgInterval) < 4);
-            if (isPerfectRhythm) {
-                triggerAntiCheat("⚠️ ОБНАРУЖЕН ИДЕАЛЬНЫЙ РИТМ! БАН НА 5 СЕК ⚠️");
+            if (clickIntervals.every(i => Math.abs(i - avgInterval) < 4)) {
+                triggerAntiCheat("⚠️ ИДЕАЛЬНЫЙ РИТМ! БАН НА 5 СЕК ⚠️");
                 lastClickTime = currentTime;
                 return;
             }
@@ -4096,438 +3820,219 @@ closeShopBtn.addEventListener('click', () => shopModal.classList.remove('open'))
 // ===== ПОКУПКИ =====
 buyClickBtn.addEventListener('click', () => {
     let currentMax = superGrainPurchased ? 20 : 10;
-    if (clickLevel >= currentMax) {
-        alert("Максимальный уровень достигнут!");
-        return;
-    }
+    if (clickLevel >= currentMax) { alert("MAX!"); return; }
     let cost = 50 * (clickLevel + 1);
-    if (score >= cost) {
-        score -= cost;
-        clickLevel++;
-        clickPower++;
-        saveGame();
-        updateUI();
-    } else {
-        alert("Не хватает монет!");
-    }
+    if (score >= cost) { score -= cost; clickLevel++; clickPower++; saveGame(); updateUI(); }
+    else alert("Не хватает!");
 });
 
 buyAutoBtn.addEventListener('click', () => {
-    if (autoLevel >= MAX_AUTO_LEVEL) {
-        alert("Максимальный уровень достигнут!");
-        return;
-    }
+    if (autoLevel >= MAX_AUTO_LEVEL) { alert("MAX!"); return; }
     let cost = 100 * (autoLevel + 1);
-    if (score >= cost) {
-        score -= cost;
-        autoLevel++;
-        autoClickers++;
-        saveGame();
-        updateUI();
-    } else {
-        alert("Не хватает монет!");
-    }
+    if (score >= cost) { score -= cost; autoLevel++; autoClickers++; saveGame(); updateUI(); }
+    else alert("Не хватает!");
 });
 
 buyGrainBtn.addEventListener('click', () => {
     if (grainPurchased === 0) {
-        let cost = 1000;
-        if (score >= cost) {
-            score -= cost;
-            grainPurchased = 1;
-            grainLevel = 1;
-            grainBase = 4;
-            saveGame();
-            updateUI();
-            alert('🌽 Зерно куплено! Теперь вы можете улучшать его!');
-        } else {
-            alert("Не хватает монет! Нужно 1000 $RAT");
-        }
+        if (score >= 1000) {
+            score -= 1000; grainPurchased = 1; grainLevel = 1; grainBase = 4;
+            saveGame(); updateUI();
+            alert('🌽 Зерно куплено!');
+        } else alert("Нужно 1000 $RAT");
         return;
     }
-    if (grainLevel >= MAX_GRAIN_LEVEL) {
-        alert("Максимальный уровень достигнут!");
-        return;
-    }
+    if (grainLevel >= MAX_GRAIN_LEVEL) { alert("MAX!"); return; }
     let cost = 1000 * (grainLevel + 1);
-    if (score >= cost) {
-        score -= cost;
-        grainLevel++;
-        grainBase++;
-        grainPurchased++;
-        saveGame();
-        updateUI();
-    } else {
-        alert("Не хватает монет!");
-    }
+    if (score >= cost) { score -= cost; grainLevel++; grainBase++; grainPurchased++; saveGame(); updateUI(); }
+    else alert("Не хватает!");
 });
 
 buySuperGrainBtn.addEventListener('click', () => {
-    if (superGrainPurchased) {
-        alert("Супер зерно уже куплено!");
-        return;
-    }
+    if (superGrainPurchased) { alert("Уже куплено!"); return; }
     if (score >= 10000) {
-        score -= 10000;
-        superGrainPurchased = true;
-        MAX_CLICK_LEVEL = 20;
-        saveGame();
-        updateUI();
-        alert("⭐ Супер зерно куплено!\n\n🌾 Лимит 'Больше зерна' увеличен до 20!\n📱 Теперь доступен тумблер супер-зерна!\n🐁 В магазине появилась Мышь-собиратор за 15 000 $RAT!");
-    } else {
-        alert("Не хватает монет! Нужно 10 000 $RAT");
-    }
+        score -= 10000; superGrainPurchased = true; MAX_CLICK_LEVEL = 20;
+        saveGame(); updateUI();
+        alert("⭐ Супер зерно куплено!");
+    } else alert("Нужно 10 000 $RAT");
 });
 
 buyMouseShopBtn.addEventListener('click', () => {
-    if (mousePurchased) {
-        alert("Мышь-собиратор уже куплена!");
-        return;
-    }
+    if (mousePurchased) { alert("Уже куплено!"); return; }
     if (score >= 15000) {
-        score -= 15000;
-        mousePurchased = true;
-        saveGame();
-        updateUI();
-        alert("🐁 Мышь-собиратор куплена!\n\nТеперь она будет автоматически собирать зерно!\n📱 Включите тумблер мыши справа!");
-    } else {
-        alert("Не хватает монет! Нужно 15 000 $RAT");
-    }
+        score -= 15000; mousePurchased = true;
+        saveGame(); updateUI();
+        alert("🐁 Мышь-собиратор куплена!");
+    } else alert("Нужно 15 000 $RAT");
 });
 
 buyHamsterShopBtn.addEventListener('click', () => {
-    if (hamsterPurchased) {
-        alert("Вольер уже куплен!");
-        return;
-    }
+    if (hamsterPurchased) { alert("Уже куплено!"); return; }
     if (score >= 20000) {
-        score -= 20000;
-        hamsterPurchased = true;
-        hamsterFood = 50;
-        hamsterUpgradeCost = 5000;
-        saveGame();
-        updateUI();
-        startHamsterMovement();
-        startFoodDepletion();
-        startPoopProduction();
-        alert("🐹 Вольер с морскими свинками куплен!\n\nОни дают бонус к силе клика!\n🍖 Кормите их чтобы активировать бонус!\n⬆️ Улучшайте свинок в магазине для увеличения бонуса до x1.5!\n💩 Они производят какашки, которые можно переработать в удобрения!");
-    } else {
-        alert("Не хватает монет! Нужно 20 000 $RAT");
-    }
+        score -= 20000; hamsterPurchased = true; hamsterFood = 50; hamsterUpgradeCost = 5000;
+        saveGame(); updateUI();
+        startHamsterMovement(); startFoodDepletion(); startPoopProduction();
+        alert("🐹 Вольер куплен!");
+    } else alert("Нужно 20 000 $RAT");
 });
 
 buyHamsterUpgradeBtn.addEventListener('click', () => {
-    if (!hamsterPurchased) {
-        alert("Сначала купите вольер с морскими свинками!");
-        return;
-    }
-    if (hamsterLevel >= MAX_HAMSTER_LEVEL) {
-        alert("Максимальный уровень достигнут!");
-        return;
-    }
-    if (score < hamsterUpgradeCost) {
-        alert("Не хватает монет! Нужно " + hamsterUpgradeCost + " $RAT");
-        return;
-    }
-    score -= hamsterUpgradeCost;
-    hamsterLevel++;
+    if (!hamsterPurchased) { alert("Купите вольер!"); return; }
+    if (hamsterLevel >= MAX_HAMSTER_LEVEL) { alert("MAX!"); return; }
+    if (score < hamsterUpgradeCost) { alert("Нужно " + hamsterUpgradeCost); return; }
+    score -= hamsterUpgradeCost; hamsterLevel++;
     hamsterUpgradeCost = Math.round(hamsterUpgradeCost * 1.5);
     hamsterFood = Math.min(hamsterMaxFood, hamsterFood + 15);
-    saveGame();
-    updateUI();
-    if (hamsterFood > 0 && !foodDepletionInterval) {
-        startFoodDepletion();
-    }
-    alert("⬆️ Морские свинки улучшены!\n\nТекущий бонус: x" + getHamsterBonus().toFixed(1));
+    saveGame(); updateUI();
+    if (hamsterFood > 0 && !foodDepletionInterval) startFoodDepletion();
+    alert("⬆️ Улучшено! Бонус: x" + getHamsterBonus().toFixed(1));
 });
 
 buyBossMenuBtn.addEventListener('click', () => {
-    if (bossMenuPurchased) {
-        alert("Меню боссов уже куплено!");
-        return;
-    }
+    if (bossMenuPurchased) { alert("Уже куплено!"); return; }
     if (score >= 50000) {
-        score -= 50000;
-        bossMenuPurchased = true;
-        saveGame();
-        updateUI();
-        alert("💀 Меню боссов куплено!\n\nТеперь доступен череп под тумблерами!\n🦫 В магазине появилась Капибара за 100 000 $RAT!");
-    } else {
-        alert("Не хватает монет! Нужно 50 000 $RAT");
-    }
+        score -= 50000; bossMenuPurchased = true;
+        saveGame(); updateUI();
+        alert("💀 Меню боссов куплено!");
+    } else alert("Нужно 50 000 $RAT");
 });
 
 buyCapybaraBtn.addEventListener('click', () => {
-    if (capybaraPurchased) {
-        alert("Капибара уже куплена!");
-        return;
-    }
+    if (capybaraPurchased) { alert("Уже куплено!"); return; }
     if (score >= 100000) {
-        score -= 100000;
-        capybaraPurchased = true;
-        capybaraDefeated = false;
-        capybaraCooldown = 0;
-        localStorage.setItem('rat_capybaraCooldown', 0);
-        localStorage.setItem('rat_capybaraDefeated', 'false');
-        saveGame();
-        updateUI();
+        score -= 100000; capybaraPurchased = true;
+        capybaraDefeated = false; capybaraCooldown = 0;
+        saveGame(); updateUI();
         startBossCooldownTimer();
-        alert("🦫 Капибара куплена!\n\nТеперь вы можете сражаться с ней в меню боссов!\n⚔️ За победу вы получите Корм для крысы!");
-    } else {
-        alert("Не хватает монет! Нужно 100 000 $RAT");
-    }
+        alert("🦫 Капибара куплена!");
+    } else alert("Нужно 100 000 $RAT");
 });
 
 buyPlantBtn.addEventListener('click', () => {
-    if (plantPurchased) {
-        alert("Горшок уже куплен!");
-        return;
-    }
+    if (plantPurchased) { alert("Уже куплено!"); return; }
     if (score >= 30000) {
-        score -= 30000;
-        plantPurchased = true;
-        plantLevel = 1;
-        plantData[0].stage = 'idle';
-        plantData[0].progress = 0;
-        plantData[0].type = null;
-        plantData[0].fertilizer = false;
-        savePlantData();
-        saveGame();
-        updateUI();
-        setTimeout(() => updatePlantsUI(), 100);
-        alert("🌱 Первый горшок куплен!\n\nПоявился слева внизу!\n💧 В магазине теперь можно купить типы растений (Трава, Перец, Яблоко, Капуста)!");
-    } else {
-        alert("Не хватает монет! Нужно 30 000 $RAT");
-    }
+        score -= 30000; plantPurchased = true; plantLevel = 1;
+        savePlantData(); saveGame(); updateUI();
+        setTimeout(updatePlantsUI, 100);
+        alert("🌱 Горшок куплен!");
+    } else alert("Нужно 30 000 $RAT");
 });
 
 buyPlantUpgrade1Btn.addEventListener('click', () => {
-    if (plantUpgrade1) {
-        alert("Улучшение уже куплено!");
-        return;
-    }
-    if (!plantPurchased) {
-        alert("Сначала купите первый горшок!");
-        return;
-    }
+    if (plantUpgrade1) { alert("Уже куплено!"); return; }
+    if (!plantPurchased) { alert("Купите горшок!"); return; }
     if (score >= 50000) {
-        score -= 50000;
-        plantUpgrade1 = true;
-        plantLevel = 2;
-        plantData[1].stage = 'idle';
-        plantData[1].progress = 0;
-        plantData[1].type = null;
-        plantData[1].fertilizer = false;
-        savePlantData();
-        saveGame();
-        updateUI();
-        setTimeout(() => updatePlantsUI(), 100);
-        alert("⬆️ Улучшение горшков I куплено!\n\nТеперь у вас 2 горшка!");
-    } else {
-        alert("Не хватает монет! Нужно 50 000 $RAT");
-    }
+        score -= 50000; plantUpgrade1 = true; plantLevel = 2;
+        savePlantData(); saveGame(); updateUI();
+        setTimeout(updatePlantsUI, 100);
+        alert("⬆️ 2 горшка!");
+    } else alert("Нужно 50 000 $RAT");
 });
 
 buyPlantUpgrade2Btn.addEventListener('click', () => {
-    if (plantUpgrade2) {
-        alert("Улучшение уже куплено!");
-        return;
-    }
-    if (!plantUpgrade1) {
-        alert("Сначала купите первое улучшение горшков!");
-        return;
-    }
+    if (plantUpgrade2) { alert("Уже куплено!"); return; }
+    if (!plantUpgrade1) { alert("Купите улучшение I!"); return; }
     if (score >= 70000) {
-        score -= 70000;
-        plantUpgrade2 = true;
-        plantLevel = 3;
-        plantData[2].stage = 'idle';
-        plantData[2].progress = 0;
-        plantData[2].type = null;
-        plantData[2].fertilizer = false;
-        savePlantData();
-        saveGame();
-        updateUI();
-        setTimeout(() => updatePlantsUI(), 100);
-        alert("⬆️ Улучшение горшков II куплено!\n\nТеперь у вас 3 горшка!\n🌱 МАКСИМУМ ДОСТИГНУТ!");
-    } else {
-        alert("Не хватает монет! Нужно 70 000 $RAT");
-    }
+        score -= 70000; plantUpgrade2 = true; plantLevel = 3;
+        savePlantData(); saveGame(); updateUI();
+        setTimeout(updatePlantsUI, 100);
+        alert("⬆️ 3 горшка! MAX!");
+    } else alert("Нужно 70 000 $RAT");
 });
 
 buyPlantTypeGrassBtn.addEventListener('click', () => {
-    if (plantTypeGrass) {
-        alert("Трава уже куплена!");
-        return;
-    }
-    if (score >= 10000) {
-        score -= 10000;
-        plantTypeGrass = true;
-        saveGame();
-        updateUI();
-        alert("🌿 Трава куплена! Теперь вы можете посадить её в горшок!");
-    } else {
-        alert("Не хватает монет! Нужно 10 000 $RAT");
-    }
+    if (plantTypeGrass) return;
+    if (score >= 10000) { score -= 10000; plantTypeGrass = true; saveGame(); updateUI(); alert("🌿 Трава куплена!"); }
+    else alert("Нужно 10 000 $RAT");
 });
 
 buyPlantTypePepperBtn.addEventListener('click', () => {
-    if (plantTypePepper) {
-        alert("Болгарский перец уже куплен!");
-        return;
-    }
-    if (score >= 25000) {
-        score -= 25000;
-        plantTypePepper = true;
-        saveGame();
-        updateUI();
-        alert("🌶️ Болгарский перец куплен! Теперь вы можете посадить его в горшок!");
-    } else {
-        alert("Не хватает монет! Нужно 25 000 $RAT");
-    }
+    if (plantTypePepper) return;
+    if (score >= 25000) { score -= 25000; plantTypePepper = true; saveGame(); updateUI(); alert("🌶️ Перец куплен!"); }
+    else alert("Нужно 25 000 $RAT");
 });
 
 buyPlantTypeAppleBtn.addEventListener('click', () => {
-    if (plantTypeApple) {
-        alert("Яблоко уже куплено!");
-        return;
-    }
-    if (score >= 40000) {
-        score -= 40000;
-        plantTypeApple = true;
-        saveGame();
-        updateUI();
-        alert("🍎 Яблоко куплено! Теперь вы можете посадить его в горшок!");
-    } else {
-        alert("Не хватает монет! Нужно 40 000 $RAT");
-    }
+    if (plantTypeApple) return;
+    if (score >= 40000) { score -= 40000; plantTypeApple = true; saveGame(); updateUI(); alert("🍎 Яблоко куплено!"); }
+    else alert("Нужно 40 000 $RAT");
 });
 
 buyPlantTypeCabbageBtn.addEventListener('click', () => {
-    if (plantTypeCabbage) {
-        alert("Капуста уже куплена!");
-        return;
-    }
-    if (score >= 15000) {
-        score -= 15000;
-        plantTypeCabbage = true;
-        saveGame();
-        updateUI();
-        alert("🥬 Капуста куплена! Теперь вы можете посадить её в горшок!");
-    } else {
-        alert("Не хватает монет! Нужно 15 000 $RAT");
-    }
+    if (plantTypeCabbage) return;
+    if (score >= 15000) { score -= 15000; plantTypeCabbage = true; saveGame(); updateUI(); alert("🥬 Капуста куплена!"); }
+    else alert("Нужно 15 000 $RAT");
 });
 
 buyLabBtn.addEventListener('click', () => {
-    if (labPurchased) {
-        alert("Лаборатория уже куплена!");
-        return;
-    }
-    if (score >= 50000) {
-        score -= 50000;
-        labPurchased = true;
-        saveGame();
-        updateUI();
-        alert("🧪 Лаборатория куплена!\n\nТеперь доступна кнопка 'ЛАБОРАТОРИЯ'!\n⚙️ Внутри доступен станок удобрений!");
-    } else {
-        alert("Не хватает монет! Нужно 50 000 $RAT");
-    }
+    if (labPurchased) return;
+    if (score >= 50000) { score -= 50000; labPurchased = true; saveGame(); updateUI(); alert("🧪 Лаборатория куплена!"); }
+    else alert("Нужно 50 000 $RAT");
 });
 
 buyCombinerBtn.addEventListener('click', () => {
-    if (combinerPurchased) {
-        alert("Комбинатор уже куплен!");
-        return;
-    }
-    if (!labPurchased) {
-        alert("Сначала купите лабораторию!");
-        return;
-    }
+    if (combinerPurchased) return;
+    if (!labPurchased) { alert("Купите лабораторию!"); return; }
     if (score >= 30000) {
-        score -= 30000;
-        combinerPurchased = true;
-        combinerLevel = 0;
+        score -= 30000; combinerPurchased = true; combinerLevel = 0;
         combinerSlots = [null, null, null];
         combinerRunning = [false, false, false];
         combinerProgress = [0, 0, 0];
+        combinerRecipes = [null, null, null];
         combinerTimer = [null, null, null];
-        saveGame();
-        updateUI();
-        alert("🧪 Комбинатор куплен!\n\nТеперь доступен раздел 'Комбинатор' в лаборатории!\n📦 2 слота для крафта!\n🔬 Улучшение до 3 слотов за 60 000 $RAT!");
-    } else {
-        alert("Не хватает монет! Нужно 30 000 $RAT");
-    }
+        saveGame(); updateUI();
+        alert("🧪 Комбинатор куплен!");
+    } else alert("Нужно 30 000 $RAT");
 });
 
 buyCombinerUpgradeBtn.addEventListener('click', () => {
-    if (combinerLevel >= 1) {
-        alert("Максимальный уровень достигнут!");
-        return;
-    }
-    if (!combinerPurchased) {
-        alert("Сначала купите комбинатор!");
-        return;
-    }
+    if (combinerLevel >= 1) return;
+    if (!combinerPurchased) return;
     if (score >= 60000) {
-        score -= 60000;
-        combinerLevel = 1;
+        score -= 60000; combinerLevel = 1;
         combinerSlots = [null, null, null];
         combinerProgress = [0, 0, 0];
-        saveGame();
-        updateUI();
-        alert("⬆️ Комбинатор улучшен!\n\nТеперь доступно 3 слота для крафта!");
-    } else {
-        alert("Не хватает монет! Нужно 60 000 $RAT");
-    }
+        combinerRecipes = [null, null, null];
+        saveGame(); updateUI();
+        alert("⬆️ 3 слота!");
+    } else alert("Нужно 60 000 $RAT");
 });
 
 buyExtractorBtn.addEventListener('click', () => {
-    if (extractorPurchased) {
-        alert("Аппарат уже куплен!");
-        return;
-    }
-    if (!combinerPurchased) {
-        alert("Сначала купите комбинатор!");
-        return;
-    }
+    if (extractorPurchased) return;
+    if (!combinerPurchased) return;
     if (score >= 20000) {
-        score -= 20000;
-        extractorPurchased = true;
-        extractorQueue = [];
-        extractorProgress = [];
-        saveGame();
-        updateUI();
-        alert("⚗️ Аппарат превращения куплен!\n\nТеперь экстракты будут автоматически превращаться в готовые предметы!\n⏱️ 1 минута на превращение!");
-    } else {
-        alert("Не хватает монет! Нужно 20 000 $RAT");
-    }
+        score -= 20000; extractorPurchased = true;
+        extractorQueue = []; extractorProgress = [];
+        saveGame(); updateUI();
+        alert("⚗️ Аппарат куплен!");
+    } else alert("Нужно 20 000 $RAT");
 });
 
 buyManipulatorBtn.addEventListener('click', () => {
-    if (manipulatorLevel >= 3) {
-        alert("Максимальное количество манипуляторов достигнуто!");
-        return;
-    }
-    if (!isAllLabPartsBought()) {
-        alert("❌ Сначала купите все части лаборатории!\n\nНужно:\n🧪 Лаборатория\n🌱 Горшок + улучшения\n🌿 Трава, Перец, Яблоко, Капуста\n🧪 Комбинатор\n⚗️ Аппарат превращения");
-        return;
-    }
+    if (manipulatorLevel >= 3) return;
+    if (!isAllLabPartsBought()) { alert("Нужны все части лаборатории!"); return; }
     if (score >= 10000) {
-        score -= 10000;
-        manipulatorLevel++;
-        manipulatorPurchased = true;
+        score -= 10000; manipulatorLevel++; manipulatorPurchased = true;
         while (manipulatorSettings.length < manipulatorLevel) {
-            manipulatorSettings.push({ enabled: false, action: 'none', target: '' });
+            manipulatorSettings.push({ enabled: false, action: 'none', target: '', condition: 'always', threshold: 20, interval: 5 });
         }
-        saveGame();
-        updateUI();
-        restartManipulators();
-        alert("🤖 Манипулятор куплен!\n\nТеперь доступен новый тумблер справа!\n⚙️ Настройте его через кнопку ⚙️");
-    } else {
-        alert("Не хватает монет! Нужно 10 000 $RAT");
-    }
+        saveGame(); updateUI(); restartManipulators();
+        alert("🤖 Манипулятор куплен!");
+    } else alert("Нужно 10 000 $RAT");
 });
+
+if (buyAdvancedLogicBtn) {
+    buyAdvancedLogicBtn.addEventListener('click', () => {
+        if (advancedLogicPurchased) { alert("Уже куплено!"); return; }
+        if (manipulatorLevel < 1) { alert("Сначала купите манипулятор!"); return; }
+        if (score >= 20000) {
+            score -= 20000; advancedLogicPurchased = true;
+            saveGame(); updateUI();
+            alert("🧠 Улучшенная логика куплена!\n\nТеперь доступны:\n⏱️ Настройка интервала\n🎯 Условия 'меньше/больше N'");
+        } else alert("Нужно 20 000 $RAT");
+    });
+}
 
 // ============================================================
 // ==================== ЛАБОРАТОРИЯ ===========================
@@ -4538,28 +4043,18 @@ openLabBtn.addEventListener('click', function() {
     labModal.style.display = 'flex';
     updateLabUI();
 });
-
 closeLabBtn.addEventListener('click', function() {
     labModal.classList.remove('open');
     labModal.style.display = 'none';
 });
-
 labModal.addEventListener('click', function(e) {
-    if (e.target === this) {
-        this.style.display = 'none';
-        this.classList.remove('open');
-    }
+    if (e.target === this) { this.style.display = 'none'; this.classList.remove('open'); }
 });
-
 machineBtn.addEventListener('click', function() {
     if (machineRunning) return;
-    if (machineProgress >= getMachineTime() && machineProgress > 0) {
-        collectFertilizer();
-    } else {
-        startMachine();
-    }
+    if (machineProgress >= getMachineTime() && machineProgress > 0) collectFertilizer();
+    else startMachine();
 });
-
 machineUpgradeBtn.addEventListener('click', upgradeMachine);
 
 // ============================================================
@@ -4567,67 +4062,47 @@ machineUpgradeBtn.addEventListener('click', upgradeMachine);
 // ============================================================
 
 openCombinerBtn.addEventListener('click', function() {
-    if (!combinerPurchased) {
-        alert('🧪 Сначала купите комбинатор в магазине (раздел "Бусты")!');
-        return;
-    }
+    if (!combinerPurchased) return;
     combinerModal.classList.add('open');
     combinerModal.style.display = 'flex';
     updateCombinerUI();
 });
-
 closeCombinerBtn.addEventListener('click', function() {
     combinerModal.classList.remove('open');
     combinerModal.style.display = 'none';
 });
-
 combinerModal.addEventListener('click', function(e) {
-    if (e.target === this) {
-        this.style.display = 'none';
-        this.classList.remove('open');
-    }
+    if (e.target === this) { this.style.display = 'none'; this.classList.remove('open'); }
 });
 
 // ============================================================
-// ==================== АППАРАТ ПРЕВРАЩЕНИЯ ==================
+// ==================== ЭКСТРАКТОР ============================
 // ============================================================
 
 openExtractorBtn.addEventListener('click', function() {
-    if (!extractorPurchased) {
-        alert('⚗️ Сначала купите аппарат превращения в магазине (раздел "Бусты")!');
-        return;
-    }
+    if (!extractorPurchased) return;
     extractorModal.classList.add('open');
     extractorModal.style.display = 'flex';
     updateExtractorUI();
 });
-
 closeExtractorBtn.addEventListener('click', function() {
     extractorModal.classList.remove('open');
     extractorModal.style.display = 'none';
 });
-
 extractorModal.addEventListener('click', function(e) {
-    if (e.target === this) {
-        this.style.display = 'none';
-        this.classList.remove('open');
-    }
+    if (e.target === this) { this.style.display = 'none'; this.classList.remove('open'); }
 });
 
 // ============================================================
-// ==================== НАСТРОЙКИ МАНИПУЛЯТОРА ===============
+// ==================== НАСТРОЙКИ =============================
 // ============================================================
 
 closeSettingsBtn.addEventListener('click', function() {
     settingsModal.classList.remove('open');
     settingsModal.style.display = 'none';
 });
-
 settingsModal.addEventListener('click', function(e) {
-    if (e.target === this) {
-        this.style.display = 'none';
-        this.classList.remove('open');
-    }
+    if (e.target === this) { this.style.display = 'none'; this.classList.remove('open'); }
 });
 
 // ============================================================
@@ -4635,119 +4110,80 @@ settingsModal.addEventListener('click', function(e) {
 // ============================================================
 
 poopBtn.addEventListener('click', function() {
-    if (poopCount <= 0) {
-        alert('💩 Нет какашек для сбора!');
-        return;
-    }
-
+    if (poopCount <= 0) return;
     let collected = poopCount;
-    labPoopCount = labPoopCount + collected;
+    labPoopCount += collected;
     poopCount = 0;
-
-    saveGame();
-    updateUI();
+    saveGame(); updateUI();
     if (labPurchased) updateLabUI();
-
-    alert('💩 ' + collected + ' какашек отправлены в лабораторию!\n🔄 Запустите станок (7 💩 → 1 🧪)');
+    alert('💩 ' + collected + ' какашек отправлены в лабораторию!');
 });
 
 // ============================================================
-// ==================== МЕНЮ БОССОВ ===========================
+// ==================== БОССЫ =================================
 // ============================================================
 
 bossSkull.addEventListener('click', function(e) {
-    e.stopPropagation();
-    e.preventDefault();
+    e.stopPropagation(); e.preventDefault();
     if (bossMenuPurchased) {
         bossMenu.style.display = 'block';
         bossMenu.classList.add('open');
         updateBossStatus();
-    } else {
-        alert('Сначала купите Меню боссов в магазине за 50 000 $RAT!');
     }
 });
-
 document.getElementById('skullIcon').addEventListener('click', function(e) {
-    e.stopPropagation();
-    e.preventDefault();
+    e.stopPropagation(); e.preventDefault();
     if (bossMenuPurchased) {
         bossMenu.style.display = 'block';
         bossMenu.classList.add('open');
         updateBossStatus();
-    } else {
-        alert('Сначала купите Меню боссов в магазине за 50 000 $RAT!');
     }
 });
-
 closeBossMenuBtn.addEventListener('click', function() {
     bossMenu.style.display = 'none';
     bossMenu.classList.remove('open');
 });
-
 bossMenu.addEventListener('click', function(e) {
-    if (e.target === this) {
-        this.style.display = 'none';
-        this.classList.remove('open');
-    }
+    if (e.target === this) { this.style.display = 'none'; this.classList.remove('open'); }
 });
-
 fightCapybaraBtn.addEventListener('click', () => {
-    if (!capybaraPurchased) return;
-    if (capybaraCooldown > 0) return;
-    if (capybaraDefeated) return;
+    if (!capybaraPurchased || capybaraCooldown > 0 || capybaraDefeated) return;
     startBossFight();
 });
 
 // ============================================================
-// ==================== ИНВЕНТАРЬ ==============================
+// ==================== ИНВЕНТАРЬ =============================
 // ============================================================
 
 openInventoryBtn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    e.preventDefault();
+    e.stopPropagation(); e.preventDefault();
     updateInventoryUI();
     inventoryModal.style.display = 'flex';
     inventoryModal.classList.add('open');
 });
-
 closeInventoryBtn.addEventListener('click', function() {
     inventoryModal.style.display = 'none';
     inventoryModal.classList.remove('open');
 });
-
 inventoryModal.addEventListener('click', function(e) {
-    if (e.target === this) {
-        this.style.display = 'none';
-        this.classList.remove('open');
-    }
+    if (e.target === this) { this.style.display = 'none'; this.classList.remove('open'); }
 });
 
 feedBtn.addEventListener('click', feedHamsters);
 
 grainToggle.addEventListener('click', function(e) {
     e.stopPropagation();
-    if (grainLevel === 0) {
-        alert("Сначала купите улучшение Зерно в магазине!");
-        return;
-    }
+    if (grainLevel === 0) { alert("Купите Зерно!"); return; }
     toggleGrain(!grainActive);
 });
-
 superGrainToggle.addEventListener('click', function(e) {
     e.stopPropagation();
-    if (!superGrainPurchased) {
-        alert("Сначала купите Супер зерно в магазине!");
-        return;
-    }
+    if (!superGrainPurchased) { alert("Купите Супер зерно!"); return; }
     toggleSuperGrain(!superGrainActive);
 });
-
 mouseToggle.addEventListener('click', function(e) {
     e.stopPropagation();
-    if (!mousePurchased) {
-        alert("Сначала купите Мышь-собиратор в магазине!");
-        return;
-    }
+    if (!mousePurchased) { alert("Купите Мышь!"); return; }
     toggleMouse(!mouseActive);
 });
 
@@ -4763,44 +4199,20 @@ setInterval(() => {
     }
 }, 1000);
 
-loadPlantData();
 startBossCooldownTimer();
+setInterval(updateBossStatus, 1000);
+setInterval(() => { if (plantPurchased && plantLevel > 0) updatePlantsUI(); }, 5000);
+setInterval(() => { if (labPurchased) updateLabUI(); }, 1000);
+setInterval(() => { if (combinerPurchased) updateCombinerUI(); }, 1000);
+setInterval(() => { if (extractorPurchased) updateExtractorUI(); }, 1000);
 
-setInterval(() => {
-    updateBossStatus();
-}, 1000);
+// ============================================================
+// ==================== ЗАПУСК ВОССТАНОВЛЕНИЯ =================
+// ============================================================
 
-setInterval(() => {
-    if (plantPurchased && plantLevel > 0) {
-        updatePlantsUI();
-    }
-}, 5000);
+setTimeout(restoreGameState, 200);
 
-setInterval(() => {
-    if (labPurchased) {
-        updateLabUI();
-    }
-}, 1000);
+window.addEventListener('beforeunload', saveGame);
 
-setInterval(() => {
-    if (combinerPurchased) {
-        updateCombinerUI();
-    }
-}, 1000);
-
-setInterval(() => {
-    if (extractorPurchased) {
-        updateExtractorUI();
-    }
-}, 1000);
-
-window.addEventListener('beforeunload', function() {
-    saveGame();
-});
-
-console.log('💀 Игра загружена!');
-console.log('💀 Версия:', GAME_VERSION);
-console.log('💀 Мультивкладки ЗАБЛОКИРОВАНЫ');
-console.log('💀 Античит АКТИВЕН и защищён');
-console.log('🔊 Музыка включена:', musicEnabled);
-console.log('🎵 ID видео:', musicVideoId);
+console.log('💀 Игра загружена! v' + GAME_VERSION);
+console.log('🧠 Улучшенная логика + 🌾 Экстракт сена');
