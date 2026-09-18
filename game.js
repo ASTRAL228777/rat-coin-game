@@ -1,4 +1,142 @@
 // ============================================================
+// ==================== МГНОВЕННАЯ БЛОКИРОВКА МУЛЬТИВКЛАДОК ===
+// ============================================================
+
+(function instantMultiTabBlock() {
+    const TAB_KEY = 'rat_active_tab';
+    const TAB_ID = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    const TAB_TIMEOUT = 4000;
+    
+    try {
+        const raw = localStorage.getItem(TAB_KEY);
+        if (raw) {
+            const data = JSON.parse(raw);
+            const timeSince = Date.now() - data.timestamp;
+            
+            if (data.id && data.id !== TAB_ID && timeSince < TAB_TIMEOUT) {
+                document.documentElement.innerHTML = `
+                    <head><title>🐀 Rat Coin - Игра уже открыта</title></head>
+                    <body style="
+                        margin: 0; padding: 0;
+                        background: linear-gradient(135deg, #0b0c10 0%, #1a0a1f 100%);
+                        color: #45f3ff;
+                        font-family: 'Segoe UI', sans-serif;
+                        display: flex; flex-direction: column;
+                        justify-content: center; align-items: center;
+                        height: 100vh; text-align: center; overflow: hidden;
+                    ">
+                        <div style="font-size: 120px; margin-bottom: 20px; animation: bounce 1.5s ease-in-out infinite;">🐀</div>
+                        <h1 style="
+                            color: #ff007f; font-size: 28px; margin-bottom: 15px;
+                            text-shadow: 0 0 20px #ff007f, 0 0 40px #ff007f;
+                            animation: pulse 1.5s ease-in-out infinite;
+                        ">🚫 ИГРА УЖЕ ОТКРЫТА</h1>
+                        <h2 style="color: #45f3ff; font-size: 20px; margin-bottom: 20px; text-shadow: 0 0 15px #45f3ff;">
+                            в другой вкладке!
+                        </h2>
+                        <p style="color: #66fcf1; font-size: 15px; max-width: 500px; line-height: 1.7; margin-bottom: 25px; padding: 0 15px;">
+                            🎮 Играть одновременно в нескольких вкладках <b style="color:#ffd700;">НЕЛЬЗЯ</b>!<br>
+                            Это приведёт к <b style="color:#ff6666;">потере прогресса</b>.<br><br>
+                            Закройте <b>эту</b> вкладку и продолжите игру в той,<br>
+                            где она была открыта <b style="color:#45f3ff;">первой</b>.
+                        </p>
+                        <div style="background: rgba(31, 40, 51, 0.8); padding: 15px 25px; border-radius: 12px; border: 2px solid #ffd700; margin-bottom: 20px; max-width: 500px;">
+                            <p style="color: #ffd700; font-size: 13px; margin: 0; line-height: 1.6;">
+                                ⚠️ <b>Если это ошибка:</b><br>
+                                Закройте <b>ВСЕ</b> вкладки с игрой и откройте заново
+                            </p>
+                        </div>
+                        <button onclick="location.reload()" style="
+                            background: linear-gradient(135deg, #45f3ff, #66fcf1);
+                            color: #0b0c10; border: none; padding: 14px 40px;
+                            border-radius: 12px; font-size: 16px; font-weight: bold;
+                            cursor: pointer; font-family: 'Segoe UI', sans-serif;
+                            box-shadow: 0 0 30px rgba(69, 243, 255, 0.4);
+                        ">🔄 Проверить снова</button>
+                        <style>
+                            @keyframes bounce {
+                                0%, 100% { transform: translateY(0) rotate(-5deg); }
+                                50% { transform: translateY(-20px) rotate(5deg); }
+                            }
+                            @keyframes pulse {
+                                0%, 100% { text-shadow: 0 0 20px #ff007f, 0 0 40px #ff007f; }
+                                50% { text-shadow: 0 0 40px #ff007f, 0 0 80px #ff007f; }
+                            }
+                        </style>
+                    </body>
+                `;
+                throw new Error('MultiTab blocked');
+            }
+        }
+        
+        localStorage.setItem(TAB_KEY, JSON.stringify({
+            id: TAB_ID,
+            timestamp: Date.now()
+        }));
+        
+    } catch (e) {
+        if (e.message === 'MultiTab blocked') {
+            throw e;
+        }
+        console.warn('MultiTab check error:', e);
+    }
+    
+    window._ratTabId = TAB_ID;
+    window._ratIsActiveTab = function() {
+        try {
+            const raw = localStorage.getItem(TAB_KEY);
+            if (!raw) return false;
+            const data = JSON.parse(raw);
+            return data.id === TAB_ID;
+        } catch (e) {
+            return false;
+        }
+    };
+    
+    setInterval(function() {
+        try {
+            const raw = localStorage.getItem(TAB_KEY);
+            if (raw) {
+                const data = JSON.parse(raw);
+                if (data.id === TAB_ID) {
+                    localStorage.setItem(TAB_KEY, JSON.stringify({
+                        id: TAB_ID,
+                        timestamp: Date.now()
+                    }));
+                } else if (Date.now() - data.timestamp < TAB_TIMEOUT) {
+                    window.location.reload();
+                }
+            }
+        } catch (e) {}
+    }, 1000);
+    
+    window.addEventListener('beforeunload', function() {
+        try {
+            const raw = localStorage.getItem(TAB_KEY);
+            if (raw) {
+                const data = JSON.parse(raw);
+                if (data.id === TAB_ID) {
+                    localStorage.removeItem(TAB_KEY);
+                }
+            }
+        } catch (e) {}
+    });
+    
+    window.addEventListener('pagehide', function() {
+        try {
+            const raw = localStorage.getItem(TAB_KEY);
+            if (raw) {
+                const data = JSON.parse(raw);
+                if (data.id === TAB_ID) {
+                    localStorage.removeItem(TAB_KEY);
+                }
+            }
+        } catch (e) {}
+    });
+    
+})();
+
+// ============================================================
 // ==================== СИСТЕМА ВЕРСИЙ ========================
 // ============================================================
 
@@ -11,268 +149,6 @@ const UPDATE_CHANGELOG = {
     '2.0.3': '🔐 Античит полностью скрыт от консоли! Улучшена защита!',
     '2.0.4': '🚫 Защита от мультивкладок! Прогресс больше не теряется!',
 };
-
-// ============================================================
-// ==================== ЗАЩИТА ОТ МУЛЬТИВКЛАДОК ===============
-// ============================================================
-
-(function detectMultipleTabs() {
-    const TAB_KEY = 'rat_active_tab';
-    const TAB_ID = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    const HEARTBEAT_INTERVAL = 1000;
-    const TAB_TIMEOUT = 3000;
-    
-    let isActiveTab = false;
-    let heartbeatTimer = null;
-    let blocker = null;
-    
-    function getActiveTabData() {
-        try {
-            const raw = localStorage.getItem(TAB_KEY);
-            if (!raw) return null;
-            const data = JSON.parse(raw);
-            if (Date.now() - data.timestamp > TAB_TIMEOUT) {
-                return null;
-            }
-            return data;
-        } catch (e) {
-            return null;
-        }
-    }
-    
-    function acquireLock() {
-        const existing = getActiveTabData();
-        
-        if (existing && existing.id !== TAB_ID) {
-            showMultiTabBlock();
-            return false;
-        }
-        
-        try {
-            localStorage.setItem(TAB_KEY, JSON.stringify({
-                id: TAB_ID,
-                timestamp: Date.now()
-            }));
-            isActiveTab = true;
-            hideMultiTabBlock();
-            return true;
-        } catch (e) {
-            return false;
-        }
-    }
-    
-    function heartbeat() {
-        if (!isActiveTab) {
-            const existing = getActiveTabData();
-            if (!existing) {
-                acquireLock();
-            }
-            return;
-        }
-        
-        try {
-            localStorage.setItem(TAB_KEY, JSON.stringify({
-                id: TAB_ID,
-                timestamp: Date.now()
-            }));
-        } catch (e) {}
-    }
-    
-    function releaseLock() {
-        try {
-            const existing = getActiveTabData();
-            if (existing && existing.id === TAB_ID) {
-                localStorage.removeItem(TAB_KEY);
-            }
-        } catch (e) {}
-    }
-    
-    function showMultiTabBlock() {
-        if (blocker) return;
-        
-        // Останавливаем все игровые процессы
-        if (typeof window._stopAllGameProcesses === 'function') {
-            window._stopAllGameProcesses();
-        }
-        
-        blocker = document.createElement('div');
-        blocker.id = 'multiTabBlocker';
-        blocker.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: linear-gradient(135deg, #0b0c10 0%, #1a0a1f 100%);
-            z-index: 999999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Segoe UI', sans-serif;
-            color: #45f3ff;
-            padding: 20px;
-            text-align: center;
-            animation: multiTabFadeIn 0.4s ease-out;
-        `;
-        blocker.innerHTML = `
-            <style>
-                @keyframes multiTabFadeIn {
-                    0% { opacity: 0; transform: scale(0.9); }
-                    100% { opacity: 1; transform: scale(1); }
-                }
-                @keyframes multiTabPulse {
-                    0%, 100% { text-shadow: 0 0 20px #ff007f, 0 0 40px #ff007f; }
-                    50% { text-shadow: 0 0 40px #ff007f, 0 0 80px #ff007f; }
-                }
-                @keyframes ratBounce {
-                    0%, 100% { transform: translateY(0) rotate(-5deg); }
-                    50% { transform: translateY(-20px) rotate(5deg); }
-                }
-            </style>
-            <div style="font-size: 120px; margin-bottom: 20px; animation: ratBounce 1.5s ease-in-out infinite;">🐀</div>
-            <h1 style="
-                color: #ff007f;
-                animation: multiTabPulse 1.5s ease-in-out infinite;
-                font-size: 28px;
-                margin-bottom: 15px;
-                letter-spacing: 2px;
-            ">
-                🚫 ИГРА УЖЕ ОТКРЫТА
-            </h1>
-            <h2 style="
-                color: #45f3ff;
-                font-size: 20px;
-                margin-bottom: 20px;
-                text-shadow: 0 0 15px #45f3ff;
-            ">
-                в другой вкладке!
-            </h2>
-            <p style="
-                color: #66fcf1;
-                font-size: 15px;
-                max-width: 500px;
-                line-height: 1.7;
-                margin-bottom: 25px;
-                padding: 0 15px;
-            ">
-                🎮 Играть одновременно в нескольких вкладках <b style="color:#ffd700;">НЕЛЬЗЯ</b>!<br>
-                Это приведёт к <b style="color:#ff6666;">потере прогресса</b> и багам сохранения.<br><br>
-                Закройте <b>эту</b> вкладку и продолжите игру в той,<br>
-                где она была открыта <b style="color:#45f3ff;">первой</b>.
-            </p>
-            <div style="
-                background: rgba(31, 40, 51, 0.8);
-                padding: 15px 25px;
-                border-radius: 12px;
-                border: 2px solid #ffd700;
-                margin-bottom: 20px;
-                max-width: 500px;
-            ">
-                <p style="color: #ffd700; font-size: 13px; margin: 0; line-height: 1.6;">
-                    ⚠️ <b>Если вы думаете, что это ошибка:</b><br>
-                    Закройте <b>ВСЕ</b> вкладки с игрой и откройте заново
-                </p>
-            </div>
-            <button id="multiTabReloadBtn" style="
-                background: linear-gradient(135deg, #45f3ff, #66fcf1);
-                color: #0b0c10;
-                border: none;
-                padding: 14px 40px;
-                border-radius: 12px;
-                font-size: 16px;
-                font-weight: bold;
-                cursor: pointer;
-                font-family: 'Segoe UI', sans-serif;
-                box-shadow: 0 0 30px rgba(69, 243, 255, 0.4);
-                transition: all 0.3s ease;
-            ">🔄 Проверить снова</button>
-            <div style="
-                margin-top: 25px;
-                color: #555;
-                font-size: 11px;
-                letter-spacing: 1px;
-            ">
-                🔒 Rat Coin Ultimate v${GAME_VERSION}
-            </div>
-        `;
-        document.body.appendChild(blocker);
-        document.body.style.overflow = 'hidden';
-        document.body.style.pointerEvents = 'none';
-        blocker.style.pointerEvents = 'auto';
-        
-        // Обработчик кнопки
-        setTimeout(() => {
-            const btn = document.getElementById('multiTabReloadBtn');
-            if (btn) {
-                btn.addEventListener('click', function() {
-                    // Пытаемся перехватить лок
-                    if (acquireLock()) {
-                        hideMultiTabBlock();
-                        location.reload();
-                    } else {
-                        btn.textContent = '❌ Всё ещё открыто в другой вкладке';
-                        btn.style.background = 'linear-gradient(135deg, #ff0033, #ff6666)';
-                        btn.style.color = 'white';
-                        setTimeout(() => {
-                            btn.textContent = '🔄 Проверить снова';
-                            btn.style.background = 'linear-gradient(135deg, #45f3ff, #66fcf1)';
-                            btn.style.color = '#0b0c10';
-                        }, 2000);
-                    }
-                });
-                btn.addEventListener('mouseenter', function() {
-                    this.style.transform = 'scale(1.05)';
-                    this.style.boxShadow = '0 0 50px rgba(69, 243, 255, 0.6)';
-                });
-                btn.addEventListener('mouseleave', function() {
-                    this.style.transform = 'scale(1)';
-                    this.style.boxShadow = '0 0 30px rgba(69, 243, 255, 0.4)';
-                });
-            }
-        }, 0);
-    }
-    
-    function hideMultiTabBlock() {
-        if (blocker) {
-            blocker.remove();
-            blocker = null;
-        }
-        document.body.style.overflow = '';
-        document.body.style.pointerEvents = '';
-    }
-    
-    // Экспортируем ID вкладки глобально для проверки в saveGame
-    window._ratTabId = TAB_ID;
-    window._ratIsActiveTab = function() { return isActiveTab; };
-    window._ratTryAcquireLock = acquireLock;
-    
-    setTimeout(() => {
-        if (acquireLock()) {
-            heartbeatTimer = setInterval(heartbeat, HEARTBEAT_INTERVAL);
-        }
-    }, 100);
-    
-    window.addEventListener('beforeunload', releaseLock);
-    window.addEventListener('pagehide', releaseLock);
-    
-    window.addEventListener('storage', function(e) {
-        if (e.key === TAB_KEY) {
-            const existing = getActiveTabData();
-            if (existing && existing.id !== TAB_ID) {
-                isActiveTab = false;
-                showMultiTabBlock();
-            } else if (!existing) {
-                if (acquireLock()) {
-                    if (!heartbeatTimer) {
-                        heartbeatTimer = setInterval(heartbeat, HEARTBEAT_INTERVAL);
-                    }
-                }
-            }
-        }
-    });
-    
-})();
 
 // ============================================================
 // ==================== СКРЫТЫЙ АНТИЧИТ =======================
@@ -377,21 +253,11 @@ const AntiCheat = (function() {
         warningElement = document.createElement('div');
         warningElement.id = 'anticheatWarning';
         warningElement.style.cssText = `
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 165, 0, 0.95);
-            color: #0b0c10;
-            padding: 12px 20px;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 14px;
-            z-index: 9998;
-            box-shadow: 0 0 30px rgba(255, 165, 0, 0.3);
-            animation: slideDown 0.5s ease-out;
-            text-align: center;
-            max-width: 90%;
+            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+            background: rgba(255, 165, 0, 0.95); color: #0b0c10;
+            padding: 12px 20px; border-radius: 10px; font-weight: bold; font-size: 14px;
+            z-index: 9998; box-shadow: 0 0 30px rgba(255, 165, 0, 0.3);
+            animation: slideDown 0.5s ease-out; text-align: center; max-width: 90%;
             font-family: 'Segoe UI', sans-serif;
         `;
         warningElement.innerHTML = `
@@ -417,23 +283,12 @@ const AntiCheat = (function() {
         const banEl = document.createElement('div');
         banEl.id = 'anticheatBan';
         banEl.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 0, 0, 0.95);
-            color: white;
-            padding: 30px 40px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 24px;
-            z-index: 10000;
-            box-shadow: 0 0 60px rgba(255, 0, 0, 0.5);
-            text-align: center;
-            max-width: 90%;
-            animation: banBlink 0.5s ease-in-out 5;
-            border: 3px solid #ffd700;
-            font-family: 'Segoe UI', sans-serif;
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(255, 0, 0, 0.95); color: white;
+            padding: 30px 40px; border-radius: 20px; font-weight: bold; font-size: 24px;
+            z-index: 10000; box-shadow: 0 0 60px rgba(255, 0, 0, 0.5);
+            text-align: center; max-width: 90%; animation: banBlink 0.5s ease-in-out 5;
+            border: 3px solid #ffd700; font-family: 'Segoe UI', sans-serif;
         `;
         banEl.innerHTML = `
             <div style="font-size:60px;">🚫</div>
@@ -523,21 +378,11 @@ const AntiCheat = (function() {
                 setTimeout(() => {
                     const banEl = document.createElement('div');
                     banEl.style.cssText = `
-                        position: fixed;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        background: rgba(255, 0, 0, 0.9);
-                        color: white;
-                        padding: 30px 40px;
-                        border-radius: 20px;
-                        font-weight: bold;
-                        font-size: 24px;
-                        z-index: 10000;
-                        box-shadow: 0 0 60px rgba(255, 0, 0, 0.5);
-                        text-align: center;
-                        max-width: 90%;
-                        border: 3px solid #ffd700;
+                        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                        background: rgba(255, 0, 0, 0.9); color: white;
+                        padding: 30px 40px; border-radius: 20px; font-weight: bold; font-size: 24px;
+                        z-index: 10000; box-shadow: 0 0 60px rgba(255, 0, 0, 0.5);
+                        text-align: center; max-width: 90%; border: 3px solid #ffd700;
                         font-family: 'Segoe UI', sans-serif;
                     `;
                     banEl.innerHTML = `
@@ -627,22 +472,11 @@ function showUpdateNotification() {
     const notification = document.createElement('div');
     notification.id = 'updateNotification';
     notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #1f2833;
-        border: 2px solid #45f3ff;
-        border-radius: 12px;
-        padding: 15px 25px;
-        color: #45f3ff;
-        font-family: sans-serif;
-        font-size: 16px;
-        z-index: 9999;
-        box-shadow: 0 0 40px rgba(69, 243, 255, 0.3);
-        animation: slideDown 0.5s ease-out;
-        text-align: center;
-        max-width: 90%;
+        position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+        background: #1f2833; border: 2px solid #45f3ff; border-radius: 12px;
+        padding: 15px 25px; color: #45f3ff; font-family: sans-serif; font-size: 16px;
+        z-index: 9999; box-shadow: 0 0 40px rgba(69, 243, 255, 0.3);
+        animation: slideDown 0.5s ease-out; text-align: center; max-width: 90%;
     `;
     notification.innerHTML = `
         <div style="display:flex;align-items:center;gap:12px;">
@@ -1120,68 +954,6 @@ const buffIndicator = document.getElementById('buffIndicator');
 const musicToggle = document.getElementById('musicToggle');
 
 // ============================================================
-// ==================== ФУНКЦИЯ ОСТАНОВКИ ВСЕХ ПРОЦЕССОВ =====
-// ============================================================
-
-window._stopAllGameProcesses = function() {
-    // Останавливаем античит
-    if (typeof AntiCheat !== 'undefined') AntiCheat.stop();
-    
-    // Останавливаем боссфайт
-    if (bossMoveInterval) { clearInterval(bossMoveInterval); bossMoveInterval = null; }
-    if (bossShootInterval) { clearInterval(bossShootInterval); bossShootInterval = null; }
-    if (bossFightInterval) { clearInterval(bossFightInterval); bossFightInterval = null; }
-    if (bossCooldownInterval) { clearInterval(bossCooldownInterval); bossCooldownInterval = null; }
-    
-    // Останавливаем вольер
-    if (foodDepletionInterval) { clearInterval(foodDepletionInterval); foodDepletionInterval = null; }
-    if (hamsterMoveInterval) { clearInterval(hamsterMoveInterval); hamsterMoveInterval = null; }
-    if (poopTimer) { clearInterval(poopTimer); poopTimer = null; }
-    
-    // Останавливаем зерно
-    if (grainSpawnTimeout) { clearTimeout(grainSpawnTimeout); grainSpawnTimeout = null; }
-    if (grainTimerInterval) { clearInterval(grainTimerInterval); grainTimerInterval = null; }
-    if (grainLifeTimeout) { clearTimeout(grainLifeTimeout); grainLifeTimeout = null; }
-    if (currentGrainElement) { currentGrainElement.remove(); currentGrainElement = null; }
-    isGrainActive = false;
-    
-    // Останавливаем мышь
-    if (mouseMoveInterval) { clearInterval(mouseMoveInterval); mouseMoveInterval = null; }
-    if (mouseElement) { mouseElement.remove(); mouseElement = null; }
-    
-    // Останавливаем станок
-    if (machineTimer) { clearInterval(machineTimer); machineTimer = null; }
-    
-    // Останавливаем комбинатор
-    for (let i = 0; i < combinerTimer.length; i++) {
-        if (combinerTimer[i]) { clearInterval(combinerTimer[i]); combinerTimer[i] = null; }
-    }
-    
-    // Останавливаем экстрактор
-    if (extractorTimer) { clearInterval(extractorTimer); extractorTimer = null; }
-    
-    // Останавливаем манипуляторы
-    for (let i = 0; i < manipulatorTimers.length; i++) {
-        if (manipulatorTimers[i]) { clearInterval(manipulatorTimers[i]); manipulatorTimers[i] = null; }
-    }
-    
-    // Останавливаем растения
-    for (let i = 0; i < plantIntervals.length; i++) {
-        if (plantIntervals[i]) { clearInterval(plantIntervals[i]); plantIntervals[i] = null; }
-    }
-    
-    // Останавливаем таймеры бустов
-    if (buffTimer) { clearTimeout(buffTimer); buffTimer = null; }
-    if (pepperBuffTimer) { clearTimeout(pepperBuffTimer); pepperBuffTimer = null; }
-    if (satietyTimer) { clearTimeout(satietyTimer); satietyTimer = null; }
-    
-    // Останавливаем перезагрузку
-    if (reloadTimerInterval) { clearInterval(reloadTimerInterval); reloadTimerInterval = null; }
-    
-    console.log('🛑 Все игровые процессы остановлены (мультивкладка)');
-};
-
-// ============================================================
 // ==================== ФУНКЦИИ МУЗЫКИ =======================
 // ============================================================
 
@@ -1295,9 +1067,8 @@ function isAllLabPartsBought() {
 }
 
 function saveGame() {
-    // Проверяем, что мы — активная вкладка (защита от race condition)
     if (window._ratIsActiveTab && !window._ratIsActiveTab()) {
-        return; // Неактивная вкладка не сохраняет
+        return;
     }
     
     localStorage.setItem('rat_score', score);
@@ -4223,7 +3994,6 @@ if (hamsterPurchased) {
     startPoopProduction();
 }
 
-// Запускаем античит
 setTimeout(() => {
     AntiCheat.start();
 }, 500);
