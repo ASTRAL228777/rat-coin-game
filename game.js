@@ -39,9 +39,7 @@
         }));
         
     } catch (e) {
-        if (e.message === 'MultiTab blocked') {
-            throw e;
-        }
+        if (e.message === 'MultiTab blocked') throw e;
     }
     
     window._ratTabId = TAB_ID;
@@ -51,9 +49,7 @@
             if (!raw) return false;
             const data = JSON.parse(raw);
             return data.id === TAB_ID;
-        } catch (e) {
-            return false;
-        }
+        } catch (e) { return false; }
     };
     
     setInterval(function() {
@@ -78,20 +74,17 @@
             const raw = localStorage.getItem(TAB_KEY);
             if (raw) {
                 const data = JSON.parse(raw);
-                if (data.id === TAB_ID) {
-                    localStorage.removeItem(TAB_KEY);
-                }
+                if (data.id === TAB_ID) localStorage.removeItem(TAB_KEY);
             }
         } catch (e) {}
     });
-    
 })();
 
 // ============================================================
 // ==================== СИСТЕМА ВЕРСИЙ ========================
 // ============================================================
 
-const GAME_VERSION = '2.1.0';
+const GAME_VERSION = '2.1.1';
 
 const UPDATE_CHANGELOG = {
     '2.0.0': '🚀 Полный релиз!',
@@ -101,7 +94,8 @@ const UPDATE_CHANGELOG = {
     '2.0.4': '🚫 Защита от мультивкладок!',
     '2.0.5': '💾 Восстановление состояния!',
     '2.0.6': '🧠 Улучшенная логика манипуляторов!',
-    '2.1.0': '🌾 Экстракт сена! Исправлены баффы от манипулятора!',
+    '2.1.0': '🌾 Экстракт сена! Исправлены баффы!',
+    '2.1.1': '🐹 Свинки до 5 уровня! 10 ожирения открывают прокачки!',
 };
 
 // ============================================================
@@ -109,7 +103,6 @@ const UPDATE_CHANGELOG = {
 // ============================================================
 
 const AntiCheat = (function() {
-    
     const CONFIG = {
         enabled: true,
         checkInterval: 3000,
@@ -173,7 +166,6 @@ const AntiCheat = (function() {
         if (hamsterFood > 0) hamsterBonus = 1.0 + hamsterLevel * 0.1;
         
         let totalPossibleIncome = (maxClickIncome + passiveIncome + grainIncome) * hamsterBonus;
-        
         if (localStorage.getItem('rat_buffActive') === 'true') totalPossibleIncome *= 2;
         
         const manipulatorLevel = parseInt(localStorage.getItem('rat_manipulatorLevel')) || 0;
@@ -187,13 +179,8 @@ const AntiCheat = (function() {
     function showWarning(realGain, maxGain, ratio) {
         if (warningElement) return;
         warningElement = document.createElement('div');
-        warningElement.style.cssText = `
-            position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
-            background:rgba(255,165,0,0.95);color:#0b0c10;padding:12px 20px;
-            border-radius:10px;font-weight:bold;font-size:14px;z-index:9998;
-            text-align:center;max-width:90%;font-family:sans-serif;
-        `;
-        warningElement.innerHTML = `⚠️ ПОДОЗРЕНИЕ: Доход (${realGain}) выше допустимого (${maxGain}) в ${ratio.toFixed(0)}%.<br><span style="font-size:12px;">(${3 - suspicionLevel} попытки до блокировки)</span>`;
+        warningElement.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(255,165,0,0.95);color:#0b0c10;padding:12px 20px;border-radius:10px;font-weight:bold;font-size:14px;z-index:9998;text-align:center;max-width:90%;font-family:sans-serif;';
+        warningElement.innerHTML = `⚠️ ПОДОЗРЕНИЕ: Доход (${realGain}) выше (${maxGain}) в ${ratio.toFixed(0)}%.<br><span style="font-size:12px;">(${3 - suspicionLevel} попытки)</span>`;
         document.body.appendChild(warningElement);
     }
     
@@ -207,17 +194,8 @@ const AntiCheat = (function() {
         localStorage.setItem('rat_cheat_detected', 'true');
         
         const banEl = document.createElement('div');
-        banEl.style.cssText = `
-            position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
-            background:rgba(255,0,0,0.95);color:white;padding:30px 40px;
-            border-radius:20px;font-weight:bold;font-size:24px;z-index:10000;
-            text-align:center;max-width:90%;border:3px solid #ffd700;font-family:sans-serif;
-        `;
-        banEl.innerHTML = `
-            <div style="font-size:60px;">🚫</div>
-            <div style="margin:15px 0;">ОБНАРУЖЕНО ЧИТЕРСТВО!</div>
-            <div style="font-size:14px;opacity:0.6;margin-top:10px;">Прогресс сброшен через 10 сек...</div>
-        `;
+        banEl.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(255,0,0,0.95);color:white;padding:30px 40px;border-radius:20px;font-weight:bold;font-size:24px;z-index:10000;text-align:center;max-width:90%;border:3px solid #ffd700;font-family:sans-serif;';
+        banEl.innerHTML = `<div style="font-size:60px;">🚫</div><div style="margin:15px 0;">ОБНАРУЖЕНО ЧИТЕРСТВО!</div><div style="font-size:14px;opacity:0.6;margin-top:10px;">Прогресс сброшен через 10 сек...</div>`;
         document.body.appendChild(banEl);
         document.body.style.pointerEvents = 'none';
         
@@ -229,9 +207,7 @@ const AntiCheat = (function() {
     }
     
     function checkBalance() {
-        if (!CONFIG.enabled) return;
-        if (cheatDetected) return;
-        
+        if (!CONFIG.enabled || cheatDetected) return;
         const score = parseInt(localStorage.getItem('rat_score')) || 0;
         if (score < CONFIG.minScoreForCheck) return;
         
@@ -262,7 +238,6 @@ const AntiCheat = (function() {
         lastCheckTime = now;
         
         if (ratio > CONFIG.banThreshold) { triggerBan(realGain, maxPossibleGain, ratio); return; }
-        
         if (ratio > CONFIG.suspicionThreshold) {
             suspicionLevel++;
             isSuspicious = true;
@@ -290,7 +265,6 @@ const AntiCheat = (function() {
             hideWarning();
         }
     };
-    
 })();
 
 // ============================================================
@@ -324,7 +298,7 @@ function checkGameVersion() {
         console.log(`🔄 Обновление: ${savedVersion || 'New'} → ${GAME_VERSION}`);
         localStorage.setItem('rat_game_version', GAME_VERSION);
         showUpdateNotification();
-        if (savedVersion && savedVersion < '2.1.0') {
+        if (savedVersion && savedVersion < '2.1.1') {
             localStorage.setItem('rat_cheat_detected', 'false');
             localStorage.removeItem('rat_checked_score');
             localStorage.removeItem('rat_checked_time');
@@ -335,12 +309,7 @@ function checkGameVersion() {
 function showUpdateNotification() {
     const changes = UPDATE_CHANGELOG[GAME_VERSION] || 'Новые функции!';
     const notification = document.createElement('div');
-    notification.style.cssText = `
-        position:fixed;top:20px;left:50%;transform:translateX(-50%);
-        background:#1f2833;border:2px solid #45f3ff;border-radius:12px;
-        padding:15px 25px;color:#45f3ff;font-family:sans-serif;font-size:16px;
-        z-index:9999;box-shadow:0 0 40px rgba(69,243,255,0.3);text-align:center;max-width:90%;
-    `;
+    notification.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1f2833;border:2px solid #45f3ff;border-radius:12px;padding:15px 25px;color:#45f3ff;font-family:sans-serif;font-size:16px;z-index:9999;box-shadow:0 0 40px rgba(69,243,255,0.3);text-align:center;max-width:90%;';
     notification.innerHTML = `
         <div style="display:flex;align-items:center;gap:12px;">
             <span style="font-size:24px;">🎉</span>
@@ -381,7 +350,7 @@ let hamsterLevel = parseInt(localStorage.getItem('rat_hamsterLevel')) || 0;
 let hamsterFood = parseFloat(localStorage.getItem('rat_hamsterFood')) || 0;
 let hamsterMaxFood = 100;
 let hamsterUpgradeCost = 5000;
-const MAX_HAMSTER_LEVEL = 4;
+const MAX_HAMSTER_LEVEL = 5; // ⭐ ИСПРАВЛЕНО: было 4, теперь 5
 
 let poopCount = parseInt(localStorage.getItem('rat_poopCount')) || 0;
 let labPoopCount = parseInt(localStorage.getItem('rat_labPoopCount')) || 0;
@@ -802,7 +771,7 @@ const settingsContent = document.getElementById('settingsContent');
 const buffIndicator = document.getElementById('buffIndicator');
 const musicToggle = document.getElementById('musicToggle');
 
-// Создаём индикатор сена если его нет
+// Индикатор сена
 let hayIndicator = document.getElementById('hayIndicator');
 if (!hayIndicator) {
     hayIndicator = document.createElement('div');
@@ -871,6 +840,7 @@ function getAccessoryBonus() {
 function getHamsterBonus() {
     if (!hamsterPurchased) return 1.0;
     if (hamsterFood <= 0) return 1.0;
+    // Уровень 0 → x1.0, Уровень 5 → x1.5
     let bonus = 1.0 + hamsterLevel * 0.1;
     if (pepperBuffActive) bonus = bonus * 2;
     if (hayBuffActive) bonus = bonus * 1.3;
@@ -1635,13 +1605,11 @@ window.startCraft = function(recipeId) {
                 extractorProgress.push(0);
                 saveGame();
                 updateExtractorUI();
-                // ИСПРАВЛЕНО: правильное название
                 alert('✅ ' + recipe.name + ' создан и отправлен в аппарат превращения!');
             } else {
                 if (extracts[result] === undefined) extracts[result] = 0;
                 extracts[result]++;
                 saveGame();
-                // ИСПРАВЛЕНО: правильное название
                 alert('⚠️ ' + recipe.name + ' создан! Нужен Аппарат превращения!');
             }
 
@@ -2165,7 +2133,6 @@ function executeManipulatorAction(index) {
             } else {
                 let item = setting.target;
                 if (item === 'hay') {
-                    // Сено из инвентаря (готовый предмет)
                     if (inventory.hay > 0) {
                         inventory.hay--;
                         hamsterFood = hamsterMaxFood;
@@ -2177,7 +2144,6 @@ function executeManipulatorAction(index) {
                 } else if (plantInventory[item] > 0) {
                     plantInventory[item]--;
                     
-                    // ИСПРАВЛЕНО: применяем баффы!
                     if (item === 'cabbage') {
                         let addFood = hamsterMaxFood * 0.5;
                         hamsterFood = Math.min(hamsterMaxFood, hamsterFood + addFood);
@@ -2189,7 +2155,6 @@ function executeManipulatorAction(index) {
                         hamsterFood = hamsterMaxFood;
                         applySatietyBuff(60000);
                     } else {
-                        // Трава — просто кормит
                         hamsterFood = hamsterMaxFood;
                     }
                     
@@ -2826,7 +2791,6 @@ function updateUI() {
         }
     }
 
-    // Кнопки покупок
     if (clickLevel >= currentMaxClick) {
         buyClickBtn.disabled = true; clickItem.classList.add('disabled');
         buyClickBtn.textContent = 'MAX'; buyClickBtn.style.backgroundColor = '#555'; buyClickBtn.style.color = '#888';
@@ -2842,7 +2806,8 @@ function updateUI() {
         buyAutoBtn.textContent = 'Купить'; buyAutoBtn.style.backgroundColor = '#45f3ff'; buyAutoBtn.style.color = '#0b0c10';
     }
 
-    if (clickLevel >= currentMaxClick && autoLevel >= MAX_AUTO_LEVEL) {
+    // ⭐ ИЗМЕНЕНО: Зерно открывается после MAX клика И 10 уровней ожирения
+    if (clickLevel >= currentMaxClick && autoLevel >= 10) {
         grainItem.style.display = 'flex';
         if (grainPurchased === 0) {
             buyGrainBtn.disabled = false; grainItem.classList.remove('disabled');
@@ -2905,6 +2870,7 @@ function updateUI() {
         hamsterShopItem.style.display = 'none'; hamsterShopItem.classList.remove('disabled');
     }
 
+    // ⭐ ИСПРАВЛЕНО: показываем уровень X/5
     if (hamsterPurchased) {
         hamsterUpgradeShopItem.style.display = 'flex';
         if (hamsterLevel >= MAX_HAMSTER_LEVEL) {
@@ -2916,13 +2882,14 @@ function updateUI() {
             buyHamsterUpgradeBtn.textContent = 'Улучшить'; buyHamsterUpgradeBtn.style.backgroundColor = '#66fcf1';
             buyHamsterUpgradeBtn.style.color = '#0b0c10'; hamsterUpgradeCostEl.innerText = hamsterUpgradeCost;
         }
-        hamsterUpgradeLevelEl.innerText = hamsterLevel;
+        hamsterUpgradeLevelEl.innerText = hamsterLevel + '/' + MAX_HAMSTER_LEVEL;
         hamsterUpgradeCurrentBonusEl.innerText = 'x' + getHamsterBonus().toFixed(1);
     } else {
         hamsterUpgradeShopItem.style.display = 'none'; hamsterUpgradeShopItem.classList.remove('disabled');
     }
 
-    if (hamsterLevel >= MAX_HAMSTER_LEVEL) {
+    // ⭐ ИЗМЕНЕНО: Боссы открываются после 10 уровней ожирения
+    if (autoLevel >= 10) {
         bossMenuShopItem.style.display = 'flex';
         if (bossMenuPurchased) {
             buyBossMenuBtn.disabled = true; bossMenuShopItem.classList.add('disabled');
@@ -2952,7 +2919,8 @@ function updateUI() {
         capybaraShopItem.style.display = 'none'; capybaraShopItem.classList.remove('disabled');
     }
 
-    if (hamsterLevel >= MAX_HAMSTER_LEVEL) {
+    // ⭐ ИЗМЕНЕНО: Растения открываются после 10 уровней ожирения
+    if (autoLevel >= 10) {
         plantShopItem.style.display = 'flex';
         if (plantPurchased) {
             buyPlantBtn.disabled = true; plantShopItem.classList.add('disabled');
@@ -3876,16 +3844,19 @@ buyHamsterShopBtn.addEventListener('click', () => {
     } else alert("Нужно 20 000 $RAT");
 });
 
+// ⭐ ИСПРАВЛЕНО: показываем уровень X/5
 buyHamsterUpgradeBtn.addEventListener('click', () => {
     if (!hamsterPurchased) { alert("Купите вольер!"); return; }
-    if (hamsterLevel >= MAX_HAMSTER_LEVEL) { alert("MAX!"); return; }
-    if (score < hamsterUpgradeCost) { alert("Нужно " + hamsterUpgradeCost); return; }
-    score -= hamsterUpgradeCost; hamsterLevel++;
+    if (hamsterLevel >= MAX_HAMSTER_LEVEL) { alert("Максимальный уровень!"); return; }
+    if (score < hamsterUpgradeCost) { alert("Нужно " + hamsterUpgradeCost + " $RAT"); return; }
+    score -= hamsterUpgradeCost; 
+    hamsterLevel++;
     hamsterUpgradeCost = Math.round(hamsterUpgradeCost * 1.5);
     hamsterFood = Math.min(hamsterMaxFood, hamsterFood + 15);
-    saveGame(); updateUI();
+    saveGame(); 
+    updateUI();
     if (hamsterFood > 0 && !foodDepletionInterval) startFoodDepletion();
-    alert("⬆️ Улучшено! Бонус: x" + getHamsterBonus().toFixed(1));
+    alert("⬆️ Свинки улучшены до уровня " + hamsterLevel + "/" + MAX_HAMSTER_LEVEL + "!\nБонус: x" + getHamsterBonus().toFixed(1));
 });
 
 buyBossMenuBtn.addEventListener('click', () => {
@@ -4029,7 +4000,7 @@ if (buyAdvancedLogicBtn) {
         if (score >= 20000) {
             score -= 20000; advancedLogicPurchased = true;
             saveGame(); updateUI();
-            alert("🧠 Улучшенная логика куплена!\n\nТеперь доступны:\n⏱️ Настройка интервала\n🎯 Условия 'меньше/больше N'");
+            alert("🧠 Улучшенная логика куплена!");
         } else alert("Нужно 20 000 $RAT");
     });
 }
@@ -4215,4 +4186,5 @@ setTimeout(restoreGameState, 200);
 window.addEventListener('beforeunload', saveGame);
 
 console.log('💀 Игра загружена! v' + GAME_VERSION);
-console.log('🧠 Улучшенная логика + 🌾 Экстракт сена');
+console.log('🐹 Свинки: макс. уровень 5 (x1.5)');
+console.log('🔓 Прокачки открываются после 10 уровней ожирения');
