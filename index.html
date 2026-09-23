@@ -46,6 +46,7 @@
         <div class="enclosure-header">
             <span class="enclosure-title">🐹 ВОЛЬЕР</span>
             <span class="enclosure-status" id="enclosureStatus">🔴 Голодные</span>
+            <span class="automation-badge" id="hamsterAutoBadge" style="display:none;">🤖</span>
         </div>
         <div class="enclosure-area" id="enclosureArea">
             <div class="hamster" id="hamster1" style="display:none;">🐹</div>
@@ -142,6 +143,7 @@
                 <div class="lab-stats">
                     <div class="lab-stat">💩 Какашек: <span id="poopCount">0</span></div>
                     <div class="lab-stat">🧪 Удобрений: <span id="fertilizerCount">0</span></div>
+                    <div class="automation-badge" id="fertilizerAutoBadge" style="display:none;">🤖 Удобрения</div>
                 </div>
                 <div class="lab-machine" id="labMachine">
                     <div class="machine-icon">⚗️</div>
@@ -179,6 +181,7 @@
         <div class="combiner-content">
             <div class="combiner-header">
                 <h2>🧪 КОМБИНАТОР</h2>
+                <span class="automation-badge" id="combinerAutoBadge" style="display:none;">🤖</span>
                 <button class="close-combiner-btn" id="closeCombiner">✕</button>
             </div>
             <div class="combiner-body">
@@ -235,6 +238,9 @@
         <div class="balance" id="balance">0 $RAT</div>
         <div class="stats-info" id="statsInfo">Клик: +1 | Пассив: 0/сек</div>
         <div class="buff-indicator" id="buffIndicator" style="display:none;">⚡ x2 БУСТ АКТИВЕН!</div>
+        <div class="automation-indicator" id="ratAutoIndicator" style="display:none;">
+            🤖 Авто-клик: <span id="ratAutoManipNum">1</span>
+        </div>
     </div>
 
     <div class="click-area" id="clickArea">
@@ -345,6 +351,8 @@
                 <div class="info-block">
                     <h3>🍔 Ожирение</h3>
                     <div class="desc">Даёт +1 пассивный доход каждую секунду</div>
+                    <div class="desc" style="color:#ffd700;font-size:11px;">🔓 10 уровней открывают новые прокачки</div>
+                    <div class="desc" style="color:#66fcf1;font-size:11px;">⬆️ Оставшиеся 10 можно докачать позже</div>
                     <div class="price-line">Цена: <span id="autoCost">100</span> $RAT</div>
                     <div class="level-line">Уровень: <span id="autoLevel">0</span>/20</div>
                 </div>
@@ -406,7 +414,7 @@
                     <div class="desc">Увеличивает бонус от морских свинок</div>
                     <div class="desc" style="color:#66fcf1;font-size:11px;">Текущий бонус: <span id="hamsterUpgradeCurrentBonus">x1.0</span></div>
                     <div class="price-line">Цена: <span id="hamsterUpgradeCost">5000</span> $RAT</div>
-                    <div class="level-line">Уровень: <span id="hamsterUpgradeLevel">0</span>/5</div>
+                    <div class="level-line">Уровень: <span id="hamsterUpgradeLevel">0/5</span></div>
                 </div>
                 <button class="buy-btn" id="buyHamsterUpgrade" style="background-color:#66fcf1;color:#0b0c10;">Улучшить</button>
             </div>
@@ -503,6 +511,7 @@
                     <div class="desc" style="color:#ffd700;font-size:11px;">📦 2 слота для крафта</div>
                     <div class="desc" style="color:#66fcf1;font-size:11px;">🟢 Экстракт ГМО яблока = Яблоко + Удобрение (5 мин)</div>
                     <div class="desc" style="color:#66fcf1;font-size:11px;">🔴 Экстракт корма = Яблоко + Трава + Перец (5 мин)</div>
+                    <div class="desc" style="color:#ffd700;font-size:11px;">🟡 Экстракт сена = Трава + Трава (3 мин)</div>
                     <div class="price-line">Цена: <span id="combinerShopCost">30000</span> $RAT</div>
                     <div class="level-line" style="color:#ff6b00;">🧪 УЛУЧШЕНИЕ (покупается 1 раз)</div>
                     <div style="font-size:11px;color:#ff6b00;margin-top:4px;">⚡ После покупки появится вкладка "Комбинатор" в лаборатории</div>
@@ -527,6 +536,7 @@
                     <div class="desc" style="color:#66fcf1;font-size:11px;">⏱️ 1 минута на превращение</div>
                     <div class="desc" style="color:#66fcf1;font-size:11px;">🟢 Экстракт ГМО яблока → 🍏 ГМО яблоко</div>
                     <div class="desc" style="color:#66fcf1;font-size:11px;">🔴 Экстракт крысиного корма → 🍖 Крысиный корм</div>
+                    <div class="desc" style="color:#ffd700;font-size:11px;">🟡 Экстракт сена → 🌾 Сено</div>
                     <div class="price-line">Цена: <span id="extractorShopCost">20000</span> $RAT</div>
                     <div class="level-line" style="color:#45f3ff;">⚗️ НЕ УЛУЧШАЕТСЯ</div>
                 </div>
@@ -542,12 +552,28 @@
                     <div class="desc" style="color:#66fcf1;font-size:11px;">🔧 Автоматически крафтит</div>
                     <div class="desc" style="color:#66fcf1;font-size:11px;">🧪 Делает удобрения</div>
                     <div class="desc" style="color:#66fcf1;font-size:11px;">🔄 Перекладывает экстракты</div>
+                    <div class="desc" style="color:#66fcf1;font-size:11px;">🎯 Кликает по крысе</div>
                     <div class="price-line">Цена: <span id="manipulatorShopCost">10000</span> $RAT</div>
                     <div class="level-line" style="color:#ffd700;">Куплено: <span id="manipulatorLevel">0</span>/3 🤖</div>
                     <div style="font-size:11px;color:#ffd700;margin-top:4px;">⚡ После покупки появится тумблер справа</div>
                     <div style="font-size:11px;color:#ff6666;margin-top:4px;">🔒 Требуются все части лаборатории!</div>
                 </div>
                 <button class="buy-btn" id="buyManipulator" style="background-color:#ffd700;color:#0b0c10;">Купить манипулятор</button>
+            </div>
+
+            <div class="shop-item" id="advancedLogicShopItem" style="display:none; border-color: #45f3ff; background: #0a1a1f;">
+                <div class="info-block">
+                    <h3 style="color:#45f3ff;">🧠 Улучшенная логика манипуляторов</h3>
+                    <div class="desc">Прокачка для манипуляторов!</div>
+                    <div class="desc" style="color:#66fcf1;font-size:11px;">⚙️ Настройка интервала работы: 5 / 10 / 30 / 60 секунд</div>
+                    <div class="desc" style="color:#ffd700;font-size:11px;">🎯 Условия: "если меньше N" и "если больше N"</div>
+                    <div class="desc" style="color:#ff6b00;font-size:11px;">🔢 Настройка порога от 1 до 100</div>
+                    <div class="desc" style="color:#45f3ff;font-size:11px;">🎯 Новое действие: авто-клик по крысе</div>
+                    <div class="price-line">Цена: <span id="advancedLogicCost">20000</span> $RAT</div>
+                    <div class="level-line" style="color:#45f3ff;">🧠 УЛУЧШЕНИЕ (покупается 1 раз)</div>
+                    <div style="font-size:11px;color:#ff6666;margin-top:4px;">🔒 Требуется хотя бы 1 манипулятор</div>
+                </div>
+                <button class="buy-btn" id="buyAdvancedLogic" style="background-color:#45f3ff;color:#0b0c10;">Купить</button>
             </div>
         </div>
         
