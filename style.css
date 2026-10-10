@@ -2584,6 +2584,156 @@ h1 {
 }
 
 /* ============================================================ */
+/* ==================== АКВАРИУМ (РАСШИРЕННЫЙ) ================ */
+/* ============================================================ */
+
+.aquarium-container {
+    position: fixed;
+    top: 360px;
+    left: 20px;
+    background: rgba(10, 26, 31, 0.95);
+    border: 2px solid #45f3ff;
+    border-radius: 12px;
+    padding: 10px 14px;
+    min-width: 220px;
+    max-width: 260px;
+    z-index: 50;
+    box-shadow: 0 0 20px rgba(69, 243, 255, 0.15);
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.aquarium-container.visible {
+    display: flex;
+}
+
+.aquarium-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.aquarium-title {
+    color: #45f3ff;
+    font-weight: bold;
+    font-size: 13px;
+    text-shadow: 0 0 8px rgba(69, 243, 255, 0.3);
+}
+
+.aquarium-fish-count {
+    font-size: 12px;
+    color: #ffd700;
+    font-weight: bold;
+}
+
+.aquarium-game-link {
+    font-size: 9px;
+    color: #45f3ff;
+    text-decoration: none;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: rgba(69, 243, 255, 0.1);
+    border: 1px solid #45f3ff;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.aquarium-game-link:hover {
+    background: rgba(69, 243, 255, 0.25);
+    box-shadow: 0 0 10px rgba(69, 243, 255, 0.4);
+    transform: scale(1.05);
+    color: #66fcf1;
+}
+
+.aquarium-fish-container {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    padding: 6px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    min-height: 40px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.aquarium-fish {
+    font-size: 22px;
+    animation: fishSwim 2s ease-in-out infinite;
+    cursor: default;
+    filter: drop-shadow(0 0 6px rgba(69, 243, 255, 0.5));
+}
+
+.aquarium-fish:nth-child(2) { animation-delay: 0.3s; }
+.aquarium-fish:nth-child(3) { animation-delay: 0.6s; }
+.aquarium-fish:nth-child(4) { animation-delay: 0.9s; }
+.aquarium-fish:nth-child(5) { animation-delay: 1.2s; }
+
+@keyframes fishSwim {
+    0%, 100% { transform: translateX(0) translateY(0) scaleX(1); }
+    25% { transform: translateX(3px) translateY(-2px) scaleX(1); }
+    50% { transform: translateX(0) translateY(0) scaleX(-1); }
+    75% { transform: translateX(-3px) translateY(2px) scaleX(-1); }
+}
+
+.aquarium-status {
+    font-size: 10px;
+    text-align: center;
+    padding: 3px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.aquarium-status.ready {
+    color: #45f3ff;
+    animation: satietyPulse 0.5s ease-in-out infinite alternate;
+}
+
+.aquarium-status.waiting {
+    color: #888;
+}
+
+.aquarium-feed-btn {
+    background: #45f3ff;
+    color: #0b0c10;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 11px;
+    cursor: pointer;
+    transition: 0.2s;
+    width: 100%;
+}
+
+.aquarium-feed-btn:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(69, 243, 255, 0.4);
+}
+
+.aquarium-feed-btn:disabled {
+    background: #555;
+    color: #888;
+    cursor: not-allowed;
+}
+
+.aquarium-bonus {
+    font-size: 11px;
+    color: #ffd700;
+    text-align: center;
+    font-weight: bold;
+    padding: 3px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+
+/* ============================================================ */
 /* ==================== МУЗЫКА ================================ */
 /* ============================================================ */
 
@@ -3168,6 +3318,28 @@ h1 {
     .inventory-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+
+    /* Адаптация аквариума для планшетов */
+    .aquarium-container {
+        left: 10px;
+        min-width: 190px;
+        max-width: 230px;
+        padding: 8px 10px;
+        top: 320px;
+    }
+
+    .aquarium-title {
+        font-size: 11px;
+    }
+
+    .aquarium-fish {
+        font-size: 18px;
+    }
+
+    .aquarium-game-link {
+        font-size: 8px;
+        padding: 2px 5px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -3256,6 +3428,41 @@ h1 {
 
     .hamster {
         font-size: 25px;
+    }
+
+    /* Адаптация аквариума для маленьких экранов */
+    .aquarium-container {
+        left: 10px;
+        min-width: 170px;
+        max-width: 210px;
+        padding: 6px 8px;
+        top: 290px;
+    }
+
+    .aquarium-title {
+        font-size: 10px;
+    }
+
+    .aquarium-fish {
+        font-size: 16px;
+    }
+
+    .aquarium-game-link {
+        font-size: 7px;
+        padding: 1px 4px;
+    }
+
+    .aquarium-feed-btn {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+
+    .aquarium-bonus {
+        font-size: 10px;
+    }
+
+    .aquarium-status {
+        font-size: 9px;
     }
 
     .shop-modal {
