@@ -14,14 +14,14 @@ if (data.id && data.id !== TAB_ID && timeSince < TAB_TIMEOUT) {
 document.documentElement.innerHTML = `
 <head><title>🐀 Rat Coin - Игра уже открыта</title></head>
 <body style="margin:0;padding:0;background:linear-gradient(135deg,#0b0c10 0%,#1a0a1f 100%);color:#45f3ff;font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;text-align:center;overflow:hidden;">
-<div style="font-size:120px;margin-bottom:20px;"></div>
-<h1 style="color:#ff007f;font-size:28px;margin-bottom:15px;text-shadow:0 0 20px #ff007f;"> ИГРА УЖЕ ОТКРЫТА</h1>
+<div style="font-size:120px;margin-bottom:20px;">🐀</div>
+<h1 style="color:#ff007f;font-size:28px;margin-bottom:15px;text-shadow:0 0 20px #ff007f;">🚫 ИГРА УЖЕ ОТКРЫТА</h1>
 <h2 style="color:#45f3ff;font-size:20px;margin-bottom:20px;">в другой вкладке!</h2>
 <p style="color:#66fcf1;font-size:15px;max-width:500px;line-height:1.7;margin-bottom:25px;padding:0 15px;">
- Играть одновременно в нескольких вкладках <b style="color:#ffd700;">НЕЛЬЗЯ</b>!<br>
+🎮 Играть одновременно в нескольких вкладках <b style="color:#ffd700;">НЕЛЬЗЯ</b>!<br>
 Это приведёт к <b style="color:#ff6666;">потере прогресса</b>.
 </p>
-<button onclick="location.reload()" style="background:linear-gradient(135deg,#45f3ff,#66fcf1);color:#0b0c10;border:none;padding:14px 40px;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;"> Проверить снова</button>
+<button onclick="location.reload()" style="background:linear-gradient(135deg,#45f3ff,#66fcf1);color:#0b0c10;border:none;padding:14px 40px;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;">🔄 Проверить снова</button>
 </body>
 `;
 throw new Error('MultiTab blocked');
@@ -61,32 +61,10 @@ if (data.id === TAB_ID) localStorage.removeItem(TAB_KEY);
 } catch (e) {}
 });
 })();
-
-// ============================================================
-// ==================== СИСТЕМА ВЕРСИЙ ========================
-// ============================================================
-const GAME_VERSION = '2.3.7';
-
-// ============================================================
-// ==================== СКРЫТЫЙ АНТИЧИТ =======================
-// ============================================================
+const GAME_VERSION = '2.4.1';
 const AntiCheat = (function() {
-const CONFIG = {
-enabled: true,
-checkInterval: 3000,
-maxPossibleCPS: 25,
-bufferPercent: 25,
-minScoreForCheck: 1000,
-suspicionThreshold: 150,
-banThreshold: 300,
-};
-let timer = null;
-let lastCheckTime = Date.now();
-let suspicionLevel = 0;
-let isSuspicious = false;
-let cheatDetected = false;
-let warningElement = null;
-
+const CONFIG = { enabled: true, checkInterval: 3000, maxPossibleCPS: 25, bufferPercent: 25, minScoreForCheck: 1000, suspicionThreshold: 150, banThreshold: 300 };
+let timer = null, lastCheckTime = Date.now(), suspicionLevel = 0, isSuspicious = false, cheatDetected = false, warningElement = null;
 function getTotalClickPower() {
 let base = parseInt(localStorage.getItem('rat_clickPower')) || 1;
 let bonus = 0;
@@ -105,11 +83,7 @@ let buffActive = localStorage.getItem('rat_buffActive') === 'true';
 let buffMult = buffActive ? 2 : 1;
 return Math.floor(base * (1 + bonus / 100) * hamsterBonus * buffMult);
 }
-
-function getAutoClickers() {
-return parseInt(localStorage.getItem('rat_autoClickers')) || 0;
-}
-
+function getAutoClickers() { return parseInt(localStorage.getItem('rat_autoClickers')) || 0; }
 function calculateMaxPossibleIncome(timeSeconds) {
 const clickPower = getTotalClickPower();
 const maxClickIncome = CONFIG.maxPossibleCPS * clickPower * timeSeconds;
@@ -134,22 +108,19 @@ if (localStorage.getItem('rat_buffActive') === 'true') totalPossibleIncome *= 2;
 const manipulatorLevel = parseInt(localStorage.getItem('rat_manipulatorLevel')) || 0;
 const manipulatorIncome = (manipulatorLevel * clickPower * timeSeconds) / 5;
 totalPossibleIncome += manipulatorIncome * hamsterBonus;
+const aquariumLevel = parseInt(localStorage.getItem('rat_aquariumLevel')) || 0;
+if (aquariumLevel > 0) totalPossibleIncome *= (1.0 + aquariumLevel * 0.05);
 totalPossibleIncome *= (1 + CONFIG.bufferPercent / 100);
 return Math.floor(totalPossibleIncome);
 }
-
 function showWarning(realGain, maxGain, ratio) {
 if (warningElement) return;
 warningElement = document.createElement('div');
 warningElement.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(255,165,0,0.95);color:#0b0c10;padding:12px 20px;border-radius:10px;font-weight:bold;font-size:14px;z-index:9998;text-align:center;max-width:90%;font-family:sans-serif;';
-warningElement.innerHTML = `⚠️ SUSPICIOUS: ${realGain} vs ${maxGain} (${ratio.toFixed(0)}%)`;
+warningElement.innerHTML = `️ SUSPICIOUS: ${realGain} vs ${maxGain} (${ratio.toFixed(0)}%)`;
 document.body.appendChild(warningElement);
 }
-
-function hideWarning() {
-if (warningElement) { warningElement.remove(); warningElement = null; }
-}
-
+function hideWarning() { if (warningElement) { warningElement.remove(); warningElement = null; } }
 function triggerBan(realGain, maxGain, ratio) {
 if (cheatDetected) return;
 cheatDetected = true;
@@ -159,13 +130,8 @@ banEl.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,
 banEl.innerHTML = `<div style="font-size:60px;">🚫</div><div style="margin:15px 0;">CHEAT DETECTED!</div>`;
 document.body.appendChild(banEl);
 document.body.style.pointerEvents = 'none';
-setTimeout(() => {
-localStorage.clear();
-localStorage.setItem('rat_game_version', GAME_VERSION);
-location.reload();
-}, 10000);
+setTimeout(() => { localStorage.clear(); localStorage.setItem('rat_game_version', GAME_VERSION); location.reload(); }, 10000);
 }
-
 function checkBalance() {
 if (!CONFIG.enabled || cheatDetected) return;
 const score = parseInt(localStorage.getItem('rat_score')) || 0;
@@ -192,50 +158,29 @@ localStorage.setItem('rat_checked_time', totalTimePlayed);
 lastCheckTime = now;
 if (ratio > CONFIG.banThreshold) { triggerBan(realGain, maxPossibleGain, ratio); return; }
 if (ratio > CONFIG.suspicionThreshold) {
-suspicionLevel++;
-isSuspicious = true;
+suspicionLevel++; isSuspicious = true;
 showWarning(realGain, maxPossibleGain, ratio);
 if (suspicionLevel >= 3) triggerBan(realGain, maxPossibleGain, ratio);
 } else {
 if (isSuspicious) { suspicionLevel = 0; isSuspicious = false; hideWarning(); }
 }
 }
-
 return {
 start: function() {
 if (timer) return;
 if (localStorage.getItem('rat_cheat_detected') === 'true') {
-setTimeout(() => {
-localStorage.removeItem('rat_cheat_detected');
-location.reload();
-}, 5000);
+setTimeout(() => { localStorage.removeItem('rat_cheat_detected'); location.reload(); }, 5000);
 return;
 }
 timer = setInterval(checkBalance, CONFIG.checkInterval);
 },
-stop: function() {
-if (timer) { clearInterval(timer); timer = null; }
-hideWarning();
-}
+stop: function() { if (timer) { clearInterval(timer); timer = null; } hideWarning(); }
 };
 })();
-
-Object.defineProperty(window, 'AntiCheat', {
-get: function() { return undefined; },
-set: function() {},
-configurable: false,
-enumerable: false
-});
-
+Object.defineProperty(window, 'AntiCheat', { get: function() { return undefined; }, set: function() {}, configurable: false, enumerable: false });
 ['disableAntiCheat', 'enableAntiCheat', 'resetBossCooldown', 'forceBossDefeat', 'addPlant', 'addPoop', 'addFertilizer'].forEach(cmd => {
-Object.defineProperty(window, cmd, {
-get: function() { console.warn(t('logCheatBlocked') + ' "' + cmd + '"'); return undefined; },
-set: function() {},
-configurable: false,
-enumerable: false
+Object.defineProperty(window, cmd, { get: function() { console.warn(t('logCheatBlocked') + ' "' + cmd + '"'); return undefined; }, set: function() {}, configurable: false, enumerable: false });
 });
-});
-
 // ============================================================
 // ==================== ПЕРЕМЕННЫЕ ============================
 // ============================================================
@@ -311,96 +256,72 @@ plantData = [
 { stage: 'idle', progress: 0, type: null, fertilizer: false }
 ];
 }
-let plantInventory = JSON.parse(localStorage.getItem('rat_plantInventory') || '{"grass": 0, "pepper": 0, "apple": 0, "cabbage": 0}');
+let plantInventory = JSON.parse(localStorage.getItem('rat_plantInventory') || '{"grass": 0, "pepper": 0, "apple": 0, "cabbage": 0, "fish_food": 0, "fish_food_essence": 0}');
+if (plantInventory.fish_food === undefined) plantInventory.fish_food = 0;
+if (plantInventory.fish_food_essence === undefined) plantInventory.fish_food_essence = 0;
 let labPurchased = localStorage.getItem('rat_labPurchased') === 'true';
 let machineLevel = parseInt(localStorage.getItem('rat_machineLevel')) || 0;
 let machineRunning = localStorage.getItem('rat_machineRunning') === 'true';
 let machineProgress = parseFloat(localStorage.getItem('rat_machineProgress')) || 0;
 let machineTimer = null;
 let fertilizerCount = parseInt(localStorage.getItem('rat_fertilizerCount')) || 0;
-if (capybaraCooldown > 600) {
-capybaraCooldown = 600;
-localStorage.setItem('rat_capybaraCooldown', capybaraCooldown);
-}
+if (capybaraCooldown > 600) { capybaraCooldown = 600; localStorage.setItem('rat_capybaraCooldown', capybaraCooldown); }
 let inventory = JSON.parse(localStorage.getItem('rat_inventory') || '{"food": 0, "gmo_apple": 0, "hay": 0, "gmo_apple_extract": 0, "rat_food_extract": 0, "hay_extract": 0}');
 if (inventory.hay === undefined) inventory.hay = 0;
 if (inventory.gmo_apple_extract === undefined) inventory.gmo_apple_extract = 0;
 if (inventory.rat_food_extract === undefined) inventory.rat_food_extract = 0;
 if (inventory.hay_extract === undefined) inventory.hay_extract = 0;
 let buffActive = localStorage.getItem('rat_buffActive') === 'true';
-let buffTimer = null;
-let buffType = localStorage.getItem('rat_buffType') || null;
-let buffEndTime = parseInt(localStorage.getItem('rat_buffEndTime')) || 0;
+let buffTimer = null, buffType = localStorage.getItem('rat_buffType') || null, buffEndTime = parseInt(localStorage.getItem('rat_buffEndTime')) || 0;
 let pepperBuffActive = localStorage.getItem('rat_pepperBuffActive') === 'true';
-let pepperBuffTimer = null;
-let pepperBuffEndTime = parseInt(localStorage.getItem('rat_pepperBuffEndTime')) || 0;
+let pepperBuffTimer = null, pepperBuffEndTime = parseInt(localStorage.getItem('rat_pepperBuffEndTime')) || 0;
 let hayBuffActive = localStorage.getItem('rat_hayBuffActive') === 'true';
-let hayBuffTimer = null;
-let hayBuffEndTime = parseInt(localStorage.getItem('rat_hayBuffEndTime')) || 0;
+let hayBuffTimer = null, hayBuffEndTime = parseInt(localStorage.getItem('rat_hayBuffEndTime')) || 0;
 let satietyActive = localStorage.getItem('rat_satietyActive') === 'true';
-let satietyTimer = null;
-let satietyEndTime = parseInt(localStorage.getItem('rat_satietyEndTime')) || 0;
-let bossFightActive = false;
-let bossHp = 100;
-let bossMaxHp = 100;
-let bossX = 50;
-let bossDirection = 1;
-let bossBullets = [];
-let bossMoveInterval = null;
-let bossShootInterval = null;
-let bossCooldownInterval = null;
-let bossFightInterval = null;
-let canShoot = true;
-let shootCooldown = 300;
+let satietyTimer = null, satietyEndTime = parseInt(localStorage.getItem('rat_satietyEndTime')) || 0;
+// АКВАРИУМ
+let aquariumPurchased = localStorage.getItem('rat_aquariumPurchased') === 'true';
+let aquariumLevel = aquariumPurchased ? (parseInt(localStorage.getItem('rat_aquariumLevel')) || 1) : 0;
+let aquariumLastFed = parseInt(localStorage.getItem('rat_aquariumLastFed')) || 0;
+let aquariumTimer = null;
+const MAX_AQUARIUM_LEVEL = 5;
+const AQUARIUM_FEED_INTERVAL = 600000;
+let bossFightActive = false, bossHp = 100, bossMaxHp = 100, bossX = 50, bossDirection = 1, bossBullets = [];
+let bossMoveInterval = null, bossShootInterval = null, bossCooldownInterval = null, bossFightInterval = null;
+let canShoot = true, shootCooldown = 300;
 let musicEnabled = localStorage.getItem('rat_musicEnabled') !== 'false';
 let musicVideoId = '5QtxOr4iSBY';
-const SUPER_GRAIN_BASE = 25;
-const MAX_AUTO_LEVEL = 20;
-const MAX_GRAIN_LEVEL = 7;
-const GRAIN_LIFETIME = 7000;
-const GRAIN_SPAWN_MIN = 4000;
-const GRAIN_SPAWN_MAX = 6000;
-const SUPER_GRAIN_SPAWN_MIN = 8000;
-const SUPER_GRAIN_SPAWN_MAX = 12000;
-const PEPPER_BUFF_DURATION = 30000;
-const HAY_BUFF_DURATION = 180000;
+const SUPER_GRAIN_BASE = 25, MAX_AUTO_LEVEL = 20, MAX_GRAIN_LEVEL = 7;
+const GRAIN_LIFETIME = 7000, GRAIN_SPAWN_MIN = 4000, GRAIN_SPAWN_MAX = 6000;
+const SUPER_GRAIN_SPAWN_MIN = 8000, SUPER_GRAIN_SPAWN_MAX = 12000;
+const PEPPER_BUFF_DURATION = 30000, HAY_BUFF_DURATION = 180000;
 let MAX_CLICK_LEVEL = superGrainPurchased ? 20 : 10;
-let isBanned = false;
-let lastClickTime = 0;
-let clickIntervals = [];
-const maxIntervalHistory = 10;
-let grainSpawnTimeout = null;
-let currentGrainElement = null;
-let grainTimerInterval = null;
-let grainLifeTimeout = null;
-let isGrainActive = false;
-let mouseElement = null;
-let mouseMoveInterval = null;
-let mouseCollectCooldown = false;
-let hamsterMoveInterval = null;
-let foodDepletionInterval = null;
-let reloadTimerInterval = null;
-let reloadTimerSeconds = 10;
+let isBanned = false, lastClickTime = 0, clickIntervals = [], maxIntervalHistory = 10;
+let grainSpawnTimeout = null, currentGrainElement = null, grainTimerInterval = null, grainLifeTimeout = null, isGrainActive = false;
+let mouseElement = null, mouseMoveInterval = null, mouseCollectCooldown = false;
+let hamsterMoveInterval = null, foodDepletionInterval = null, reloadTimerInterval = null, reloadTimerSeconds = 10;
 let plantIntervals = [];
 const ACCESSORY_BONUS = { hat: 5, glasses: 15, sword: 30, crown: 100 };
 const ACCESSORY_PRICES = { hat: 1000, glasses: 5000, sword: 50000, crown: 10000000 };
 const PLANT_TYPES = {
-grass: { name: 'Трава', emoji: '', growTime: 180, cost: 10000, color: '#45f3ff' },
-pepper: { name: 'Болгарский перец', emoji: '️', growTime: 300, cost: 25000, color: '#ff4444' },
+grass: { name: 'Трава', emoji: '🌿', growTime: 180, cost: 10000, color: '#45f3ff' },
+pepper: { name: 'Болгарский перец', emoji: '🌶️', growTime: 300, cost: 25000, color: '#ff4444' },
 apple: { name: 'Яблоко', emoji: '🍎', growTime: 480, cost: 40000, color: '#ff6b6b' },
 cabbage: { name: 'Капуста', emoji: '🥬', growTime: 120, cost: 15000, color: '#45f3ff' }
 };
 const COMBINER_RECIPES = {
-gmo_apple_extract: { name: 'Экстракт ГМО яблока', emoji: '🟢', ingredients: ['apple', 'fertilizer'], time: 300, result: 'gmo_apple_extract', resultType: 'extract' },
-rat_food_extract: { name: 'Экстракт крысиного корма', emoji: '', ingredients: ['apple', 'grass', 'pepper'], time: 300, result: 'rat_food_extract', resultType: 'extract' },
-hay_extract: { name: 'Экстракт сена', emoji: '🟡', ingredients: ['grass', 'grass'], time: 180, result: 'hay_extract', resultType: 'extract' }
+gmo_apple_extract: { name: 'Экстракт ГМО яблока', emoji: '', ingredients: ['apple', 'fertilizer'], time: 300, result: 'gmo_apple_extract', resultType: 'extract' },
+rat_food_extract: { name: 'Экстракт крысиного корма', emoji: '🔴', ingredients: ['apple', 'grass', 'pepper'], time: 300, result: 'rat_food_extract', resultType: 'extract' },
+hay_extract: { name: 'Экстракт сена', emoji: '🟡', ingredients: ['grass', 'grass'], time: 180, result: 'hay_extract', resultType: 'extract' },
+fish_food_essence: { name: 'Эссенция рыбьего корма', emoji: '', ingredients: ['grass', 'fertilizer', 'fertilizer'], time: 120, result: 'fish_food_essence', resultType: 'item' }
 };
+// ИСПРАВЛЕНО: теперь используем nameKey для переводов
 const EXTRACTOR_RECIPES = {
-gmo_apple_extract: { name: 'ГМО яблоко', emoji: '🍏', time: 60, result: 'gmo_apple', resultType: 'item' },
-rat_food_extract: { name: 'Крысиный корм', emoji: '🍖', time: 60, result: 'food', resultType: 'item' },
-hay_extract: { name: 'Сено', emoji: '🌾', time: 45, result: 'hay', resultType: 'item' }
+gmo_apple_extract: { nameKey: 'extractorGmoApple', emoji: '🍏', time: 60, result: 'gmo_apple', resultType: 'item' },
+rat_food_extract: { nameKey: 'extractorRatFood', emoji: '🍖', time: 60, result: 'food', resultType: 'item' },
+hay_extract: { nameKey: 'extractorHay', emoji: '🌾', time: 45, result: 'hay', resultType: 'item' },
+fish_food_essence: { nameKey: 'extractorFishFood', emoji: '🐟', time: 60, result: 'fish_food', resultType: 'item' }
 };
-
 // ============================================================
 // ==================== DOM ЭЛЕМЕНТЫ ==========================
 // ============================================================
@@ -434,6 +355,11 @@ const buyCombinerBtn = document.getElementById('buyCombiner');
 const buyCombinerUpgradeBtn = document.getElementById('buyCombinerUpgrade');
 const buyExtractorBtn = document.getElementById('buyExtractor');
 const buyManipulatorBtn = document.getElementById('buyManipulator');
+const buyAquariumBtn = document.getElementById('buyAquariumBtn');
+const aquariumShopItem = document.getElementById('aquariumShopItem');
+const aquariumCostEl = document.getElementById('aquariumCost');
+const aquariumLevelEl = document.getElementById('aquariumLevel');
+const aquariumMaxLevelEl = document.getElementById('aquariumMaxLevel');
 const advancedLogicShopItem = document.getElementById('advancedLogicShopItem');
 const buyAdvancedLogicBtn = document.getElementById('buyAdvancedLogic');
 const advancedLogicCostEl = document.getElementById('advancedLogicCost');
@@ -501,31 +427,11 @@ const mouseInfo = document.getElementById('mouseInfo');
 const mouseBox = document.getElementById('mouseBox');
 const mouseIndicator = document.getElementById('mouseIndicator');
 const manipulatorContainer = document.getElementById('manipulatorContainer');
-const manipToggles = [
-document.getElementById('manipToggle1'),
-document.getElementById('manipToggle2'),
-document.getElementById('manipToggle3')
-];
-const manipStatuses = [
-document.getElementById('manipStatus1'),
-document.getElementById('manipStatus2'),
-document.getElementById('manipStatus3')
-];
-const manipSettingsBtns = [
-document.getElementById('manipSettings1'),
-document.getElementById('manipSettings2'),
-document.getElementById('manipSettings3')
-];
-const manipLabels = [
-document.getElementById('manipLabel1'),
-document.getElementById('manipLabel2'),
-document.getElementById('manipLabel3')
-];
-const manipBoxes = [
-document.getElementById('manipBox1'),
-document.getElementById('manipBox2'),
-document.getElementById('manipBox3')
-];
+const manipToggles = [document.getElementById('manipToggle1'), document.getElementById('manipToggle2'), document.getElementById('manipToggle3')];
+const manipStatuses = [document.getElementById('manipStatus1'), document.getElementById('manipStatus2'), document.getElementById('manipStatus3')];
+const manipSettingsBtns = [document.getElementById('manipSettings1'), document.getElementById('manipSettings2'), document.getElementById('manipSettings3')];
+const manipLabels = [document.getElementById('manipLabel1'), document.getElementById('manipLabel2'), document.getElementById('manipLabel3')];
+const manipBoxes = [document.getElementById('manipBox1'), document.getElementById('manipBox2'), document.getElementById('manipBox3')];
 const clickItem = document.getElementById('clickItem');
 const autoItem = document.getElementById('autoItem');
 const clickArea = document.getElementById('clickArea');
@@ -554,13 +460,7 @@ const poopBtn = document.getElementById('poopBtn');
 const enclosureBonus = document.getElementById('enclosureBonus');
 const enclosureSatiety = document.getElementById('enclosureSatiety');
 const pepperIndicator = document.getElementById('pepperIndicator');
-const hamsterElements = [
-document.getElementById('hamster1'),
-document.getElementById('hamster2'),
-document.getElementById('hamster3'),
-document.getElementById('hamster4'),
-document.getElementById('hamster5')
-];
+const hamsterElements = [document.getElementById('hamster1'), document.getElementById('hamster2'), document.getElementById('hamster3'), document.getElementById('hamster4'), document.getElementById('hamster5')];
 const bossSkull = document.getElementById('bossSkull');
 const bossMenu = document.getElementById('bossMenu');
 const closeBossMenuBtn = document.getElementById('closeBossMenu');
@@ -611,6 +511,15 @@ const musicToggle = document.getElementById('musicToggle');
 const langToggle = document.getElementById('langToggle');
 const langModal = document.getElementById('langModal');
 const closeLangBtn = document.getElementById('closeLang');
+// DOM аквариума
+const aquariumContainer = document.getElementById('aquariumContainer');
+const aquariumTitle = document.getElementById('aquariumTitle');
+const aquariumFishCount = document.getElementById('aquariumFishCount');
+const aquariumGameLink = document.getElementById('aquariumGameLink');
+const aquariumFishContainer = document.getElementById('aquariumFishContainer');
+const aquariumFeedStatus = document.getElementById('aquariumFeedStatus');
+const aquariumFeedBtn = document.getElementById('aquariumFeedBtn');
+const aquariumBonusDisplay = document.getElementById('aquariumBonusDisplay');
 let hayIndicator = document.getElementById('hayIndicator');
 if (!hayIndicator) {
 hayIndicator = document.createElement('div');
@@ -620,7 +529,6 @@ hayIndicator.textContent = '🌾 x1.3 БУСТ СВИНОК!';
 const enclosureBottom = document.querySelector('.enclosure-bottom');
 if (enclosureBottom) enclosureBottom.appendChild(hayIndicator);
 }
-
 // ============================================================
 // ==================== ФУНКЦИИ ==============================
 // ============================================================
@@ -635,7 +543,79 @@ function getMachineUpgradeCost() { return Math.round(20000 * (machineLevel + 1) 
 function getCombinerSlots() { return combinerLevel === 0 ? 2 : 3; }
 function getManipulatorCount() { return manipulatorLevel; }
 function isAllLabPartsBought() { return labPurchased && plantPurchased && plantUpgrade1 && plantUpgrade2 && plantTypeGrass && plantTypePepper && plantTypeApple && plantTypeCabbage && combinerPurchased && extractorPurchased; }
-
+// АКВАРИУМ
+function getAquariumFishCount() { return aquariumLevel; }
+function getAquariumBonus() { if (aquariumLevel === 0) return 1.0; return 1.0 + (aquariumLevel * 0.05); }
+function canFeedAquarium() { if (aquariumLevel === 0) return false; const now = Date.now(); return (now - aquariumLastFed) >= AQUARIUM_FEED_INTERVAL; }
+// ИСПРАВЛЕНО: теперь 1 корм кормит ВСЕХ рыб
+function feedAquariumFish() {
+if (aquariumLevel === 0) return;
+if (!canFeedAquarium()) {
+const nextFeed = aquariumLastFed + AQUARIUM_FEED_INTERVAL;
+const timeLeft = Math.max(0, nextFeed - Date.now());
+const minutes = Math.floor(timeLeft / 60000);
+const seconds = Math.floor((timeLeft % 60000) / 1000);
+alert(t('aquariumNotReady') + ` ${minutes}:${seconds.toString().padStart(2, '0')}`);
+return;
+}
+const foodNeeded = 1; // ИСПРАВЛЕНО: было aquariumLevel
+if (plantInventory.fish_food < foodNeeded) { alert(t('alertNotEnoughFishFood')); return; }
+plantInventory.fish_food -= foodNeeded;
+aquariumLastFed = Date.now();
+localStorage.setItem('rat_aquariumLastFed', aquariumLastFed);
+saveGame(); updateUI(); updateAquariumUI();
+}
+function startAquariumTimer() {
+if (aquariumTimer) clearInterval(aquariumTimer);
+if (aquariumLevel === 0) return;
+aquariumTimer = setInterval(() => { updateAquariumUI(); }, 10000);
+}
+function updateAquariumUI() {
+if (!aquariumContainer) return;
+if (aquariumLevel === 0) { aquariumContainer.style.display = 'none'; return; }
+aquariumContainer.style.display = 'flex';
+if (aquariumFishCount) aquariumFishCount.textContent = aquariumLevel;
+if (aquariumBonusDisplay) aquariumBonusDisplay.textContent = '🐟 x' + getAquariumBonus().toFixed(2);
+if (canFeedAquarium()) {
+if (aquariumFeedStatus) { aquariumFeedStatus.textContent = t('aquariumReadyToFeed'); aquariumFeedStatus.className = 'aquarium-status ready'; }
+// ИСПРАВЛЕНО: убрано "(aquariumLevel + ' 🐟')"
+if (aquariumFeedBtn) { aquariumFeedBtn.disabled = false; aquariumFeedBtn.textContent = t('aquariumFeed'); }
+} else {
+const nextFeed = aquariumLastFed + AQUARIUM_FEED_INTERVAL;
+const timeLeft = Math.max(0, nextFeed - Date.now());
+const minutes = Math.floor(timeLeft / 60000);
+const seconds = Math.floor((timeLeft % 60000) / 1000);
+if (aquariumFeedStatus) { aquariumFeedStatus.textContent = `${t('aquariumNextFeed')}: ${minutes}:${seconds.toString().padStart(2, '0')}`; aquariumFeedStatus.className = 'aquarium-status waiting'; }
+if (aquariumFeedBtn) { aquariumFeedBtn.disabled = true; aquariumFeedBtn.textContent = t('aquariumWaiting'); }
+}
+if (aquariumFishContainer) {
+aquariumFishContainer.innerHTML = '';
+for (let i = 0; i < aquariumLevel; i++) {
+const fish = document.createElement('div');
+fish.className = 'aquarium-fish';
+fish.textContent = '🐟';
+aquariumFishContainer.appendChild(fish);
+}
+}
+}
+function buyAquariumUpgrade() {
+if (!aquariumPurchased) {
+const cost = 15000;
+if (score < cost) { alert(t('notEnough')); return; }
+score -= cost;
+aquariumPurchased = true;
+aquariumLevel = 1;
+localStorage.setItem('rat_aquariumPurchased', 'true');
+saveGame(); updateUI(); updateAquariumUI();
+return;
+}
+if (aquariumLevel >= MAX_AQUARIUM_LEVEL) { alert(t('maxLevel')); return; }
+const cost = 20000 * aquariumLevel;
+if (score < cost) { alert(t('notEnough')); return; }
+score -= cost;
+aquariumLevel++;
+saveGame(); updateUI(); updateAquariumUI();
+}
 function saveGame() {
 if (window._ratIsActiveTab && !window._ratIsActiveTab()) return;
 localStorage.setItem('rat_score', score);
@@ -698,8 +678,10 @@ localStorage.setItem('rat_hayBuffActive', hayBuffActive);
 localStorage.setItem('rat_hayBuffEndTime', hayBuffEndTime);
 localStorage.setItem('rat_satietyActive', satietyActive);
 localStorage.setItem('rat_satietyEndTime', satietyEndTime);
+localStorage.setItem('rat_aquariumPurchased', aquariumPurchased);
+localStorage.setItem('rat_aquariumLevel', aquariumLevel);
+localStorage.setItem('rat_aquariumLastFed', aquariumLastFed);
 }
-
 // ============================================================
 // ==================== МЫШЬ ===================================
 // ============================================================
@@ -714,10 +696,7 @@ mouseElement.style.left = (Math.random() * (rect.width - 60) + 10) + 'px';
 mouseElement.style.top = (Math.random() * (rect.height - 60) + 10) + 'px';
 clickArea.appendChild(mouseElement);
 }
-function removeMouse() {
-if (mouseMoveInterval) { clearInterval(mouseMoveInterval); mouseMoveInterval = null; }
-if (mouseElement) { mouseElement.remove(); mouseElement = null; }
-}
+function removeMouse() { if (mouseMoveInterval) { clearInterval(mouseMoveInterval); mouseMoveInterval = null; } if (mouseElement) { mouseElement.remove(); mouseElement = null; } }
 function moveMouseToTarget() {
 if (!mouseElement || !mouseActive || !currentGrainElement) return;
 const grainRect = currentGrainElement.getBoundingClientRect();
@@ -734,12 +713,10 @@ mouseCollectCooldown = true;
 mouseElement.classList.add('collecting');
 const isSuper = currentGrainElement.classList.contains('super');
 let value = isSuper ? SUPER_GRAIN_BASE * getTotalClickPower() : grainBase * getTotalClickPower();
-score += value;
-saveGame();
-updateUI();
+score += value; saveGame(); updateUI();
 const pop = document.createElement('div');
 pop.className = 'grain-collect-pop mouse';
-pop.innerText = '🐁 +' + value;
+pop.innerText = ' +' + value;
 const rect = currentGrainElement.getBoundingClientRect();
 const areaRect2 = clickArea.getBoundingClientRect();
 pop.style.left = (rect.left - areaRect2.left + 20) + 'px';
@@ -770,28 +747,20 @@ if (mouseMoveInterval) { clearInterval(mouseMoveInterval); mouseMoveInterval = n
 createMouse();
 mouseMoveInterval = setInterval(moveMouseToTarget, 50);
 } else { removeMouse(); }
-saveGame();
-updateUI();
+saveGame(); updateUI();
 }
-
 // ============================================================
 // ==================== ЗЕРНО =================================
 // ============================================================
-function spawnGrain() {
-if (isGrainActive) return;
-if (!grainActive || grainLevel === 0) return;
-if (shouldSpawnSuper()) spawnSuperGrainInternal();
-else if (!superGrainActive || !superGrainPurchased) spawnNormalGrainInternal();
-}
+function spawnGrain() { if (isGrainActive) return; if (!grainActive || grainLevel === 0) return; if (shouldSpawnSuper()) spawnSuperGrainInternal(); else if (!superGrainActive || !superGrainPurchased) spawnNormalGrainInternal(); }
 function spawnNormalGrainInternal() {
-if (isGrainActive) return;
-if (!grainActive || grainLevel === 0) return;
+if (isGrainActive) return; if (!grainActive || grainLevel === 0) return;
 if (currentGrainElement) removeGrain();
 isGrainActive = true;
 const grainValue = grainBase * getTotalClickPower();
 const grain = document.createElement('div');
 grain.className = 'grain-object';
-grain.innerHTML = `🌽<span class="grain-value">+${grainValue}</span><div class="timer-bar"><div class="fill" style="width:100%;"></div></div>`;
+grain.innerHTML = `<span class="grain-value">+${grainValue}</span><div class="timer-bar"><div class="fill" style="width:100%;"></div></div>`;
 const rect = clickArea.getBoundingClientRect();
 grain.style.left = (Math.random() * (rect.width - 100) + 20) + 'px';
 grain.style.top = (Math.random() * (rect.height - 100) + 20) + 'px';
@@ -800,16 +769,11 @@ clickArea.appendChild(grain);
 currentGrainElement = grain;
 let timeLeft = GRAIN_LIFETIME / 1000;
 const fill = grain.querySelector('.fill');
-grainTimerInterval = setInterval(() => {
-timeLeft -= 0.1;
-if (fill) fill.style.width = Math.max(0, (timeLeft / (GRAIN_LIFETIME / 1000)) * 100) + '%';
-if (timeLeft <= 0) removeGrain();
-}, 100);
+grainTimerInterval = setInterval(() => { timeLeft -= 0.1; if (fill) fill.style.width = Math.max(0, (timeLeft / (GRAIN_LIFETIME / 1000)) * 100) + '%'; if (timeLeft <= 0) removeGrain(); }, 100);
 grainLifeTimeout = setTimeout(removeGrain, GRAIN_LIFETIME);
 }
 function spawnSuperGrainInternal() {
-if (isGrainActive) return;
-if (!grainActive || !superGrainActive || !superGrainPurchased) return;
+if (isGrainActive) return; if (!grainActive || !superGrainActive || !superGrainPurchased) return;
 if (currentGrainElement) removeGrain();
 isGrainActive = true;
 const grainValue = SUPER_GRAIN_BASE * getTotalClickPower();
@@ -824,18 +788,12 @@ clickArea.appendChild(grain);
 currentGrainElement = grain;
 let timeLeft = GRAIN_LIFETIME / 1000;
 const fill = grain.querySelector('.fill');
-grainTimerInterval = setInterval(() => {
-timeLeft -= 0.1;
-if (fill) fill.style.width = Math.max(0, (timeLeft / (GRAIN_LIFETIME / 1000)) * 100) + '%';
-if (timeLeft <= 0) removeGrain();
-}, 100);
+grainTimerInterval = setInterval(() => { timeLeft -= 0.1; if (fill) fill.style.width = Math.max(0, (timeLeft / (GRAIN_LIFETIME / 1000)) * 100) + '%'; if (timeLeft <= 0) removeGrain(); }, 100);
 grainLifeTimeout = setTimeout(removeGrain, GRAIN_LIFETIME);
 }
 function collectGrain(value) {
 if (!isGrainActive || !currentGrainElement) return;
-score += value;
-saveGame();
-updateUI();
+score += value; saveGame(); updateUI();
 const isSuper = currentGrainElement.classList.contains('super');
 const pop = document.createElement('div');
 pop.className = 'grain-collect-pop' + (isSuper ? ' super' : '');
@@ -874,129 +832,63 @@ grainSpawnTimeout = setTimeout(spawnGrain, delay);
 if (grainSpawnTimeout) { clearTimeout(grainSpawnTimeout); grainSpawnTimeout = null; }
 removeGrain();
 }
-saveGame();
-updateUI();
+saveGame(); updateUI();
 }
 function toggleSuperGrain(state) {
 superGrainActive = state;
 if (!superGrainActive) {
 removeGrain();
-if (grainActive && grainLevel > 0) {
-if (grainSpawnTimeout) clearTimeout(grainSpawnTimeout);
-grainSpawnTimeout = setTimeout(spawnGrain, 5000);
-}
+if (grainActive && grainLevel > 0) { if (grainSpawnTimeout) clearTimeout(grainSpawnTimeout); grainSpawnTimeout = setTimeout(spawnGrain, 5000); }
 } else if (grainActive) {
 removeGrain();
 if (grainSpawnTimeout) clearTimeout(grainSpawnTimeout);
 const delay = SUPER_GRAIN_SPAWN_MIN + Math.random() * (SUPER_GRAIN_SPAWN_MAX - SUPER_GRAIN_SPAWN_MIN);
 grainSpawnTimeout = setTimeout(spawnGrain, delay);
 }
-saveGame();
-updateUI();
+saveGame(); updateUI();
 }
-
 // ============================================================
 // ==================== РАСТЕНИЯ ==============================
 // ============================================================
-function getPlantMaxTime(type, hasFertilizer = false) {
-let base = type === 'grass' ? 180 : type === 'pepper' ? 300 : type === 'apple' ? 480 : 120;
-if (hasFertilizer) base = base / 2;
-return base;
-}
+function getPlantMaxTime(type, hasFertilizer = false) { let base = type === 'grass' ? 180 : type === 'pepper' ? 300 : type === 'apple' ? 480 : 120; if (hasFertilizer) base = base / 2; return base; }
 function getPlantEmoji(type, stage) {
 if (stage === 'idle') return '🪴';
-if (stage === 'growing') {
-if (type === 'grass') return '🌱';
-if (type === 'pepper') return '🌶️';
-if (type === 'apple') return '🍎';
-if (type === 'cabbage') return '🥬';
-return '🌱';
-}
-if (stage === 'ready') {
-if (type === 'grass') return '🌿';
-if (type === 'pepper') return '🌶️';
-if (type === 'apple') return '';
-if (type === 'cabbage') return '🥬';
-return '🌿';
-}
+if (stage === 'growing') { if (type === 'grass') return '🌱'; if (type === 'pepper') return '🌶️'; if (type === 'apple') return '🍎'; if (type === 'cabbage') return ''; return '🌱'; }
+if (stage === 'ready') { if (type === 'grass') return '🌿'; if (type === 'pepper') return '🌶️'; if (type === 'apple') return '🍎'; if (type === 'cabbage') return ''; return '🌿'; }
 return '🪴';
 }
-function getPlantStatusText(stage, progress) {
-if (stage === 'idle') return t('water');
-if (stage === 'growing') return ` ${Math.round(progress)}%`;
-if (stage === 'ready') return t('collectPlant');
-return t('water');
-}
-function getPlantStatusClass(stage) {
-if (stage === 'idle') return 'water';
-if (stage === 'growing') return '';
-if (stage === 'ready') return 'ready-status';
-return '';
-}
-function getPlantName(type) {
-if (type === 'grass') return t('grass');
-if (type === 'pepper') return t('pepper');
-if (type === 'apple') return t('apple');
-if (type === 'cabbage') return t('cabbage');
-return type;
-}
+function getPlantStatusText(stage, progress) { if (stage === 'idle') return t('water'); if (stage === 'growing') return `🌱 ${Math.round(progress)}%`; if (stage === 'ready') return t('collectPlant'); return t('water'); }
+function getPlantStatusClass(stage) { if (stage === 'idle') return 'water'; if (stage === 'growing') return ''; if (stage === 'ready') return 'ready-status'; return ''; }
+function getPlantName(type) { if (type === 'grass') return t('grass'); if (type === 'pepper') return t('pepper'); if (type === 'apple') return t('apple'); if (type === 'cabbage') return t('cabbage'); return type; }
 function updatePlantsUI() {
 const container = document.getElementById('plantsContainer');
 const grid = document.getElementById('plantsGrid');
-if (plantLevel === 0 || !plantPurchased) {
-container.style.display = 'none';
-container.classList.remove('visible');
-return;
-}
-container.style.display = 'flex';
-container.classList.add('visible');
+if (plantLevel === 0 || !plantPurchased) { container.style.display = 'none'; container.classList.remove('visible'); return; }
+container.style.display = 'flex'; container.classList.add('visible');
 grid.innerHTML = '';
 for (let i = 0; i < plantLevel; i++) {
-const data = plantData[i];
-if (!data) continue;
-const pot = document.createElement('div');
-pot.className = 'plant-pot';
-pot.dataset.index = i;
-const typeLabel = document.createElement('div');
-typeLabel.className = 'plant-type';
-if (data.type) {
-typeLabel.textContent = getPlantName(data.type);
-typeLabel.style.color = PLANT_TYPES[data.type]?.color || '#888';
-} else {
-typeLabel.textContent = t('empty');
-typeLabel.style.color = '#555';
-}
-const emoji = document.createElement('div');
-emoji.className = 'plant-emoji';
+const data = plantData[i]; if (!data) continue;
+const pot = document.createElement('div'); pot.className = 'plant-pot'; pot.dataset.index = i;
+const typeLabel = document.createElement('div'); typeLabel.className = 'plant-type';
+if (data.type) { typeLabel.textContent = getPlantName(data.type); typeLabel.style.color = PLANT_TYPES[data.type]?.color || '#888'; }
+else { typeLabel.textContent = t('empty'); typeLabel.style.color = '#555'; }
+const emoji = document.createElement('div'); emoji.className = 'plant-emoji';
 if (data.stage === 'growing') emoji.classList.add('growing');
 if (data.stage === 'ready') emoji.classList.add('ready');
 emoji.textContent = getPlantEmoji(data.type, data.stage);
-const status = document.createElement('div');
-status.className = 'plant-status ' + getPlantStatusClass(data.stage);
-status.textContent = getPlantStatusText(data.stage, data.progress);
-const progressBar = document.createElement('div');
-progressBar.className = 'plant-progress';
-const fill = document.createElement('div');
-fill.className = 'plant-progress-fill';
+const status = document.createElement('div'); status.className = 'plant-status ' + getPlantStatusClass(data.stage); status.textContent = getPlantStatusText(data.stage, data.progress);
+const progressBar = document.createElement('div'); progressBar.className = 'plant-progress';
+const fill = document.createElement('div'); fill.className = 'plant-progress-fill';
 fill.style.width = (data.stage === 'growing' || data.stage === 'ready') ? Math.min(100, data.progress) + '%' : '0%';
 progressBar.appendChild(fill);
-pot.appendChild(typeLabel);
-pot.appendChild(emoji);
-pot.appendChild(status);
-pot.appendChild(progressBar);
-if (data.fertilizer && data.stage !== 'idle') {
-const buffInd = document.createElement('div');
-buffInd.className = 'plant-buff-indicator active';
-buffInd.textContent = '🧪';
-pot.appendChild(buffInd);
-}
+pot.appendChild(typeLabel); pot.appendChild(emoji); pot.appendChild(status); pot.appendChild(progressBar);
+if (data.fertilizer && data.stage !== 'idle') { const buffInd = document.createElement('div'); buffInd.className = 'plant-buff-indicator active'; buffInd.textContent = '🧪'; pot.appendChild(buffInd); }
 pot.addEventListener('click', function() { interactWithPlant(parseInt(this.dataset.index)); });
 grid.appendChild(pot);
 }
 }
 function interactWithPlant(index) {
-const data = plantData[index];
-if (!data) return;
+const data = plantData[index]; if (!data) return;
 if (!data.type) {
 let availableTypes = [];
 if (plantTypeGrass) availableTypes.push('grass');
@@ -1004,198 +896,86 @@ if (plantTypePepper) availableTypes.push('pepper');
 if (plantTypeApple) availableTypes.push('apple');
 if (plantTypeCabbage) availableTypes.push('cabbage');
 if (availableTypes.length === 0) return;
-let choices = availableTypes.map((t2, i) => {
-let info = PLANT_TYPES[t2];
-return `${i+1}. ${info.emoji} ${getPlantName(t2)} (${Math.round(info.growTime/60)} ${t('min')})`;
-}).join('\n');
+let choices = availableTypes.map((t2, i) => { let info = PLANT_TYPES[t2]; return `${i+1}. ${info.emoji} ${getPlantName(t2)} (${Math.round(info.growTime/60)} ${t('min')})`; }).join('\n');
 let choice = prompt(t('selectPlant') + '\n' + choices, '1');
 if (choice === null) return;
 let idx = parseInt(choice) - 1;
 if (idx >= 0 && idx < availableTypes.length) {
-data.type = availableTypes[idx];
-data.stage = 'growing';
-data.progress = 0;
-data.fertilizer = false;
-savePlantData();
-updatePlantsUI();
-updateUI();
+data.type = availableTypes[idx]; data.stage = 'growing'; data.progress = 0; data.fertilizer = false;
+savePlantData(); updatePlantsUI(); updateUI();
 if (plantIntervals[index]) { clearInterval(plantIntervals[index]); plantIntervals[index] = null; }
 startPlantGrowth(index);
 }
 return;
 }
 if (data.stage === 'idle') {
-if (fertilizerCount > 0 && confirm(t('useFertilizerConfirm'))) {
-fertilizerCount--;
-data.fertilizer = true;
-saveGame();
-savePlantData();
-}
-data.stage = 'growing';
-data.progress = 0;
-savePlantData();
-updatePlantsUI();
-startPlantGrowth(index);
+if (fertilizerCount > 0 && confirm(t('useFertilizerConfirm'))) { fertilizerCount--; data.fertilizer = true; saveGame(); savePlantData(); }
+data.stage = 'growing'; data.progress = 0; savePlantData(); updatePlantsUI(); startPlantGrowth(index);
 return;
 }
 if (data.stage === 'ready') {
-const type = data.type;
-if (!type) return;
+const type = data.type; if (!type) return;
 if (plantInventory[type] === undefined) plantInventory[type] = 0;
 plantInventory[type]++;
-data.stage = 'idle';
-data.progress = 0;
-data.type = null;
-data.fertilizer = false;
-savePlantData();
-saveGame();
-updatePlantsUI();
-updateUI();
+data.stage = 'idle'; data.progress = 0; data.type = null; data.fertilizer = false;
+savePlantData(); saveGame(); updatePlantsUI(); updateUI();
 return;
 }
 }
 function startPlantGrowth(index) {
-const data = plantData[index];
-if (!data || !data.type) return;
+const data = plantData[index]; if (!data || !data.type) return;
 if (plantIntervals[index]) { clearInterval(plantIntervals[index]); plantIntervals[index] = null; }
 const maxTime = getPlantMaxTime(data.type, data.fertilizer);
 if (maxTime <= 0) return;
 plantIntervals[index] = setInterval(() => {
 const d = plantData[index];
-if (!d || d.stage !== 'growing') {
-clearInterval(plantIntervals[index]);
-plantIntervals[index] = null;
-return;
-}
+if (!d || d.stage !== 'growing') { clearInterval(plantIntervals[index]); plantIntervals[index] = null; return; }
 d.progress += (100 / maxTime);
 if (d.progress >= 100) {
-d.progress = 100;
-d.stage = 'ready';
-clearInterval(plantIntervals[index]);
-plantIntervals[index] = null;
-savePlantData();
-updatePlantsUI();
-updateUI();
+d.progress = 100; d.stage = 'ready';
+clearInterval(plantIntervals[index]); plantIntervals[index] = null;
+savePlantData(); updatePlantsUI(); updateUI();
 return;
 }
-savePlantData();
-updatePlantsUI();
+savePlantData(); updatePlantsUI();
 }, 1000);
 }
-function savePlantData() {
-if (window._ratIsActiveTab && !window._ratIsActiveTab()) return;
-localStorage.setItem('rat_plantData', JSON.stringify(plantData));
-localStorage.setItem('rat_plantInventory', JSON.stringify(plantInventory));
-}
+function savePlantData() { if (window._ratIsActiveTab && !window._ratIsActiveTab()) return; localStorage.setItem('rat_plantData', JSON.stringify(plantData)); localStorage.setItem('rat_plantInventory', JSON.stringify(plantInventory)); }
 function loadPlantData() {
 const saved = localStorage.getItem('rat_plantData');
-if (saved) {
-try {
-const parsed = JSON.parse(saved);
-if (parsed.length === 3) { plantData = parsed; return; }
-} catch(e) {}
+if (saved) { try { const parsed = JSON.parse(saved); if (parsed.length === 3) { plantData = parsed; return; } } catch(e) {} }
+plantData = [{ stage: 'idle', progress: 0, type: null, fertilizer: false }, { stage: 'idle', progress: 0, type: null, fertilizer: false }, { stage: 'idle', progress: 0, type: null, fertilizer: false }];
 }
-plantData = [
-{ stage: 'idle', progress: 0, type: null, fertilizer: false },
-{ stage: 'idle', progress: 0, type: null, fertilizer: false },
-{ stage: 'idle', progress: 0, type: null, fertilizer: false }
-];
-}
-
 // ============================================================
 // ==================== ЛАБОРАТОРИЯ ===========================
 // ============================================================
 function updateLabUI() {
 if (!labPurchased) return;
-const pEl = document.getElementById('poopCount');
-if (pEl) pEl.textContent = labPoopCount;
-const fEl = document.getElementById('fertilizerCount');
-if (fEl) fEl.textContent = fertilizerCount;
-if (machineRunning) {
-machineStatus.textContent = t('working');
-machineStatus.className = 'machine-status running';
-machineProgressDiv.style.display = 'block';
-machineBtn.disabled = true;
-machineBtn.textContent = '⏳...';
-} else if (machineProgress >= getMachineTime() && machineProgress > 0) {
-machineStatus.textContent = t('done');
-machineStatus.className = 'machine-status complete';
-machineProgressDiv.style.display = 'block';
-machineBtn.disabled = false;
-machineBtn.textContent = t('collectFertilizer') + ' (+1)';
-} else {
-machineStatus.textContent = t('idle');
-machineStatus.className = 'machine-status';
-machineProgressDiv.style.display = 'none';
-machineBtn.disabled = (labPoopCount < 7);
-machineBtn.textContent = t('start') + ' (7 💩 → 1 🧪)';
-}
+const pEl = document.getElementById('poopCount'); if (pEl) pEl.textContent = labPoopCount;
+const fEl = document.getElementById('fertilizerCount'); if (fEl) fEl.textContent = fertilizerCount;
+if (machineRunning) { machineStatus.textContent = t('working'); machineStatus.className = 'machine-status running'; machineProgressDiv.style.display = 'block'; machineBtn.disabled = true; machineBtn.textContent = '⏳...'; }
+else if (machineProgress >= getMachineTime() && machineProgress > 0) { machineStatus.textContent = t('done'); machineStatus.className = 'machine-status complete'; machineProgressDiv.style.display = 'block'; machineBtn.disabled = false; machineBtn.textContent = t('collectFertilizer') + ' (+1)'; }
+else { machineStatus.textContent = t('idle'); machineStatus.className = 'machine-status'; machineProgressDiv.style.display = 'none'; machineBtn.disabled = (labPoopCount < 7); machineBtn.textContent = t('start') + ' (7 💩 → 1 🧪)'; }
 const maxTime = getMachineTime();
 let percent = Math.min(100, (machineProgress / maxTime) * 100);
 machineProgressFill.style.width = percent + '%';
 machineProgressText.textContent = Math.round(percent) + '%';
-const timeDisplayEl = document.getElementById('machineTimeDisplay');
-if (timeDisplayEl) timeDisplayEl.textContent = Math.floor(maxTime / 60);
-const levelDisplayEl = document.getElementById('machineLevelDisplay');
-if (levelDisplayEl) levelDisplayEl.textContent = machineLevel;
-if (machineLevel >= 5) {
-machineUpgradeBtn.disabled = true;
-machineUpgradeBtn.textContent = '⭐ MAX';
-} else {
-const cost = getMachineUpgradeCost();
-machineUpgradeBtn.disabled = (score < cost);
-machineUpgradeBtn.textContent = `⬆️ ${t('upgrade')} (${cost})`;
-}
+const timeDisplayEl = document.getElementById('machineTimeDisplay'); if (timeDisplayEl) timeDisplayEl.textContent = Math.floor(maxTime / 60);
+const levelDisplayEl = document.getElementById('machineLevelDisplay'); if (levelDisplayEl) levelDisplayEl.textContent = machineLevel;
+if (machineLevel >= 5) { machineUpgradeBtn.disabled = true; machineUpgradeBtn.textContent = '⭐ MAX'; }
+else { const cost = getMachineUpgradeCost(); machineUpgradeBtn.disabled = (score < cost); machineUpgradeBtn.textContent = `⬆️ ${t('upgrade')} (${cost})`; }
 }
 function restartMachineTimer(maxTime) {
 if (machineTimer) clearInterval(machineTimer);
 if (maxTime <= 0) return;
 machineTimer = setInterval(() => {
-machineProgress++;
-saveGame();
-updateLabUI();
-if (machineProgress >= maxTime) {
-clearInterval(machineTimer);
-machineTimer = null;
-machineRunning = false;
-machineProgress = maxTime;
-saveGame();
-updateLabUI();
-}
+machineProgress++; saveGame(); updateLabUI();
+if (machineProgress >= maxTime) { clearInterval(machineTimer); machineTimer = null; machineRunning = false; machineProgress = maxTime; saveGame(); updateLabUI(); }
 }, 1000);
 }
-function startMachine() {
-if (machineRunning) { alert(t('alertMachineRunning')); return; }
-if (labPoopCount < 7) return;
-labPoopCount -= 7;
-machineRunning = true;
-machineProgress = 0;
-const maxTime = getMachineTime();
-saveGame();
-updateLabUI();
-updateUI();
-restartMachineTimer(maxTime);
-}
-function collectFertilizer() {
-if (machineProgress < getMachineTime()) return;
-fertilizerCount++;
-machineProgress = 0;
-machineRunning = false;
-saveGame();
-updateLabUI();
-updateUI();
-}
-function upgradeMachine() {
-if (machineLevel >= 5) return;
-const cost = getMachineUpgradeCost();
-if (score < cost) { alert(t('notEnough')); return; }
-score -= cost;
-machineLevel++;
-saveGame();
-updateUI();
-updateLabUI();
-}
-
+function startMachine() { if (machineRunning) { alert(t('alertMachineRunning')); return; } if (labPoopCount < 7) return; labPoopCount -= 7; machineRunning = true; machineProgress = 0; const maxTime = getMachineTime(); saveGame(); updateLabUI(); updateUI(); restartMachineTimer(maxTime); }
+function collectFertilizer() { if (machineProgress < getMachineTime()) return; fertilizerCount++; machineProgress = 0; machineRunning = false; saveGame(); updateLabUI(); updateUI(); }
+function upgradeMachine() { if (machineLevel >= 5) return; const cost = getMachineUpgradeCost(); if (score < cost) { alert(t('notEnough')); return; } score -= cost; machineLevel++; saveGame(); updateUI(); updateLabUI(); }
 // ============================================================
 // ==================== КОМБИНАТОР ============================
 // ============================================================
@@ -1207,14 +987,8 @@ let recipeCopy = [...recipe.ingredients];
 let matched = true;
 let tempCopy = [...recipeCopy];
 let tempValid = [...valid];
-for (let item of tempValid) {
-let index = tempCopy.indexOf(item);
-if (index === -1) { matched = false; break; }
-tempCopy.splice(index, 1);
-}
-if (matched && tempCopy.length === 0 && tempValid.length === recipe.ingredients.length) {
-return recipeId;
-}
+for (let item of tempValid) { let index = tempCopy.indexOf(item); if (index === -1) { matched = false; break; } tempCopy.splice(index, 1); }
+if (matched && tempCopy.length === 0 && tempValid.length === recipe.ingredients.length) return recipeId;
 }
 return null;
 }
@@ -1222,6 +996,7 @@ function getRecipeName(recipeId) {
 if (recipeId === 'gmo_apple_extract') return t('combinerRecipe1').split('=')[0].trim();
 if (recipeId === 'rat_food_extract') return t('combinerRecipe2').split('=')[0].trim();
 if (recipeId === 'hay_extract') return t('combinerRecipe3').split('=')[0].trim();
+if (recipeId === 'fish_food_essence') return t('combinerRecipe4').split('=')[0].trim();
 return recipeId;
 }
 function updateCombinerUI() {
@@ -1229,25 +1004,22 @@ if (!combinerPurchased) return;
 const slots = getCombinerSlots();
 combinerSlotsContainer.innerHTML = '';
 for (let i = 0; i < slots; i++) {
-const slot = document.createElement('div');
-slot.className = 'combiner-slot';
-slot.dataset.index = i;
+const slot = document.createElement('div'); slot.className = 'combiner-slot'; slot.dataset.index = i;
 const item = combinerSlots[i];
 if (item) {
-let displayName = '';
-let emoji = '';
-if (item === 'apple') { displayName = ''; emoji = '🍎'; }
+let displayName = '', emoji = '';
+if (item === 'apple') { displayName = '🍎'; emoji = '🍎'; }
 else if (item === 'grass') { displayName = '🌿'; emoji = '🌿'; }
-else if (item === 'pepper') { displayName = '🌶️'; emoji = '️'; }
+else if (item === 'pepper') { displayName = '🌶️'; emoji = '🌶️'; }
 else if (item === 'fertilizer') { displayName = '🧪'; emoji = '🧪'; }
+else if (item === 'fish_food_essence') { displayName = '🟫'; emoji = '🟫'; }
 slot.innerHTML = `<div class="slot-item"><div class="slot-emoji">${emoji}</div><div class="slot-name">${displayName}</div><div class="slot-remove" onclick="removeFromCombiner(${i})">✕</div></div>`;
 } else {
 slot.innerHTML = `<div class="slot-empty" onclick="selectForCombiner(${i})">${t('emptySlot')}</div>`;
 }
 combinerSlotsContainer.appendChild(slot);
 }
-const resultSlot = document.createElement('div');
-resultSlot.className = 'combiner-result-slot';
+const resultSlot = document.createElement('div'); resultSlot.className = 'combiner-result-slot';
 const recipeId = checkRecipe(combinerSlots);
 const isRunning = combinerRunning.some(r => r);
 if (recipeId && !isRunning) {
@@ -1255,9 +1027,7 @@ const recipe = COMBINER_RECIPES[recipeId];
 resultSlot.innerHTML = `<div class="result-item"><div class="result-arrow">➡️</div><div class="result-emoji">${recipe.emoji}</div><div class="result-name">${getRecipeName(recipeId)}</div><div class="result-time">⏱️ ${Math.round(recipe.time/60)} ${t('min')}</div><button class="craft-btn" onclick="startCraft('${recipeId}')">${t('craft')}</button></div>`;
 } else if (isRunning) {
 let progress = 0;
-for (let i = 0; i < combinerRunning.length; i++) {
-if (combinerRunning[i]) { progress = combinerProgress[i] || 0; break; }
-}
+for (let i = 0; i < combinerRunning.length; i++) { if (combinerRunning[i]) { progress = combinerProgress[i] || 0; break; } }
 resultSlot.innerHTML = `<div class="result-item"><div class="result-emoji">⚙️</div><div class="result-name">${t('crafting')}</div><div class="result-progress">${Math.round(progress)}%</div><div class="result-bar"><div class="result-fill" style="width:${progress}%"></div></div></div>`;
 } else {
 resultSlot.innerHTML = `<div class="result-item empty"><div class="result-emoji">❓</div><div class="result-name">${t('putIngredients')}</div></div>`;
@@ -1268,8 +1038,9 @@ function selectForCombiner(index) {
 let availableItems = [];
 if (plantInventory.apple > 0) availableItems.push({ id: 'apple', name: '🍎', emoji: '', count: plantInventory.apple });
 if (plantInventory.grass > 0) availableItems.push({ id: 'grass', name: '🌿', emoji: '🌿', count: plantInventory.grass });
-if (plantInventory.pepper > 0) availableItems.push({ id: 'pepper', name: '🌶️', emoji: '️', count: plantInventory.pepper });
+if (plantInventory.pepper > 0) availableItems.push({ id: 'pepper', name: '🌶️', emoji: '🌶️', count: plantInventory.pepper });
 if (fertilizerCount > 0) availableItems.push({ id: 'fertilizer', name: '', emoji: '🧪', count: fertilizerCount });
+if (plantInventory.fish_food_essence > 0) availableItems.push({ id: 'fish_food_essence', name: '🟫', emoji: '🟫', count: plantInventory.fish_food_essence });
 if (availableItems.length === 0) return;
 let choices = availableItems.map((item, i) => `${i+1}. ${item.emoji} (x${item.count})`).join('\n');
 let choice = prompt(`${t('selectIngredient')}\n${choices}`, '1');
@@ -1281,174 +1052,115 @@ let countInSlots = combinerSlots.filter(s => s === item.id).length;
 let maxCount = item.id === 'fertilizer' ? fertilizerCount : plantInventory[item.id] || 0;
 if (countInSlots >= maxCount) return;
 combinerSlots[index] = item.id;
-saveGame();
-updateCombinerUI();
-updateUI();
+saveGame(); updateCombinerUI(); updateUI();
 }
 }
-window.removeFromCombiner = function(index) {
-combinerSlots[index] = null;
-saveGame();
-updateCombinerUI();
-updateUI();
-};
+window.removeFromCombiner = function(index) { combinerSlots[index] = null; saveGame(); updateCombinerUI(); updateUI(); };
 window.selectForCombiner = selectForCombiner;
 window.startCraft = function(recipeId) {
 if (combinerRunning.some(r => r)) return;
-const recipe = COMBINER_RECIPES[recipeId];
-if (!recipe) return;
+const recipe = COMBINER_RECIPES[recipeId]; if (!recipe) return;
 const slotIngredients = combinerSlots.filter(s => s !== null);
-let recipeCopy = [...recipe.ingredients];
-let tempCopy = [...recipeCopy];
+let tempCopy = [...recipe.ingredients];
 let tempValid = [...slotIngredients];
-for (let item of tempValid) {
-let index = tempCopy.indexOf(item);
-if (index === -1) return;
-tempCopy.splice(index, 1);
-}
+for (let item of tempValid) { let index = tempCopy.indexOf(item); if (index === -1) return; tempCopy.splice(index, 1); }
 if (tempCopy.length !== 0) return;
-for (let item of slotIngredients) {
-if (item === 'fertilizer') fertilizerCount--;
-else plantInventory[item]--;
-}
+for (let item of slotIngredients) { if (item === 'fertilizer') fertilizerCount--; else plantInventory[item]--; }
 let slotIndex = combinerRunning.indexOf(false);
 if (slotIndex === -1) slotIndex = 0;
-combinerRunning[slotIndex] = true;
-combinerProgress[slotIndex] = 0;
-combinerRecipes[slotIndex] = recipeId;
+combinerRunning[slotIndex] = true; combinerProgress[slotIndex] = 0; combinerRecipes[slotIndex] = recipeId;
 combinerSlots = [null, null, null];
-saveGame();
-updateCombinerUI();
-updateUI();
+saveGame(); updateCombinerUI(); updateUI();
 if (combinerTimer[slotIndex]) clearInterval(combinerTimer[slotIndex]);
 combinerTimer[slotIndex] = setInterval(() => {
 combinerProgress[slotIndex] += (100 / recipe.time);
 if (combinerProgress[slotIndex] >= 100) {
 combinerProgress[slotIndex] = 100;
-clearInterval(combinerTimer[slotIndex]);
-combinerTimer[slotIndex] = null;
+clearInterval(combinerTimer[slotIndex]); combinerTimer[slotIndex] = null;
 const result = recipe.result;
+if (recipe.resultType === 'item') {
+if (plantInventory[result] === undefined) plantInventory[result] = 0;
+plantInventory[result]++;
+} else {
 if (inventory[result] === undefined) inventory[result] = 0;
 inventory[result]++;
-saveGame();
-updateInventoryUI();
-updateUI();
-combinerRunning[slotIndex] = false;
-combinerProgress[slotIndex] = 0;
-combinerRecipes[slotIndex] = null;
-saveGame();
-updateCombinerUI();
-updateUI();
 }
-saveGame();
-updateCombinerUI();
+saveGame(); updateInventoryUI(); updateUI();
+combinerRunning[slotIndex] = false; combinerProgress[slotIndex] = 0; combinerRecipes[slotIndex] = null;
+saveGame(); updateCombinerUI(); updateUI();
+}
+saveGame(); updateCombinerUI();
 }, 1000);
 };
-
 // ============================================================
 // ==================== ЭКСТРАКТОР ============================
 // ============================================================
 function updateExtractorUI() {
 if (!extractorPurchased) return;
 extractorQueueEl.innerHTML = '';
-if (extractorQueue.length === 0) {
-extractorQueueEl.innerHTML = '<div class="extractor-empty">' + t('queueEmpty') + '</div>';
-extractorStatus.textContent = t('idle');
-} else {
+if (extractorQueue.length === 0) { extractorQueueEl.innerHTML = '<div class="extractor-empty">' + t('queueEmpty') + '</div>'; extractorStatus.textContent = t('idle'); }
+else {
 let text = '';
 for (let i = 0; i < extractorQueue.length; i++) {
-const item = extractorQueue[i];
-const recipe = EXTRACTOR_RECIPES[item];
+const item = extractorQueue[i]; const recipe = EXTRACTOR_RECIPES[item];
 if (recipe) {
 const progress = extractorProgress[i] || 0;
-text += `${recipe.emoji} ${recipe.name} — ${Math.round(progress)}%\n`;
+// ИСПРАВЛЕНО: используем t(recipe.nameKey) вместо recipe.name
+text += `${recipe.emoji} ${t(recipe.nameKey)} — ${Math.round(progress)}%\n`;
 }
 }
 extractorQueueEl.innerHTML = '<pre>' + text + '</pre>';
 extractorStatus.textContent = t('working');
 }
-if (extractorQueue.length > 0 && !extractorTimer) {
-startExtractorProcessing();
-}
+if (extractorQueue.length > 0 && !extractorTimer) startExtractorProcessing();
 }
 function startExtractorProcessing() {
 if (extractorTimer) { clearInterval(extractorTimer); extractorTimer = null; }
 if (extractorQueue.length === 0) return;
-const item = extractorQueue[0];
-const recipe = EXTRACTOR_RECIPES[item];
-if (!recipe) {
-extractorQueue.shift();
-extractorProgress.shift();
-saveGame();
-updateExtractorUI();
-return;
-}
+const item = extractorQueue[0]; const recipe = EXTRACTOR_RECIPES[item];
+if (!recipe) { extractorQueue.shift(); extractorProgress.shift(); saveGame(); updateExtractorUI(); return; }
 extractorTimer = setInterval(() => {
-if (extractorQueue.length === 0 || extractorProgress.length === 0) {
-clearInterval(extractorTimer);
-extractorTimer = null;
-updateExtractorUI();
-return;
-}
+if (extractorQueue.length === 0 || extractorProgress.length === 0) { clearInterval(extractorTimer); extractorTimer = null; updateExtractorUI(); return; }
 extractorProgress[0] += (100 / recipe.time);
 if (extractorProgress[0] >= 100) {
 extractorProgress[0] = 100;
-clearInterval(extractorTimer);
-extractorTimer = null;
+clearInterval(extractorTimer); extractorTimer = null;
 const finishedItem = extractorQueue.shift();
 extractorProgress.shift();
 if (finishedItem === 'rat_food_extract') { if (!inventory.food) inventory.food = 0; inventory.food++; }
 else if (finishedItem === 'gmo_apple_extract') { if (!inventory.gmo_apple) inventory.gmo_apple = 0; inventory.gmo_apple++; }
 else if (finishedItem === 'hay_extract') { if (!inventory.hay) inventory.hay = 0; inventory.hay++; }
-saveGame();
-updateExtractorUI();
-updateUI();
+else if (finishedItem === 'fish_food_essence') { if (!plantInventory.fish_food) plantInventory.fish_food = 0; plantInventory.fish_food++; }
+saveGame(); updateExtractorUI(); updateUI();
 if (extractorQueue.length > 0) startExtractorProcessing();
 }
-saveGame();
-updateExtractorUI();
+saveGame(); updateExtractorUI();
 }, 1000);
 }
-
 // ============================================================
 // ==================== МАНИПУЛЯТОРЫ ==========================
 // ============================================================
 function updateManipulatorUI() {
 const count = getManipulatorCount();
-if (count === 0 || !manipulatorPurchased) {
-if (manipulatorContainer) manipulatorContainer.style.display = 'none';
-updateAutomationIndicators();
-return;
-}
+if (count === 0 || !manipulatorPurchased) { if (manipulatorContainer) manipulatorContainer.style.display = 'none'; updateAutomationIndicators(); return; }
 if (manipulatorContainer) manipulatorContainer.style.display = 'flex';
 for (let i = 0; i < 3; i++) {
-const box = manipBoxes[i];
-const status = manipStatuses[i];
-const label = manipLabels[i];
+const box = manipBoxes[i], status = manipStatuses[i], label = manipLabels[i];
 if (i < count) {
-if (box) {
-box.style.display = 'flex';
-if (advancedLogicPurchased) box.classList.add('advanced');
-else box.classList.remove('advanced');
-}
+if (box) { box.style.display = 'flex'; if (advancedLogicPurchased) box.classList.add('advanced'); else box.classList.remove('advanced'); }
 if (status) status.style.display = 'block';
 if (label) label.style.display = 'block';
 const setting = manipulatorSettings[i] || { enabled: false, action: 'none', target: '', condition: 'always', threshold: 20, interval: 5 };
 const toggle = document.getElementById('manipToggle' + (i+1));
-if (toggle) {
-if (setting.enabled) toggle.classList.add('active');
-else toggle.classList.remove('active');
-}
-if (status) {
-status.textContent = setting.enabled ? 'ON' : 'OFF';
-status.className = setting.enabled ? 'manip-status on' : 'manip-status';
-}
+if (toggle) { if (setting.enabled) toggle.classList.add('active'); else toggle.classList.remove('active'); }
+if (status) { status.textContent = setting.enabled ? 'ON' : 'OFF'; status.className = setting.enabled ? 'manip-status on' : 'manip-status'; }
 let actionText = '🤖';
-if (setting.action === 'click_rat') actionText = ' ' + t('actionClickRat');
+if (setting.action === 'click_rat') actionText = '🤖 ' + t('actionClickRat');
 else if (setting.action === 'feed_hamsters') actionText = '🤖 ' + t('actionFeedHamsters');
+else if (setting.action === 'feed_fish') actionText = t('actionFeedFish');
 else if (setting.action === 'craft') actionText = '🤖 ' + t('actionCraft');
 else if (setting.action === 'grow_plants') actionText = '🤖 ' + t('actionGrowPlants');
-else if (setting.action === 'make_fertilizer') actionText = '🤖 ' + t('actionMakeFertilizer');
+else if (setting.action === 'make_fertilizer') actionText = ' ' + t('actionMakeFertilizer');
 if (advancedLogicPurchased && setting.interval) actionText += ' ⏱️' + setting.interval + 's';
 if (label) label.textContent = actionText;
 } else {
@@ -1470,10 +1182,7 @@ const s = manipulatorSettings[idx] || { enabled: false, action: 'none', target: 
 s.enabled = !s.enabled;
 manipulatorSettings[idx] = s;
 localStorage.setItem('rat_manipulatorSettings', JSON.stringify(manipulatorSettings));
-saveGame();
-updateManipulatorUI();
-updateUI();
-restartManipulators();
+saveGame(); updateManipulatorUI(); updateUI(); restartManipulators();
 });
 }
 const settingsBtn = document.getElementById('manipSettings' + (i+1));
@@ -1516,17 +1225,16 @@ plantOptions1 += `<option value="${opt.id}" ${setting.plantTargets[0] === opt.id
 plantOptions2 += `<option value="${opt.id}" ${setting.plantTargets[1] === opt.id ? 'selected' : ''}>${opt.label}</option>`;
 plantOptions3 += `<option value="${opt.id}" ${setting.plantTargets[2] === opt.id ? 'selected' : ''}>${opt.label}</option>`;
 });
-let html = `<div class="settings-section"><h3>🤖 ${index + 1}</h3>${!showAdvanced ? `<div style="background:rgba(255,107,0,0.15);border:2px solid #ff6b00;border-radius:10px;padding:10px;margin-bottom:15px;text-align:center;"><div style="color:#ff6b00;font-weight:bold;font-size:14px;"> ${t('advancedLogic')}</div></div>` : `<div style="background:rgba(69,243,255,0.1);border:2px solid #45f3ff;border-radius:10px;padding:8px;margin-bottom:15px;text-align:center;"><div style="color:#45f3ff;font-weight:bold;font-size:13px;">✅ ${t('advancedLogic')}</div></div>`}<div class="settings-row"><label>${t('action')}:</label><select id="manipAction"><option value="none" ${setting.action === 'none' ? 'selected' : ''}>${t('actionIdle')}</option><option value="click_rat" ${setting.action === 'click_rat' ? 'selected' : ''}>${t('actionClickRat')}</option><option value="feed_hamsters" ${setting.action === 'feed_hamsters' ? 'selected' : ''}>${t('actionFeedHamsters')}</option><option value="craft" ${setting.action === 'craft' ? 'selected' : ''}>${t('actionCraft')}</option><option value="grow_plants" ${setting.action === 'grow_plants' ? 'selected' : ''}>${t('actionGrowPlants')}</option><option value="make_fertilizer" ${setting.action === 'make_fertilizer' ? 'selected' : ''}>${t('actionMakeFertilizer')}</option></select></div>${showAdvanced ? `<div class="settings-row" id="intervalRow" style="${setting.action !== 'none' ? '' : 'display:none;'}"><label>${t('interval')}:</label><select id="manipInterval"><option value="5" ${setting.interval === 5 ? 'selected' : ''}>${t('sec5')}</option><option value="10" ${setting.interval === 10 ? 'selected' : ''}>${t('sec10')}</option><option value="30" ${setting.interval === 30 ? 'selected' : ''}>${t('sec30')}</option><option value="60" ${setting.interval === 60 ? 'selected' : ''}>${t('sec60')}</option></select></div>` : ''}<div class="settings-row" id="feedRow" style="${setting.action === 'feed_hamsters' ? '' : 'display:none;'}"><label>${t('feedWith')}:</label><select id="feedTarget">${feedOptions}</select></div>${showAdvanced ? `<div class="settings-row" id="feedConditionRow" style="${setting.action === 'feed_hamsters' ? '' : 'display:none;'}"><label>${t('condition')}:</label><select id="feedCondition"><option value="always" ${setting.condition === 'always' ? 'selected' : ''}>${t('conditionAlways')}</option><option value="below" ${setting.condition === 'below' ? 'selected' : ''}>${t('conditionBelow')}</option><option value="above" ${setting.condition === 'above' ? 'selected' : ''}>${t('conditionAbove')}</option></select></div><div class="settings-row" id="feedThresholdRow" style="${setting.action === 'feed_hamsters' && setting.condition !== 'always' ? '' : 'display:none;'}"><label>${t('threshold')}:</label><input type="number" id="feedThreshold" min="1" max="100" value="${setting.threshold || 20}"></div>` : ''}<div id="growRow" style="${setting.action === 'grow_plants' ? '' : 'display:none;'}"><div class="settings-row"><label>${t('pot1')}:</label><select id="plantTarget1">${plantOptions1}</select></div><div class="settings-row"><label>${t('pot2')}:</label><select id="plantTarget2">${plantOptions2}</select></div><div class="settings-row"><label>${t('pot3')}:</label><select id="plantTarget3">${plantOptions3}</select></div></div>${showAdvanced ? `<div class="settings-row" id="growConditionRow" style="${setting.action === 'grow_plants' ? '' : 'display:none;'}"><label>${t('condition')}:</label><select id="growCondition"><option value="always" ${setting.condition === 'always' ? 'selected' : ''}>${t('conditionAlways')}</option><option value="below" ${setting.condition === 'below' ? 'selected' : ''}>${t('conditionBelow')}</option><option value="above" ${setting.condition === 'above' ? 'selected' : ''}>${t('conditionAbove')}</option></select></div><div class="settings-row" id="growThresholdRow" style="${setting.action === 'grow_plants' && setting.condition !== 'always' ? '' : 'display:none;'}"><label>${t('threshold')}:</label><input type="number" id="growThreshold" min="1" max="100" value="${setting.threshold || 2}"></div>` : ''}${showAdvanced ? `<div class="settings-row" id="fertConditionRow" style="${setting.action === 'make_fertilizer' ? '' : 'display:none;'}"><label>${t('condition')}:</label><select id="fertCondition"><option value="always" ${setting.condition === 'always' ? 'selected' : ''}>${t('conditionAlways')}</option><option value="below" ${setting.condition === 'below' ? 'selected' : ''}>${t('conditionBelow')}</option><option value="above" ${setting.condition === 'above' ? 'selected' : ''}>${t('conditionAbove')}</option></select></div><div class="settings-row" id="fertThresholdRow" style="${setting.action === 'make_fertilizer' && setting.condition !== 'always' ? '' : 'display:none;'}"><label>${t('threshold')}:</label><input type="number" id="fertThreshold" min="1" max="100" value="${setting.threshold || 2}"></div>` : ''}<div class="settings-row" id="craftRow" style="${setting.action === 'craft' ? '' : 'display:none;'}"><label>${t('whatToCraft')}:</label><select id="craftTarget"><option value="gmo_apple" ${setting.target === 'gmo_apple' ? 'selected' : ''}>${t('gmoApple')}</option><option value="rat_food" ${setting.target === 'rat_food' ? 'selected' : ''}>${t('ratFood')}</option><option value="hay" ${setting.target === 'hay' ? 'selected' : ''}>${t('hay')}</option></select></div><button class="settings-save-btn" onclick="saveManipulatorSettings(${index})">${t('save')}</button></div>`;
+let html = `<div class="settings-section"><h3>🤖 ${index + 1}</h3>${!showAdvanced ? `<div style="background:rgba(255,107,0,0.15);border:2px solid #ff6b00;border-radius:10px;padding:10px;margin-bottom:15px;text-align:center;"><div style="color:#ff6b00;font-weight:bold;font-size:14px;">🔒 ${t('advancedLogic')}</div></div>` : `<div style="background:rgba(69,243,255,0.1);border:2px solid #45f3ff;border-radius:10px;padding:8px;margin-bottom:15px;text-align:center;"><div style="color:#45f3ff;font-weight:bold;font-size:13px;">✅ ${t('advancedLogic')}</div></div>`}<div class="settings-row"><label>${t('action')}:</label><select id="manipAction"><option value="none" ${setting.action === 'none' ? 'selected' : ''}>${t('actionIdle')}</option><option value="click_rat" ${setting.action === 'click_rat' ? 'selected' : ''}>${t('actionClickRat')}</option><option value="feed_hamsters" ${setting.action === 'feed_hamsters' ? 'selected' : ''}>${t('actionFeedHamsters')}</option><option value="feed_fish" ${setting.action === 'feed_fish' ? 'selected' : ''}>${t('actionFeedFish')}</option><option value="craft" ${setting.action === 'craft' ? 'selected' : ''}>${t('actionCraft')}</option><option value="grow_plants" ${setting.action === 'grow_plants' ? 'selected' : ''}>${t('actionGrowPlants')}</option><option value="make_fertilizer" ${setting.action === 'make_fertilizer' ? 'selected' : ''}>${t('actionMakeFertilizer')}</option></select></div>${showAdvanced ? `<div class="settings-row" id="intervalRow" style="${setting.action !== 'none' ? '' : 'display:none;'}"><label>${t('interval')}:</label><select id="manipInterval"><option value="5" ${setting.interval === 5 ? 'selected' : ''}>${t('sec5')}</option><option value="10" ${setting.interval === 10 ? 'selected' : ''}>${t('sec10')}</option><option value="30" ${setting.interval === 30 ? 'selected' : ''}>${t('sec30')}</option><option value="60" ${setting.interval === 60 ? 'selected' : ''}>${t('sec60')}</option></select></div>` : ''}<div class="settings-row" id="feedRow" style="${setting.action === 'feed_hamsters' || setting.action === 'feed_fish' ? '' : 'display:none;'}"><label>${t('feedWith')}:</label><select id="feedTarget">${feedOptions}</select></div>${showAdvanced ? `<div class="settings-row" id="feedConditionRow" style="${(setting.action === 'feed_hamsters' || setting.action === 'feed_fish') ? '' : 'display:none;'}"><label>${t('condition')}:</label><select id="feedCondition"><option value="always" ${setting.condition === 'always' ? 'selected' : ''}>${t('conditionAlways')}</option><option value="below" ${setting.condition === 'below' ? 'selected' : ''}>${t('conditionBelow')}</option><option value="above" ${setting.condition === 'above' ? 'selected' : ''}>${t('conditionAbove')}</option></select></div><div class="settings-row" id="feedThresholdRow" style="${(setting.action === 'feed_hamsters' || setting.action === 'feed_fish') && setting.condition !== 'always' ? '' : 'display:none;'}"><label>${t('threshold')}:</label><input type="number" id="feedThreshold" min="1" max="100" value="${setting.threshold || 20}"></div>` : ''}<div id="growRow" style="${setting.action === 'grow_plants' ? '' : 'display:none;'}"><div class="settings-row"><label>${t('pot1')}:</label><select id="plantTarget1">${plantOptions1}</select></div><div class="settings-row"><label>${t('pot2')}:</label><select id="plantTarget2">${plantOptions2}</select></div><div class="settings-row"><label>${t('pot3')}:</label><select id="plantTarget3">${plantOptions3}</select></div></div>${showAdvanced ? `<div class="settings-row" id="growConditionRow" style="${setting.action === 'grow_plants' ? '' : 'display:none;'}"><label>${t('condition')}:</label><select id="growCondition"><option value="always" ${setting.condition === 'always' ? 'selected' : ''}>${t('conditionAlways')}</option><option value="below" ${setting.condition === 'below' ? 'selected' : ''}>${t('conditionBelow')}</option><option value="above" ${setting.condition === 'above' ? 'selected' : ''}>${t('conditionAbove')}</option></select></div><div class="settings-row" id="growThresholdRow" style="${setting.action === 'grow_plants' && setting.condition !== 'always' ? '' : 'display:none;'}"><label>${t('threshold')}:</label><input type="number" id="growThreshold" min="1" max="100" value="${setting.threshold || 2}"></div>` : ''}${showAdvanced ? `<div class="settings-row" id="fertConditionRow" style="${setting.action === 'make_fertilizer' ? '' : 'display:none;'}"><label>${t('condition')}:</label><select id="fertCondition"><option value="always" ${setting.condition === 'always' ? 'selected' : ''}>${t('conditionAlways')}</option><option value="below" ${setting.condition === 'below' ? 'selected' : ''}>${t('conditionBelow')}</option><option value="above" ${setting.condition === 'above' ? 'selected' : ''}>${t('conditionAbove')}</option></select></div><div class="settings-row" id="fertThresholdRow" style="${setting.action === 'make_fertilizer' && setting.condition !== 'always' ? '' : 'display:none;'}"><label>${t('threshold')}:</label><input type="number" id="fertThreshold" min="1" max="100" value="${setting.threshold || 2}"></div>` : ''}<div class="settings-row" id="craftRow" style="${setting.action === 'craft' ? '' : 'display:none;'}"><label>${t('whatToCraft')}:</label><select id="craftTarget"><option value="gmo_apple" ${setting.target === 'gmo_apple' ? 'selected' : ''}>${t('gmoApple')}</option><option value="rat_food" ${setting.target === 'rat_food' ? 'selected' : ''}>${t('ratFood')}</option><option value="hay" ${setting.target === 'hay' ? 'selected' : ''}>${t('hay')}</option><option value="fish_food_essence" ${setting.target === 'fish_food_essence' ? 'selected' : ''}>${t('fishFoodEssence')}</option></select></div><button class="settings-save-btn" onclick="saveManipulatorSettings(${index})">${t('save')}</button></div>`;
 settingsContent.innerHTML = html;
-settingsModal.classList.add('open');
-settingsModal.style.display = 'flex';
+settingsModal.classList.add('open'); settingsModal.style.display = 'flex';
 const actionSelect = document.getElementById('manipAction');
 actionSelect.addEventListener('change', function() {
 const feedRow = document.getElementById('feedRow'), craftRow = document.getElementById('craftRow'), growRow = document.getElementById('growRow'), feedConditionRow = document.getElementById('feedConditionRow'), feedThresholdRow = document.getElementById('feedThresholdRow'), growConditionRow = document.getElementById('growConditionRow'), growThresholdRow = document.getElementById('growThresholdRow'), fertConditionRow = document.getElementById('fertConditionRow'), fertThresholdRow = document.getElementById('fertThresholdRow'), intervalRow = document.getElementById('intervalRow');
 [feedRow, craftRow, growRow, feedConditionRow, feedThresholdRow, growConditionRow, growThresholdRow, fertConditionRow, fertThresholdRow, intervalRow].forEach(el => { if(el) el.style.display = 'none'; });
 if (this.value !== 'none' && intervalRow) intervalRow.style.display = '';
 if (this.value === 'craft' && craftRow) craftRow.style.display = '';
-else if (this.value === 'feed_hamsters') { if (feedRow) feedRow.style.display = ''; if (feedConditionRow) feedConditionRow.style.display = ''; const cond = document.getElementById('feedCondition'); if (cond && cond.value !== 'always' && feedThresholdRow) feedThresholdRow.style.display = ''; }
+else if (this.value === 'feed_hamsters' || this.value === 'feed_fish') { if (feedRow) feedRow.style.display = ''; if (feedConditionRow) feedConditionRow.style.display = ''; const cond = document.getElementById('feedCondition'); if (cond && cond.value !== 'always' && feedThresholdRow) feedThresholdRow.style.display = ''; }
 else if (this.value === 'grow_plants') { if (growRow) growRow.style.display = ''; if (growConditionRow) growConditionRow.style.display = ''; const cond = document.getElementById('growCondition'); if (cond && cond.value !== 'always' && growThresholdRow) growThresholdRow.style.display = ''; }
 else if (this.value === 'make_fertilizer') { if (fertConditionRow) fertConditionRow.style.display = ''; const cond = document.getElementById('fertCondition'); if (cond && cond.value !== 'always' && fertThresholdRow) fertThresholdRow.style.display = ''; }
 });
@@ -1541,17 +1249,14 @@ window.saveManipulatorSettings = function(index) {
 const action = document.getElementById('manipAction').value;
 let target = '', condition = 'always', threshold = 20, interval = 5, plantTargets = ['', '', ''];
 if (action === 'craft') target = document.getElementById('craftTarget').value;
-else if (action === 'feed_hamsters') { target = document.getElementById('feedTarget').value; const condEl = document.getElementById('feedCondition'); if (condEl) condition = condEl.value; const threshEl = document.getElementById('feedThreshold'); if (threshEl) threshold = Math.max(1, Math.min(100, parseInt(threshEl.value) || 20)); }
+else if (action === 'feed_hamsters' || action === 'feed_fish') { target = document.getElementById('feedTarget').value; const condEl = document.getElementById('feedCondition'); if (condEl) condition = condEl.value; const threshEl = document.getElementById('feedThreshold'); if (threshEl) threshold = Math.max(1, Math.min(100, parseInt(threshEl.value) || 20)); }
 else if (action === 'grow_plants') { const t1 = document.getElementById('plantTarget1'), t2 = document.getElementById('plantTarget2'), t3 = document.getElementById('plantTarget3'); if (t1) plantTargets[0] = t1.value; if (t2) plantTargets[1] = t2.value; if (t3) plantTargets[2] = t3.value; const condEl = document.getElementById('growCondition'); if (condEl) condition = condEl.value; const threshEl = document.getElementById('growThreshold'); if (threshEl) threshold = Math.max(1, Math.min(100, parseInt(threshEl.value) || 2)); }
 else if (action === 'make_fertilizer') { const condEl = document.getElementById('fertCondition'); if (condEl) condition = condEl.value; const threshEl = document.getElementById('fertThreshold'); if (threshEl) threshold = Math.max(1, Math.min(100, parseInt(threshEl.value) || 2)); }
 if (advancedLogicPurchased) { const intEl = document.getElementById('manipInterval'); if (intEl) interval = parseInt(intEl.value) || 5; }
 manipulatorSettings[index] = { enabled: manipulatorSettings[index]?.enabled || false, action, target, condition, threshold, interval, plantTargets };
 localStorage.setItem('rat_manipulatorSettings', JSON.stringify(manipulatorSettings));
-saveGame();
-updateManipulatorUI();
-updateUI();
-settingsModal.classList.remove('open');
-settingsModal.style.display = 'none';
+saveGame(); updateManipulatorUI(); updateUI();
+settingsModal.classList.remove('open'); settingsModal.style.display = 'none';
 restartManipulators();
 };
 function restartManipulators() {
@@ -1567,22 +1272,18 @@ let intervalMs = 5000;
 if (advancedLogicPurchased && setting.interval) intervalMs = setting.interval * 1000;
 manipulatorTimers[index] = setInterval(() => { executeManipulatorAction(index); }, intervalMs);
 }
-
 // ============================================================
 // ==================== БАФФЫ =================================
 // ============================================================
 function applyPepperBuff() {
-pepperBuffActive = true;
-pepperBuffEndTime = Date.now() + PEPPER_BUFF_DURATION;
-localStorage.setItem('rat_pepperBuffActive', 'true');
-localStorage.setItem('rat_pepperBuffEndTime', pepperBuffEndTime);
+pepperBuffActive = true; pepperBuffEndTime = Date.now() + PEPPER_BUFF_DURATION;
+localStorage.setItem('rat_pepperBuffActive', 'true'); localStorage.setItem('rat_pepperBuffEndTime', pepperBuffEndTime);
 if (pepperIndicator) { pepperIndicator.classList.add('active'); pepperIndicator.style.display = 'block'; pepperIndicator.textContent = t('pepperBuff'); }
 if (pepperBuffTimer) clearInterval(pepperBuffTimer);
 pepperBuffTimer = setInterval(() => {
 if (Date.now() >= pepperBuffEndTime) {
 pepperBuffActive = false; pepperBuffEndTime = 0;
-localStorage.setItem('rat_pepperBuffActive', 'false');
-localStorage.setItem('rat_pepperBuffEndTime', 0);
+localStorage.setItem('rat_pepperBuffActive', 'false'); localStorage.setItem('rat_pepperBuffEndTime', 0);
 if (pepperIndicator) { pepperIndicator.classList.remove('active'); pepperIndicator.style.display = 'none'; }
 clearInterval(pepperBuffTimer); pepperBuffTimer = null;
 saveGame(); updateUI();
@@ -1590,17 +1291,14 @@ saveGame(); updateUI();
 }, 1000);
 }
 function applyHayBuff() {
-hayBuffActive = true;
-hayBuffEndTime = Date.now() + HAY_BUFF_DURATION;
-localStorage.setItem('rat_hayBuffActive', 'true');
-localStorage.setItem('rat_hayBuffEndTime', hayBuffEndTime);
+hayBuffActive = true; hayBuffEndTime = Date.now() + HAY_BUFF_DURATION;
+localStorage.setItem('rat_hayBuffActive', 'true'); localStorage.setItem('rat_hayBuffEndTime', hayBuffEndTime);
 if (hayIndicator) { hayIndicator.classList.add('active'); hayIndicator.style.display = 'block'; hayIndicator.textContent = t('hayBuff'); }
 if (hayBuffTimer) clearInterval(hayBuffTimer);
 hayBuffTimer = setInterval(() => {
 if (Date.now() >= hayBuffEndTime) {
 hayBuffActive = false; hayBuffEndTime = 0;
-localStorage.setItem('rat_hayBuffActive', 'false');
-localStorage.setItem('rat_hayBuffEndTime', 0);
+localStorage.setItem('rat_hayBuffActive', 'false'); localStorage.setItem('rat_hayBuffEndTime', 0);
 if (hayIndicator) { hayIndicator.classList.remove('active'); hayIndicator.style.display = 'none'; }
 clearInterval(hayBuffTimer); hayBuffTimer = null;
 saveGame(); updateUI();
@@ -1608,21 +1306,15 @@ saveGame(); updateUI();
 }, 1000);
 }
 function applySatietyBuff(duration) {
-satietyActive = true;
-satietyEndTime = Date.now() + duration;
-localStorage.setItem('rat_satietyActive', 'true');
-localStorage.setItem('rat_satietyEndTime', satietyEndTime);
-enclosureSatiety.classList.add('active');
-enclosureSatiety.style.display = 'block';
-enclosureSatiety.textContent = t('satietyActive');
+satietyActive = true; satietyEndTime = Date.now() + duration;
+localStorage.setItem('rat_satietyActive', 'true'); localStorage.setItem('rat_satietyEndTime', satietyEndTime);
+enclosureSatiety.classList.add('active'); enclosureSatiety.style.display = 'block'; enclosureSatiety.textContent = t('satietyActive');
 if (satietyTimer) clearInterval(satietyTimer);
 satietyTimer = setInterval(() => {
 if (Date.now() >= satietyEndTime) {
 satietyActive = false; satietyEndTime = 0;
-localStorage.setItem('rat_satietyActive', 'false');
-localStorage.setItem('rat_satietyEndTime', 0);
-enclosureSatiety.classList.remove('active');
-enclosureSatiety.style.display = 'none';
+localStorage.setItem('rat_satietyActive', 'false'); localStorage.setItem('rat_satietyEndTime', 0);
+enclosureSatiety.classList.remove('active'); enclosureSatiety.style.display = 'none';
 clearInterval(satietyTimer); satietyTimer = null;
 saveGame(); updateUI();
 }
@@ -1639,7 +1331,6 @@ else if (itemId === 'gmo_apple_extract') { hamsterFood = Math.min(hamsterMaxFood
 else if (itemId === 'rat_food_extract') hamsterFood = hamsterMaxFood;
 else if (itemId === 'hay_extract') { hamsterFood = hamsterMaxFood; applyHayBuff(); }
 }
-
 // ============================================================
 // ==================== ДЕЙСТВИЯ МАНИПУЛЯТОРА =================
 // ============================================================
@@ -1650,9 +1341,7 @@ switch (setting.action) {
 case 'click_rat':
 if (isBanned) return;
 const totalPower = getTotalClickPower();
-score += totalPower;
-saveGame();
-updateUI();
+score += totalPower; saveGame(); updateUI();
 const pop = document.createElement('div');
 pop.className = 'click-pop' + (buffActive ? ' buffed' : '');
 pop.innerText = '+' + totalPower + ' 🤖';
@@ -1678,11 +1367,25 @@ else if (['grass', 'pepper', 'apple', 'cabbage'].includes(item)) { if (plantInve
 if (hasItem) { applyFoodEffect(item); saveGame(); updateUI(); updateInventoryUI(); }
 }
 break;
+case 'feed_fish':
+if (aquariumLevel === 0) return;
+if (!canFeedAquarium()) return;
+if (setting.condition === 'below' && plantInventory.fish_food >= (setting.threshold || 1)) return;
+if (setting.condition === 'above' && plantInventory.fish_food <= (setting.threshold || 1)) return;
+// ИСПРАВЛЕНО: теперь 1 корм кормит всех рыб
+if (plantInventory.fish_food >= 1) {
+plantInventory.fish_food -= 1;
+aquariumLastFed = Date.now();
+localStorage.setItem('rat_aquariumLastFed', aquariumLastFed);
+saveGame(); updateUI(); updateAquariumUI();
+}
+break;
 case 'craft':
 if (combinerRunning.some(r => r)) return;
 if (setting.target === 'gmo_apple') { if (plantInventory.apple < 1 || fertilizerCount < 1) return; combinerSlots = ['apple', 'fertilizer', null]; }
 else if (setting.target === 'rat_food') { if (plantInventory.apple < 1 || plantInventory.grass < 1 || plantInventory.pepper < 1) return; combinerSlots = ['apple', 'grass', 'pepper']; }
 else if (setting.target === 'hay') { if (plantInventory.grass < 2) return; combinerSlots = ['grass', 'grass', null]; }
+else if (setting.target === 'fish_food_essence') { if (plantInventory.grass < 1 || fertilizerCount < 2) return; combinerSlots = ['grass', 'fertilizer', 'fertilizer']; }
 else return;
 let recipeId = checkRecipe(combinerSlots);
 if (recipeId) startCraft(recipeId);
@@ -1691,8 +1394,7 @@ case 'grow_plants':
 if (!plantPurchased) return;
 const targets = setting.plantTargets || ['', '', ''];
 for (let i = 0; i < plantLevel; i++) {
-const data = plantData[i];
-if (!data) continue;
+const data = plantData[i]; if (!data) continue;
 const targetType = targets[i];
 if (data.stage === 'ready' && data.type) {
 if (plantInventory[data.type] === undefined) plantInventory[data.type] = 0;
@@ -1718,12 +1420,13 @@ break;
 }
 }
 function updateAutomationIndicators() {
-let ratAutoActive = false, hamsterAutoActive = false, fertilizerAutoActive = false, combinerAutoActive = false, plantsAutoActive = false, manipNum = 0;
+let ratAutoActive = false, hamsterAutoActive = false, fishAutoActive = false, fertilizerAutoActive = false, combinerAutoActive = false, plantsAutoActive = false, manipNum = 0;
 for (let i = 0; i < manipulatorLevel; i++) {
 const setting = manipulatorSettings[i];
 if (!setting || !setting.enabled || setting.action === 'none') continue;
 if (setting.action === 'click_rat') { ratAutoActive = true; manipNum = i + 1; }
 if (setting.action === 'feed_hamsters') hamsterAutoActive = true;
+if (setting.action === 'feed_fish') fishAutoActive = true;
 if (setting.action === 'make_fertilizer') fertilizerAutoActive = true;
 if (setting.action === 'craft') combinerAutoActive = true;
 if (setting.action === 'grow_plants') plantsAutoActive = true;
@@ -1731,6 +1434,7 @@ if (setting.action === 'grow_plants') plantsAutoActive = true;
 const ratInd = document.getElementById('ratAutoIndicator'), ratNum = document.getElementById('ratAutoManipNum');
 if (ratInd) { if (ratAutoActive) { ratInd.style.display = 'inline-block'; if (ratNum) ratNum.textContent = manipNum; } else ratInd.style.display = 'none'; }
 const hamsterBadge = document.getElementById('hamsterAutoBadge'); if (hamsterBadge) hamsterBadge.style.display = hamsterAutoActive ? 'inline-block' : 'none';
+const fishBadge = document.getElementById('fishAutoBadge'); if (fishBadge) fishBadge.style.display = fishAutoActive ? 'inline-block' : 'none';
 const fertBadge = document.getElementById('fertilizerAutoBadge'); if (fertBadge) { if (fertilizerAutoActive) { fertBadge.style.display = 'inline-block'; fertBadge.textContent = t('autoFertilizerBadge'); } else fertBadge.style.display = 'none'; }
 const combBadge = document.getElementById('combinerAutoBadge'); if (combBadge) combBadge.style.display = combinerAutoActive ? 'inline-block' : 'none';
 const plantsBadge = document.getElementById('plantsAutoBadge'); if (plantsBadge) plantsBadge.style.display = plantsAutoActive ? 'inline-block' : 'none';
@@ -1745,15 +1449,13 @@ let idx = parseInt(prompt(t('selectPotForFertilizer') + ' #1-' + availablePlants
 if (idx >= 0 && idx < availablePlants.length) { fertilizerCount--; applyFertilizerToPlant(availablePlants[idx].index); }
 }
 function applyFertilizerToPlant(index) {
-const data = plantData[index];
-if (!data) return;
+const data = plantData[index]; if (!data) return;
 if (data.stage === 'idle') data.fertilizer = true;
 else if (data.stage === 'growing' && !data.fertilizer) { data.fertilizer = true; if (plantIntervals[index]) { clearInterval(plantIntervals[index]); plantIntervals[index] = null; } startPlantGrowth(index); }
 else return;
 saveGame(); savePlantData(); updatePlantsUI(); updateUI();
 if (labPurchased) updateLabUI();
 }
-
 // ============================================================
 // ==================== БОССЫ =================================
 // ============================================================
@@ -1780,7 +1482,7 @@ bossFightModal.classList.add('open'); bossFightModal.style.display = 'flex';
 shootBtn.disabled = false; bossTimer.textContent = '⚔️!'; bossTimer.className = 'boss-timer ready';
 bossEnemy.style.left = bossX + '%'; updateBossHp();
 bossMoveInterval = setInterval(() => { bossX += bossDirection * 1.5; if (bossX > 85 || bossX < 15) bossDirection *= -1; bossEnemy.style.left = bossX + '%'; }, 100);
-bossShootInterval = setInterval(() => { if (!bossFightActive) return; const bullet = document.createElement('div'); bullet.className = 'boss-bullet'; bullet.textContent = ''; bullet.style.left = (bossX + Math.random() * 10 - 5) + '%'; bullet.style.top = '20%'; bossBulletsContainer.appendChild(bullet); setTimeout(() => bullet.remove(), 2000); }, 1000);
+bossShootInterval = setInterval(() => { if (!bossFightActive) return; const bullet = document.createElement('div'); bullet.className = 'boss-bullet'; bullet.textContent = '💀'; bullet.style.left = (bossX + Math.random() * 10 - 5) + '%'; bullet.style.top = '20%'; bossBulletsContainer.appendChild(bullet); setTimeout(() => bullet.remove(), 2000); }, 1000);
 bossFightInterval = setInterval(() => { if (!bossFightActive) return; const bullets = bossBulletsContainer.querySelectorAll('.boss-bullet'); bullets.forEach(b => { const rect = b.getBoundingClientRect(), ratRect = ratContainer.getBoundingClientRect(); if (rect.left < ratRect.right && rect.right > ratRect.left && rect.top < ratRect.bottom && rect.bottom > ratRect.top) { b.remove(); bossHp -= 5; updateBossHp(); if (bossHp <= 0) bossDefeated(); } }); }, 100);
 }
 function stopBossFight() {
@@ -1807,7 +1509,6 @@ if (!inventory.food) inventory.food = 0;
 inventory.food++;
 saveGame(); updateUI(); startBossCooldownTimer();
 }
-
 // ============================================================
 // ==================== ИНВЕНТАРЬ =============================
 // ============================================================
@@ -1823,14 +1524,16 @@ inventoryGrid.appendChild(slot);
 };
 if (inventory.food > 0) addItem('🍖', 'ratFood', inventory.food, 'food');
 if (inventory.gmo_apple > 0) addItem('🍏', 'gmoApple', inventory.gmo_apple, 'gmo_apple');
-if (inventory.hay > 0) addItem('', 'hay', inventory.hay, 'hay');
+if (inventory.hay > 0) addItem('🌾', 'hay', inventory.hay, 'hay');
 if (inventory.gmo_apple_extract > 0) addItem('🟢', 'gmoAppleExtract', inventory.gmo_apple_extract, 'gmo_apple_extract');
 if (inventory.rat_food_extract > 0) addItem('🔴', 'ratFoodExtract', inventory.rat_food_extract, 'rat_food_extract');
 if (inventory.hay_extract > 0) addItem('🟡', 'hayExtract', inventory.hay_extract, 'hay_extract');
-if (plantInventory.grass > 0) addItem('🌿', 'grass', plantInventory.grass, 'grass');
+if (plantInventory.grass > 0) addItem('', 'grass', plantInventory.grass, 'grass');
 if (plantInventory.pepper > 0) addItem('🌶️', 'pepper', plantInventory.pepper, 'pepper');
 if (plantInventory.apple > 0) addItem('🍎', 'apple', plantInventory.apple, 'apple');
 if (plantInventory.cabbage > 0) addItem('🥬', 'cabbage', plantInventory.cabbage, 'cabbage');
+if (plantInventory.fish_food_essence > 0) addItem('', 'fishFoodEssence', plantInventory.fish_food_essence, 'fish_food_essence');
+if (plantInventory.fish_food > 0) addItem('🐟', 'fishFood', plantInventory.fish_food, 'fish_food');
 if (fertilizerCount > 0) addItem('🧪', 'fertLabel', fertilizerCount, 'fertilizer');
 inventoryEmpty.style.display = hasItems ? 'none' : 'block';
 document.querySelectorAll('.use-btn').forEach(btn => {
@@ -1841,13 +1544,19 @@ else if (item === 'gmo_apple') useGmoApple();
 else if (item === 'hay') useHayItem();
 else if (['grass', 'pepper', 'apple', 'cabbage'].includes(item)) usePlantItem(item);
 else if (item === 'fertilizer') useFertilizer();
+else if (item === 'fish_food_essence') useExtractItem('fish_food_essence');
+else if (item === 'fish_food') useFishFood();
 else if (['gmo_apple_extract', 'rat_food_extract', 'hay_extract'].includes(item)) useExtractItem(item);
 });
 });
 }
 function useExtractItem(extractId) {
 if (!extractorPurchased) { alert(t('alertExtractNeedExtractor')); return; }
+if (extractId === 'fish_food_essence') {
+if (plantInventory.fish_food_essence > 0) { plantInventory.fish_food_essence--; extractorQueue.push(extractId); extractorProgress.push(0); saveGame(); updateInventoryUI(); updateExtractorUI(); updateUI(); alert(t('alertExtractSent')); }
+} else {
 if (inventory[extractId] > 0) { inventory[extractId]--; extractorQueue.push(extractId); extractorProgress.push(0); saveGame(); updateInventoryUI(); updateExtractorUI(); updateUI(); alert(t('alertExtractSent')); }
+}
 }
 function useFoodItem() {
 if (inventory.food <= 0 || buffActive) return;
@@ -1868,26 +1577,10 @@ saveGame(); updateUI();
 }, 1000);
 updateInventoryUI();
 }
-function useGmoApple() {
-if (inventory.gmo_apple <= 0 || satietyActive) return;
-inventory.gmo_apple--;
-applySatietyBuff(150000);
-saveGame(); updateUI(); updateInventoryUI();
-}
-function useHayItem() {
-if (inventory.hay <= 0 || !hamsterPurchased) return;
-inventory.hay--;
-hamsterFood = hamsterMaxFood;
-applyHayBuff();
-saveGame(); updateUI(); updateInventoryUI();
-}
-function usePlantItem(type) {
-if (plantInventory[type] <= 0 || !hamsterPurchased) return;
-plantInventory[type]--;
-applyFoodEffect(type);
-saveGame(); updateUI(); updateInventoryUI();
-}
-
+function useGmoApple() { if (inventory.gmo_apple <= 0 || satietyActive) return; inventory.gmo_apple--; applySatietyBuff(150000); saveGame(); updateUI(); updateInventoryUI(); }
+function useHayItem() { if (inventory.hay <= 0 || !hamsterPurchased) return; inventory.hay--; hamsterFood = hamsterMaxFood; applyHayBuff(); saveGame(); updateUI(); updateInventoryUI(); }
+function usePlantItem(type) { if (plantInventory[type] <= 0 || !hamsterPurchased) return; plantInventory[type]--; applyFoodEffect(type); saveGame(); updateUI(); updateInventoryUI(); }
+function useFishFood() { if (plantInventory.fish_food <= 0 || aquariumLevel === 0) return; feedAquariumFish(); }
 // ============================================================
 // ==================== ХОМЯКИ =================================
 // ============================================================
@@ -1927,7 +1620,6 @@ hamsterFood = Math.min(hamsterMaxFood, hamsterFood + 20);
 saveGame(); updateUI();
 if (hamsterFood > 0 && !foodDepletionInterval && !satietyActive) startFoodDepletion();
 }
-
 // ============================================================
 // ==================== ОБНОВЛЕНИЕ UI =========================
 // ============================================================
@@ -1958,7 +1650,7 @@ else { superIndicator.textContent = t('superIndicatorOff'); superIndicator.class
 if (mousePurchased) {
 if (currentGrainElement && mouseActive) { mouseIndicator.textContent = '🎯!'; mouseIndicator.className = 'indicator-text active'; }
 else if (mouseActive) { mouseIndicator.textContent = t('mouseIndicatorNoGrain'); mouseIndicator.className = 'indicator-text'; }
-else { mouseIndicator.textContent = '❌'; mouseIndicator.className = 'indicator-text'; }
+else { mouseIndicator.textContent = ''; mouseIndicator.className = 'indicator-text'; }
 }
 if (clickLevel >= currentMaxClick) { buyClickBtn.disabled = true; clickItem.classList.add('disabled'); buyClickBtn.textContent = t('max'); buyClickBtn.style.backgroundColor = '#555'; buyClickBtn.style.color = '#888'; }
 else { buyClickBtn.disabled = false; clickItem.classList.remove('disabled'); buyClickBtn.textContent = t('buy'); buyClickBtn.style.backgroundColor = '#45f3ff'; buyClickBtn.style.color = '#0b0c10'; }
@@ -2051,6 +1743,29 @@ manipulatorShopItem.style.display = 'flex';
 if (manipulatorLevel >= 3) { buyManipulatorBtn.disabled = true; manipulatorShopItem.classList.add('disabled'); manipulatorShopCostEl.innerText = '—'; buyManipulatorBtn.textContent = t('max'); buyManipulatorBtn.style.backgroundColor = '#555'; buyManipulatorBtn.style.color = '#888'; manipulatorLevelEl.innerText = '3/3 🤖'; }
 else { buyManipulatorBtn.disabled = false; manipulatorShopItem.classList.remove('disabled'); buyManipulatorBtn.textContent = t('buy'); buyManipulatorBtn.style.backgroundColor = '#ffd700'; buyManipulatorBtn.style.color = '#0b0c10'; manipulatorShopCostEl.innerText = '10000'; manipulatorLevelEl.innerText = manipulatorLevel + '/3 🤖'; }
 } else { manipulatorShopItem.style.display = 'none'; manipulatorShopItem.classList.remove('disabled'); }
+// АКВАРИУМ В МАГАЗИНЕ
+if (aquariumShopItem) {
+if (manipulatorLevel >= 1 || aquariumPurchased) {
+aquariumShopItem.style.display = 'flex';
+const aquariumTitleShopEl = document.getElementById('aquariumTitleShop');
+if (!aquariumPurchased) {
+if (aquariumTitleShopEl) aquariumTitleShopEl.textContent = t('aquariumTitleShop');
+if (aquariumCostEl) aquariumCostEl.innerText = '15000';
+if (aquariumLevelEl) aquariumLevelEl.innerText = '0';
+if (aquariumMaxLevelEl) aquariumMaxLevelEl.innerText = MAX_AQUARIUM_LEVEL;
+if (buyAquariumBtn) { buyAquariumBtn.disabled = score < 15000; buyAquariumBtn.textContent = t('buy'); buyAquariumBtn.style.backgroundColor = '#45f3ff'; buyAquariumBtn.style.color = '#0b0c10'; }
+} else if (aquariumLevel >= MAX_AQUARIUM_LEVEL) {
+if (buyAquariumBtn) { buyAquariumBtn.disabled = true; aquariumShopItem.classList.add('disabled'); if (aquariumCostEl) aquariumCostEl.innerText = '—'; buyAquariumBtn.textContent = t('max'); buyAquariumBtn.style.backgroundColor = '#555'; buyAquariumBtn.style.color = '#888'; }
+} else {
+const cost = 20000 * aquariumLevel;
+if (aquariumTitleShopEl) aquariumTitleShopEl.textContent = t('aquariumUpgradeTitle');
+if (aquariumCostEl) aquariumCostEl.innerText = cost;
+if (aquariumLevelEl) aquariumLevelEl.innerText = aquariumLevel;
+if (aquariumMaxLevelEl) aquariumMaxLevelEl.innerText = MAX_AQUARIUM_LEVEL;
+if (buyAquariumBtn) { buyAquariumBtn.disabled = score < cost; buyAquariumBtn.textContent = t('upgrade'); buyAquariumBtn.style.backgroundColor = '#45f3ff'; buyAquariumBtn.style.color = '#0b0c10'; }
+}
+} else { aquariumShopItem.style.display = 'none'; }
+}
 if (advancedLogicShopItem) {
 if (manipulatorLevel >= 1) {
 advancedLogicShopItem.style.display = 'flex';
@@ -2103,6 +1818,7 @@ else { hamsterElements[i].style.display = 'none'; hamsterElements[i].classList.r
 }
 } else { enclosure.style.display = 'none'; enclosure.classList.remove('visible'); }
 updatePlantsUI();
+updateAquariumUI();
 document.querySelectorAll('.accessory-item').forEach(item => {
 const acc = item.dataset.accessory;
 const btn = item.querySelector('.equip-btn');
@@ -2117,11 +1833,9 @@ if (labPurchased) updateLabUI();
 if (combinerPurchased) updateCombinerUI();
 if (extractorPurchased) updateExtractorUI();
 openCombinerBtn.style.display = combinerPurchased ? 'block' : 'none';
-if (combinerPurchased) openCombinerBtn.classList.add('visible');
-else openCombinerBtn.classList.remove('visible');
+if (combinerPurchased) openCombinerBtn.classList.add('visible'); else openCombinerBtn.classList.remove('visible');
 openExtractorBtn.style.display = extractorPurchased ? 'block' : 'none';
-if (extractorPurchased) openExtractorBtn.classList.add('visible');
-else openExtractorBtn.classList.remove('visible');
+if (extractorPurchased) openExtractorBtn.classList.add('visible'); else openExtractorBtn.classList.remove('visible');
 updateAutomationIndicators();
 }
 function updateRatAccessories() {
@@ -2131,7 +1845,6 @@ else if (equippedAccessory === 'glasses') accGlasses.style.display = 'block';
 else if (equippedAccessory === 'sword') accSword.style.display = 'block';
 else if (equippedAccessory === 'crown') accCrown.style.display = 'block';
 }
-
 // ============================================================
 // ==================== ВОССТАНОВЛЕНИЕ ========================
 // ============================================================
@@ -2144,68 +1857,44 @@ combinerTimer[slotIndex] = setInterval(() => {
 combinerProgress[slotIndex] += timePerTick;
 if (combinerProgress[slotIndex] >= 100) {
 combinerProgress[slotIndex] = 100;
-clearInterval(combinerTimer[slotIndex]);
-combinerTimer[slotIndex] = null;
+clearInterval(combinerTimer[slotIndex]); combinerTimer[slotIndex] = null;
 const currentRecipeId = combinerRecipes[slotIndex];
 const currentRecipe = currentRecipeId ? COMBINER_RECIPES[currentRecipeId] : null;
 if (currentRecipe) {
 const result = currentRecipe.result;
-if (inventory[result] === undefined) inventory[result] = 0;
-inventory[result]++;
-saveGame();
-updateInventoryUI();
+if (currentRecipe.resultType === 'item') { if (plantInventory[result] === undefined) plantInventory[result] = 0; plantInventory[result]++; }
+else { if (inventory[result] === undefined) inventory[result] = 0; inventory[result]++; }
+saveGame(); updateInventoryUI();
 }
-combinerRunning[slotIndex] = false;
-combinerProgress[slotIndex] = 0;
-combinerRecipes[slotIndex] = null;
-saveGame();
-updateCombinerUI();
-updateUI();
+combinerRunning[slotIndex] = false; combinerProgress[slotIndex] = 0; combinerRecipes[slotIndex] = null;
+saveGame(); updateCombinerUI(); updateUI();
 }
-saveGame();
-updateCombinerUI();
+saveGame(); updateCombinerUI();
 }, 1000);
 }
 function restoreGameState() {
-console.log('🔄 Восстановление состояния игры...');
+try {
 if (grainPurchased > 0 && grainActive) {
 if (grainSpawnTimeout) clearTimeout(grainSpawnTimeout);
 const useSuper = shouldSpawnSuper();
 const delay = useSuper ? SUPER_GRAIN_SPAWN_MIN + Math.random() * (SUPER_GRAIN_SPAWN_MAX - SUPER_GRAIN_SPAWN_MIN) : GRAIN_SPAWN_MIN + Math.random() * (GRAIN_SPAWN_MAX - GRAIN_SPAWN_MIN);
 grainSpawnTimeout = setTimeout(spawnGrain, delay);
-console.log(' Зерно восстановлено');
 }
 if (mousePurchased && mouseActive) {
 if (mouseElement) { mouseElement.remove(); mouseElement = null; }
 createMouse();
 if (mouseMoveInterval) clearInterval(mouseMoveInterval);
 mouseMoveInterval = setInterval(moveMouseToTarget, 50);
-console.log('🐁 Мышь восстановлена');
 }
-if (hamsterPurchased) {
-startHamsterMovement();
-startPoopProduction();
-if (hamsterFood > 0 && !satietyActive) startFoodDepletion();
-console.log('🐹 Хомяки восстановлены');
-}
+if (hamsterPurchased) { startHamsterMovement(); startPoopProduction(); if (hamsterFood > 0 && !satietyActive) startFoodDepletion(); }
 if (buffActive && buffEndTime > 0) {
 const timeLeft = buffEndTime - Date.now();
 if (timeLeft > 0) {
-ratBody.classList.add('buffed');
-buffIndicator.style.display = 'block';
-buffIndicator.textContent = t('buffActive');
+ratBody.classList.add('buffed'); buffIndicator.style.display = 'block'; buffIndicator.textContent = t('buffActive');
 if (buffTimer) clearInterval(buffTimer);
 buffTimer = setInterval(() => {
-if (Date.now() >= buffEndTime) {
-buffActive = false; buffEndTime = 0;
-ratBody.classList.remove('buffed');
-buffIndicator.style.display = 'none';
-localStorage.setItem('rat_buffActive', 'false');
-clearInterval(buffTimer); buffTimer = null;
-saveGame(); updateUI();
-}
+if (Date.now() >= buffEndTime) { buffActive = false; buffEndTime = 0; ratBody.classList.remove('buffed'); buffIndicator.style.display = 'none'; localStorage.setItem('rat_buffActive', 'false'); clearInterval(buffTimer); buffTimer = null; saveGame(); updateUI(); }
 }, 1000);
-console.log('⚡ Бафф восстановлен');
 } else { buffActive = false; buffEndTime = 0; }
 }
 if (pepperBuffActive && pepperBuffEndTime > 0) {
@@ -2214,14 +1903,8 @@ if (timeLeft > 0) {
 if (pepperIndicator) { pepperIndicator.style.display = 'block'; pepperIndicator.textContent = t('pepperBuff'); }
 if (pepperBuffTimer) clearInterval(pepperBuffTimer);
 pepperBuffTimer = setInterval(() => {
-if (Date.now() >= pepperBuffEndTime) {
-pepperBuffActive = false; pepperBuffEndTime = 0;
-if (pepperIndicator) pepperIndicator.style.display = 'none';
-clearInterval(pepperBuffTimer); pepperBuffTimer = null;
-saveGame(); updateUI();
-}
+if (Date.now() >= pepperBuffEndTime) { pepperBuffActive = false; pepperBuffEndTime = 0; if (pepperIndicator) pepperIndicator.style.display = 'none'; clearInterval(pepperBuffTimer); pepperBuffTimer = null; saveGame(); updateUI(); }
 }, 1000);
-console.log('️ Перцовый бафф восстановлен');
 } else { pepperBuffActive = false; pepperBuffEndTime = 0; }
 }
 if (hayBuffActive && hayBuffEndTime > 0) {
@@ -2230,89 +1913,45 @@ if (timeLeft > 0) {
 if (hayIndicator) { hayIndicator.style.display = 'block'; hayIndicator.textContent = t('hayBuff'); }
 if (hayBuffTimer) clearInterval(hayBuffTimer);
 hayBuffTimer = setInterval(() => {
-if (Date.now() >= hayBuffEndTime) {
-hayBuffActive = false; hayBuffEndTime = 0;
-if (hayIndicator) hayIndicator.style.display = 'none';
-clearInterval(hayBuffTimer); hayBuffTimer = null;
-saveGame(); updateUI();
-}
+if (Date.now() >= hayBuffEndTime) { hayBuffActive = false; hayBuffEndTime = 0; if (hayIndicator) hayIndicator.style.display = 'none'; clearInterval(hayBuffTimer); hayBuffTimer = null; saveGame(); updateUI(); }
 }, 1000);
-console.log(' Сенной бафф восстановлен');
 } else { hayBuffActive = false; hayBuffEndTime = 0; }
 }
 if (satietyActive && satietyEndTime > 0) {
 const timeLeft = satietyEndTime - Date.now();
 if (timeLeft > 0) {
-enclosureSatiety.classList.add('active');
-enclosureSatiety.style.display = 'block';
-enclosureSatiety.textContent = t('satietyActive');
+enclosureSatiety.classList.add('active'); enclosureSatiety.style.display = 'block'; enclosureSatiety.textContent = t('satietyActive');
 if (satietyTimer) clearInterval(satietyTimer);
 satietyTimer = setInterval(() => {
-if (Date.now() >= satietyEndTime) {
-satietyActive = false; satietyEndTime = 0;
-enclosureSatiety.classList.remove('active');
-enclosureSatiety.style.display = 'none';
-clearInterval(satietyTimer); satietyTimer = null;
-saveGame(); updateUI();
-}
+if (Date.now() >= satietyEndTime) { satietyActive = false; satietyEndTime = 0; enclosureSatiety.classList.remove('active'); enclosureSatiety.style.display = 'none'; clearInterval(satietyTimer); satietyTimer = null; saveGame(); updateUI(); }
 }, 1000);
-console.log('🍽️ Сытость восстановлена');
 } else { satietyActive = false; satietyEndTime = 0; }
 }
 if (labPurchased && machineRunning) {
 const maxTime = getMachineTime();
-if (machineProgress >= maxTime) {
-machineRunning = false;
-updateLabUI();
-saveGame();
-console.log('️ Станок завершён');
-} else {
-restartMachineTimer(maxTime);
-console.log('⚗️ Станок восстановлен, прогресс: ' + Math.round(machineProgress) + '/' + maxTime);
-}
+if (machineProgress >= maxTime) { machineRunning = false; updateLabUI(); saveGame(); }
+else restartMachineTimer(maxTime);
 }
 if (combinerPurchased) {
 for (let i = 0; i < combinerRunning.length; i++) {
-if (combinerRunning[i] && combinerProgress[i] < 100) {
-restartCombinerTimer(i);
-console.log('🧪 Комбинатор слот ' + i + ' восстановлен, прогресс: ' + Math.round(combinerProgress[i]) + '%');
-}
-else if (combinerRunning[i] && combinerProgress[i] >= 100) {
-combinerRunning[i] = false;
-combinerProgress[i] = 0;
-combinerRecipes[i] = null;
-}
+if (combinerRunning[i] && combinerProgress[i] < 100) restartCombinerTimer(i);
+else if (combinerRunning[i] && combinerProgress[i] >= 100) { combinerRunning[i] = false; combinerProgress[i] = 0; combinerRecipes[i] = null; }
 }
 saveGame();
 }
-if (extractorPurchased && extractorQueue.length > 0 && !extractorTimer) {
-startExtractorProcessing();
-console.log('️ Экстрактор восстановлен, очередь: ' + extractorQueue.length);
-}
+if (extractorPurchased && extractorQueue.length > 0 && !extractorTimer) startExtractorProcessing();
 if (manipulatorPurchased && manipulatorLevel > 0) {
 for (let i = 0; i < manipulatorLevel; i++) {
-if (!manipulatorSettings[i]) {
-manipulatorSettings[i] = { enabled: false, action: 'none', target: '', condition: 'always', threshold: 20, interval: 5, plantTargets: ['', '', ''] };
-}
-if (!manipulatorSettings[i].plantTargets) {
-manipulatorSettings[i].plantTargets = ['', '', ''];
-}
+if (!manipulatorSettings[i]) { manipulatorSettings[i] = { enabled: false, action: 'none', target: '', condition: 'always', threshold: 20, interval: 5, plantTargets: ['', '', ''] }; }
+if (!manipulatorSettings[i].plantTargets) { manipulatorSettings[i].plantTargets = ['', '', '']; }
 }
 restartManipulators();
-console.log(' Манипуляторы восстановлены');
 }
-if (plantPurchased) {
-for (let i = 0; i < plantData.length; i++) {
-if (plantData[i].stage === 'growing' && plantData[i].type) {
-startPlantGrowth(i);
-console.log('🌱 Растение ' + i + ' восстановлено, тип: ' + plantData[i].type + ', прогресс: ' + Math.round(plantData[i].progress) + '%');
-}
-}
-}
+if (plantPurchased) { for (let i = 0; i < plantData.length; i++) { if (plantData[i].stage === 'growing' && plantData[i].type) startPlantGrowth(i); } }
+if (aquariumLevel > 0) { startAquariumTimer(); updateAquariumUI(); }
 updateUI();
-console.log('✅ Восстановление завершено');
+} catch (e) { console.error('Ошибка восстановления:', e); updateUI(); }
 }
-
 // ============================================================
 // ==================== СБРОС =================================
 // ============================================================
@@ -2331,7 +1970,7 @@ hayBuffActive = false; hayBuffEndTime = 0;
 satietyActive = false; satietyEndTime = 0;
 plantPurchased = false; plantLevel = 0; plantUpgrade1 = false; plantUpgrade2 = false;
 plantTypeGrass = false; plantTypePepper = false; plantTypeApple = false; plantTypeCabbage = false;
-plantInventory = { grass: 0, pepper: 0, apple: 0, cabbage: 0 };
+plantInventory = { grass: 0, pepper: 0, apple: 0, cabbage: 0, fish_food: 0, fish_food_essence: 0 };
 plantData = [{ stage: 'idle', progress: 0, type: null, fertilizer: false }, { stage: 'idle', progress: 0, type: null, fertilizer: false }, { stage: 'idle', progress: 0, type: null, fertilizer: false }];
 poopCount = 0; labPoopCount = 0; labPurchased = false;
 machineLevel = 0; machineProgress = 0; machineRunning = false; fertilizerCount = 0;
@@ -2341,53 +1980,33 @@ combinerProgress = [0, 0, 0]; combinerRecipes = [null, null, null];
 extractorPurchased = false; extractorQueue = []; extractorProgress = [];
 manipulatorPurchased = false; manipulatorLevel = 0; advancedLogicPurchased = false;
 manipulatorSettings = [{ enabled: false, action: 'none', target: '', condition: 'always', threshold: 20, interval: 5, plantTargets: ['', '', ''] }, { enabled: false, action: 'none', target: '', condition: 'always', threshold: 20, interval: 5, plantTargets: ['', '', ''] }, { enabled: false, action: 'none', target: '', condition: 'always', threshold: 20, interval: 5, plantTargets: ['', '', ''] }];
+aquariumPurchased = false; aquariumLevel = 0; aquariumLastFed = 0;
 MAX_CLICK_LEVEL = 10;
-clearAllIntervals();
-AntiCheat.stop();
-localStorage.clear();
-saveGame();
-savePlantData();
-updateUI();
+clearAllIntervals(); AntiCheat.stop(); localStorage.clear();
+saveGame(); savePlantData(); updateUI();
 currentCode = generateCode();
-codeDisplay.textContent = currentCode;
-codeInput.value = '';
-confirmBox.classList.remove('show');
-confirmResetBtn.disabled = true;
-resetStatus.textContent = '✅';
-resetStatus.style.color = '#45f3ff';
-setTimeout(() => {
-resetModal.classList.remove('open');
-resetStatus.textContent = '';
-showReloadNotification();
-}, 500);
+codeDisplay.textContent = currentCode; codeInput.value = '';
+confirmBox.classList.remove('show'); confirmResetBtn.disabled = true;
+resetStatus.textContent = '✅'; resetStatus.style.color = '#45f3ff';
+setTimeout(() => { resetModal.classList.remove('open'); resetStatus.textContent = ''; showReloadNotification(); }, 500);
 }
 function clearAllIntervals() {
-const intervals = [grainSpawnTimeout, grainTimerInterval, grainLifeTimeout, mouseMoveInterval, hamsterMoveInterval, foodDepletionInterval, reloadTimerInterval, poopTimer, machineTimer, bossMoveInterval, bossShootInterval, bossCooldownInterval, bossFightInterval, buffTimer, pepperBuffTimer, hayBuffTimer, satietyTimer, ...combinerTimer, extractorTimer, ...manipulatorTimers, ...plantIntervals];
+const intervals = [grainSpawnTimeout, grainTimerInterval, grainLifeTimeout, mouseMoveInterval, hamsterMoveInterval, foodDepletionInterval, reloadTimerInterval, poopTimer, machineTimer, bossMoveInterval, bossShootInterval, bossCooldownInterval, bossFightInterval, buffTimer, pepperBuffTimer, hayBuffTimer, satietyTimer, ...combinerTimer, extractorTimer, ...manipulatorTimers, ...plantIntervals, aquariumTimer];
 intervals.forEach(interval => { if (interval) { clearInterval(interval); clearTimeout(interval); } });
 for (let i = 0; i < combinerTimer.length; i++) { combinerTimer[i] = null; combinerRunning[i] = false; combinerProgress[i] = 0; combinerRecipes[i] = null; }
 for (let i = 0; i < manipulatorTimers.length; i++) manipulatorTimers[i] = null;
 for (let i = 0; i < plantIntervals.length; i++) plantIntervals[i] = null;
 }
 function showReloadNotification() {
-reloadTimerSeconds = 10;
-timerNumber.textContent = reloadTimerSeconds;
-reloadBtn.disabled = true;
-reloadBtn.textContent = '...';
+reloadTimerSeconds = 10; timerNumber.textContent = reloadTimerSeconds; reloadBtn.disabled = true; reloadBtn.textContent = '⏳...';
 reloadNotification.classList.add('open');
 if (reloadTimerInterval) clearInterval(reloadTimerInterval);
 reloadTimerInterval = setInterval(() => {
-reloadTimerSeconds--;
-timerNumber.textContent = reloadTimerSeconds;
-if (reloadTimerSeconds <= 0) {
-clearInterval(reloadTimerInterval);
-reloadTimerInterval = null;
-reloadBtn.disabled = false;
-reloadBtn.textContent = t('reloadBtn');
-}
+reloadTimerSeconds--; timerNumber.textContent = reloadTimerSeconds;
+if (reloadTimerSeconds <= 0) { clearInterval(reloadTimerInterval); reloadTimerInterval = null; reloadBtn.disabled = false; reloadBtn.textContent = t('reloadBtn'); }
 }, 1000);
 }
 reloadBtn.addEventListener('click', function() { if (!this.disabled) location.reload(); });
-
 // ============================================================
 // ==================== ПЕРЕВОД ================================
 // ============================================================
@@ -2400,7 +2019,7 @@ const inventoryTitleEl = document.getElementById('inventoryTitle'); if (inventor
 const settingsTitleEl = document.getElementById('settingsTitle'); if (settingsTitleEl) settingsTitleEl.textContent = t('manipSettings');
 const bossMenuTitleEl = document.getElementById('bossMenuTitle'); if (bossMenuTitleEl) bossMenuTitleEl.textContent = t('bossesTitle');
 const bossFightTitleEl = document.getElementById('bossFightTitle'); if (bossFightTitleEl) bossFightTitleEl.textContent = t('bossFightTitle');
-const langTitleEl = document.getElementById('langTitle'); if (langTitleEl) langTitleEl.textContent = ' ' + t('language');
+const langTitleEl = document.getElementById('langTitle'); if (langTitleEl) langTitleEl.textContent = '🌍 ' + t('language');
 const resetTitleEl = document.getElementById('resetTitle'); if (resetTitleEl) resetTitleEl.textContent = t('resetTitle');
 const resetWarningEl = document.getElementById('resetWarning'); if (resetWarningEl) resetWarningEl.textContent = t('resetWarning');
 const resetEnterCodeEl = document.getElementById('resetEnterCode'); if (resetEnterCodeEl) resetEnterCodeEl.textContent = t('resetEnterCode');
@@ -2516,6 +2135,7 @@ const combinerSlotsLabelEl = document.getElementById('combinerSlotsLabel'); if (
 const combinerRecipe1El = document.getElementById('combinerRecipe1'); if (combinerRecipe1El) combinerRecipe1El.textContent = t('combinerRecipe1');
 const combinerRecipe2El = document.getElementById('combinerRecipe2'); if (combinerRecipe2El) combinerRecipe2El.textContent = t('combinerRecipe2');
 const combinerRecipe3El = document.getElementById('combinerRecipe3'); if (combinerRecipe3El) combinerRecipe3El.textContent = t('combinerRecipe3');
+const combinerRecipe4El = document.getElementById('combinerRecipe4'); if (combinerRecipe4El) combinerRecipe4El.textContent = t('combinerRecipe4');
 const combinerOnceEl = document.getElementById('combinerOnce'); if (combinerOnceEl) combinerOnceEl.textContent = t('combinerOnce');
 const combinerHintEl = document.getElementById('combinerHint'); if (combinerHintEl) combinerHintEl.textContent = t('combinerHint');
 const combinerUpgradeTitleEl = document.getElementById('combinerUpgradeTitle'); if (combinerUpgradeTitleEl) combinerUpgradeTitleEl.textContent = t('combinerUpgrade');
@@ -2528,6 +2148,7 @@ const extractorTimeEl = document.getElementById('extractorTime'); if (extractorT
 const extractorRecipe1El = document.getElementById('extractorRecipe1'); if (extractorRecipe1El) extractorRecipe1El.textContent = t('extractorRecipe1');
 const extractorRecipe2El = document.getElementById('extractorRecipe2'); if (extractorRecipe2El) extractorRecipe2El.textContent = t('extractorRecipe2');
 const extractorRecipe3El = document.getElementById('extractorRecipe3'); if (extractorRecipe3El) extractorRecipe3El.textContent = t('extractorRecipe3');
+const extractorRecipe4El = document.getElementById('extractorRecipe4'); if (extractorRecipe4El) extractorRecipe4El.textContent = t('extractorRecipe4');
 const extractorNoUpgradeEl = document.getElementById('extractorNoUpgrade'); if (extractorNoUpgradeEl) extractorNoUpgradeEl.textContent = t('extractorNoUpgrade');
 const manipulatorTitleEl = document.getElementById('manipulatorTitle'); if (manipulatorTitleEl) manipulatorTitleEl.textContent = t('manipulator');
 const manipulatorDescEl = document.getElementById('manipulatorDesc'); if (manipulatorDescEl) manipulatorDescEl.textContent = t('manipulatorDesc');
@@ -2568,14 +2189,37 @@ const capybaraRewardEl = document.getElementById('capybaraReward'); if (capybara
 const capybaraOnceEl = document.getElementById('capybaraOnce'); if (capybaraOnceEl) capybaraOnceEl.textContent = t('capybaraOnce');
 const capybaraHintEl = document.getElementById('capybaraHint'); if (capybaraHintEl) capybaraHintEl.textContent = t('capybaraHint');
 const capybaraCooldownEl = document.getElementById('capybaraCooldown'); if (capybaraCooldownEl) capybaraCooldownEl.textContent = t('capybaraCooldown');
+// Аквариум
+if (aquariumTitle) aquariumTitle.textContent = t('aquarium');
+if (aquariumFeedBtn) aquariumFeedBtn.textContent = t('aquariumFeed');
+const aquariumTitleShopEl = document.getElementById('aquariumTitleShop');
+if (aquariumTitleShopEl) aquariumTitleShopEl.textContent = t('aquariumTitleShop');
+const aquariumDescEl = document.getElementById('aquariumDesc');
+if (aquariumDescEl) aquariumDescEl.textContent = t('aquariumDesc');
+const aquariumHint1El = document.getElementById('aquariumHint1');
+if (aquariumHint1El) aquariumHint1El.textContent = t('aquariumHint1');
+const aquariumHint2El = document.getElementById('aquariumHint2');
+if (aquariumHint2El) aquariumHint2El.textContent = t('aquariumHint2');
+const aquariumHint3El = document.getElementById('aquariumHint3');
+if (aquariumHint3El) aquariumHint3El.textContent = t('aquariumHint3');
+// ИСПРАВЛЕНО: перевод ссылки Fish Game (и в аквариуме, и в магазине)
+document.querySelectorAll('[data-i18n="aquariumGameLink"]').forEach(el => {
+el.textContent = t('aquariumGameLink');
+});
+// ИСПРАВЛЕНО: перевод слова "Уровень" во всех местах
+document.querySelectorAll('[data-i18n="level"]').forEach(el => {
+el.textContent = t('level');
+});
+// Placeholder для поля ввода кода
+if (codeInput) codeInput.placeholder = t('resetEnterCodePlaceholder');
+// ИСПРАВЛЕНО: принудительное обновление всех "Цена" и "Цена улучшения"
+document.querySelectorAll('[data-i18n="price"]').forEach(el => { el.textContent = t('price'); });
+document.querySelectorAll('[data-i18n="grainUpgradePrice"]').forEach(el => { el.textContent = t('grainUpgradePrice'); });
 }
-
 // ============================================================
 // ==================== МУЗЫКА ================================
 // ============================================================
-function getYouTubeEmbedUrl(videoId, autoplay = 0) {
-return `https://www.youtube.com/embed/${videoId}?autoplay=${autoplay}&loop=1&playlist=${videoId}&controls=0&disablekb=1&modestbranding=1&rel=0&mute=0`;
-}
+function getYouTubeEmbedUrl(videoId, autoplay = 0) { return `https://www.youtube.com/embed/${videoId}?autoplay=${autoplay}&loop=1&playlist=${videoId}&controls=0&disablekb=1&modestbranding=1&rel=0&mute=0`; }
 function toggleMusic() {
 musicEnabled = !musicEnabled;
 localStorage.setItem('rat_musicEnabled', musicEnabled);
@@ -2591,13 +2235,8 @@ if (!container) return;
 container.innerHTML = `<iframe id="youtubePlayer" width="0" height="0" src="${getYouTubeEmbedUrl(musicVideoId, 1)}" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
 musicEnabled = true;
 localStorage.setItem('rat_musicEnabled', 'true');
-if (musicToggle) {
-musicToggle.textContent = '🔊';
-musicToggle.classList.remove('muted');
-musicToggle.addEventListener('click', toggleMusic);
+if (musicToggle) { musicToggle.textContent = '🔊'; musicToggle.classList.remove('muted'); musicToggle.addEventListener('click', toggleMusic); }
 }
-}
-
 // ============================================================
 // ==================== ЯЗЫКИ =================================
 // ============================================================
@@ -2610,51 +2249,22 @@ else item.classList.remove('active');
 });
 }
 }
-
 // ============================================================
 // ==================== ОБРАБОТЧИКИ ===========================
 // ============================================================
-resetBtn.addEventListener('click', function() {
-currentCode = generateCode(); codeDisplay.textContent = currentCode; codeInput.value = '';
-confirmBox.classList.remove('show'); confirmResetBtn.disabled = true; resetStatus.textContent = '';
-resetModal.classList.add('open'); codeInput.focus();
-});
-cancelResetBtn.addEventListener('click', function() {
-resetModal.classList.remove('open'); codeInput.value = '';
-confirmBox.classList.remove('show'); confirmResetBtn.disabled = true; resetStatus.textContent = '';
-});
-codeInput.addEventListener('input', function() {
-const entered = this.value.trim();
-if (entered === currentCode) { confirmBox.classList.add('show'); confirmResetBtn.disabled = false; resetStatus.textContent = '✅'; resetStatus.style.color = '#45f3ff'; }
-else { confirmBox.classList.remove('show'); confirmResetBtn.disabled = true; resetStatus.textContent = entered.length > 0 ? '❌' : ''; resetStatus.style.color = '#ff0033'; }
-});
+resetBtn.addEventListener('click', function() { currentCode = generateCode(); codeDisplay.textContent = currentCode; codeInput.value = ''; confirmBox.classList.remove('show'); confirmResetBtn.disabled = true; resetStatus.textContent = ''; resetModal.classList.add('open'); codeInput.focus(); });
+cancelResetBtn.addEventListener('click', function() { resetModal.classList.remove('open'); codeInput.value = ''; confirmBox.classList.remove('show'); confirmResetBtn.disabled = true; resetStatus.textContent = ''; });
+codeInput.addEventListener('input', function() { const entered = this.value.trim(); if (entered === currentCode) { confirmBox.classList.add('show'); confirmResetBtn.disabled = false; resetStatus.textContent = '✅'; resetStatus.style.color = '#45f3ff'; } else { confirmBox.classList.remove('show'); confirmResetBtn.disabled = true; resetStatus.textContent = entered.length > 0 ? '❌' : ''; resetStatus.style.color = '#ff0033'; } });
 confirmResetBtn.addEventListener('click', function() { if (codeInput.value.trim() === currentCode) resetAllProgress(); });
-resetModal.addEventListener('click', function(e) {
-if (e.target === this) { resetModal.classList.remove('open'); codeInput.value = ''; confirmBox.classList.remove('show'); confirmResetBtn.disabled = true; resetStatus.textContent = ''; }
-});
-document.querySelectorAll('.shop-tab').forEach(tab => {
-tab.addEventListener('click', function() {
-document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
-document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-this.classList.add('active');
-document.getElementById('tab-' + this.dataset.tab).classList.add('active');
-});
-});
-document.querySelectorAll('.equip-btn').forEach(btn => {
-btn.addEventListener('click', function() {
-const accessory = this.closest('.accessory-item').dataset.accessory;
-const isOwned = ownedAccessories.includes(accessory);
-const price = ACCESSORY_PRICES[accessory];
-if (!isOwned) { if (score >= price) { score -= price; ownedAccessories.push(accessory); saveGame(); updateUI(); } else alert(t('notEnough')); }
-else { equippedAccessory = (equippedAccessory === accessory) ? null : accessory; saveGame(); updateUI(); }
-});
-});
+resetModal.addEventListener('click', function(e) { if (e.target === this) { resetModal.classList.remove('open'); codeInput.value = ''; confirmBox.classList.remove('show'); confirmResetBtn.disabled = true; resetStatus.textContent = ''; } });
+document.querySelectorAll('.shop-tab').forEach(tab => { tab.addEventListener('click', function() { document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); this.classList.add('active'); document.getElementById('tab-' + this.dataset.tab).classList.add('active'); }); });
+document.querySelectorAll('.equip-btn').forEach(btn => { btn.addEventListener('click', function() { const accessory = this.closest('.accessory-item').dataset.accessory; const isOwned = ownedAccessories.includes(accessory); const price = ACCESSORY_PRICES[accessory]; if (!isOwned) { if (score >= price) { score -= price; ownedAccessories.push(accessory); saveGame(); updateUI(); } else alert(t('notEnough')); } else { equippedAccessory = (equippedAccessory === accessory) ? null : accessory; saveGame(); updateUI(); } }); });
 ratContainer.addEventListener('click', (e) => {
 if (isBanned) return;
 const currentTime = performance.now();
 if (lastClickTime !== 0) {
 const interval = currentTime - lastClickTime;
-if (interval < 35) { triggerAntiCheat("⚠️!"); lastClickTime = currentTime; return; }
+if (interval < 35) { triggerAntiCheat("⚡!"); lastClickTime = currentTime; return; }
 clickIntervals.push(interval);
 if (clickIntervals.length > maxIntervalHistory) clickIntervals.shift();
 if (clickIntervals.length === maxIntervalHistory) {
@@ -2665,9 +2275,7 @@ if (clickIntervals.every(i => Math.abs(i - avgInterval) < 4)) { triggerAntiCheat
 }
 lastClickTime = currentTime;
 let totalPower = getTotalClickPower();
-score += totalPower;
-saveGame();
-updateUI();
+score += totalPower; saveGame(); updateUI();
 const pop = document.createElement('div');
 pop.className = 'click-pop' + (buffActive ? ' buffed' : '');
 pop.innerText = '+' + totalPower;
@@ -2677,175 +2285,52 @@ pop.style.top = (e.clientY - rect.top - 40) + 'px';
 clickArea.appendChild(pop);
 setTimeout(() => pop.remove(), 500);
 });
-function triggerAntiCheat(message) {
-isBanned = true;
-cheatWarning.innerText = t('cheatDetected');
-ratContainer.style.display = 'none';
-trapBtn.style.display = 'block';
-cheatWarning.style.display = 'block';
-clickIntervals = [];
-setTimeout(() => {
-isBanned = false;
-ratContainer.style.display = 'block';
-trapBtn.style.display = 'none';
-cheatWarning.style.display = 'none';
-}, 5000);
-}
+function triggerAntiCheat(message) { isBanned = true; cheatWarning.innerText = t('cheatDetected'); ratContainer.style.display = 'none'; trapBtn.style.display = 'block'; cheatWarning.style.display = 'block'; clickIntervals = []; setTimeout(() => { isBanned = false; ratContainer.style.display = 'block'; trapBtn.style.display = 'none'; cheatWarning.style.display = 'none'; }, 5000); }
 openShopBtn.addEventListener('click', () => shopModal.classList.add('open'));
 closeShopBtn.addEventListener('click', () => shopModal.classList.remove('open'));
-buyClickBtn.addEventListener('click', () => {
-let currentMax = superGrainPurchased ? 20 : 10;
-if (clickLevel >= currentMax) return;
-let cost = 50 * (clickLevel + 1);
-if (score >= cost) { score -= cost; clickLevel++; clickPower++; saveGame(); updateUI(); }
-});
-buyAutoBtn.addEventListener('click', () => {
-if (autoLevel >= MAX_AUTO_LEVEL) return;
-let cost = 100 * (autoLevel + 1);
-if (score >= cost) { score -= cost; autoLevel++; autoClickers++; saveGame(); updateUI(); }
-});
-buyGrainBtn.addEventListener('click', () => {
-if (grainPurchased === 0) { if (score >= 1000) { score -= 1000; grainPurchased = 1; grainLevel = 1; grainBase = 4; saveGame(); updateUI(); } return; }
-if (grainLevel >= MAX_GRAIN_LEVEL) return;
-let cost = 1000 * (grainLevel + 1);
-if (score >= cost) { score -= cost; grainLevel++; grainBase++; grainPurchased++; saveGame(); updateUI(); }
-});
-buySuperGrainBtn.addEventListener('click', () => {
-if (superGrainPurchased) return;
-if (score >= 10000) { score -= 10000; superGrainPurchased = true; MAX_CLICK_LEVEL = 20; saveGame(); updateUI(); }
-});
-buyMouseShopBtn.addEventListener('click', () => {
-if (mousePurchased) return;
-if (score >= 15000) { score -= 15000; mousePurchased = true; mouseActive = false; saveGame(); updateUI(); }
-});
-buyHamsterShopBtn.addEventListener('click', () => {
-if (hamsterPurchased) return;
-if (score >= 20000) { score -= 20000; hamsterPurchased = true; hamsterFood = 50; hamsterUpgradeCost = 5000; saveGame(); updateUI(); startHamsterMovement(); startFoodDepletion(); startPoopProduction(); }
-});
-buyHamsterUpgradeBtn.addEventListener('click', () => {
-if (!hamsterPurchased) return;
-if (hamsterLevel >= MAX_HAMSTER_LEVEL) return;
-if (score < hamsterUpgradeCost) return;
-score -= hamsterUpgradeCost;
-hamsterLevel++;
-hamsterUpgradeCost = Math.round(hamsterUpgradeCost * 1.5);
-hamsterFood = Math.min(hamsterMaxFood, hamsterFood + 15);
-saveGame();
-updateUI();
-if (hamsterFood > 0 && !foodDepletionInterval) startFoodDepletion();
-});
-buyBossMenuBtn.addEventListener('click', () => {
-if (bossMenuPurchased) return;
-if (score >= 50000) { score -= 50000; bossMenuPurchased = true; saveGame(); updateUI(); }
-});
-buyCapybaraBtn.addEventListener('click', () => {
-if (capybaraPurchased) return;
-if (score >= 100000) { score -= 100000; capybaraPurchased = true; capybaraDefeated = false; capybaraCooldown = 0; saveGame(); updateUI(); startBossCooldownTimer(); }
-});
-buyPlantBtn.addEventListener('click', () => {
-if (plantPurchased) return;
-if (!hamsterPurchased || hamsterLevel < 1) return;
-if (score >= 30000) { score -= 30000; plantPurchased = true; plantLevel = 1; savePlantData(); saveGame(); updateUI(); setTimeout(updatePlantsUI, 100); }
-});
-buyPlantUpgrade1Btn.addEventListener('click', () => {
-if (plantUpgrade1) return;
-if (!plantPurchased) return;
-if (score >= 50000) { score -= 50000; plantUpgrade1 = true; plantLevel = 2; savePlantData(); saveGame(); updateUI(); setTimeout(updatePlantsUI, 100); }
-});
-buyPlantUpgrade2Btn.addEventListener('click', () => {
-if (plantUpgrade2) return;
-if (!plantUpgrade1) return;
-if (score >= 70000) { score -= 70000; plantUpgrade2 = true; plantLevel = 3; savePlantData(); saveGame(); updateUI(); setTimeout(updatePlantsUI, 100); }
-});
+buyClickBtn.addEventListener('click', () => { let currentMax = superGrainPurchased ? 20 : 10; if (clickLevel >= currentMax) return; let cost = 50 * (clickLevel + 1); if (score >= cost) { score -= cost; clickLevel++; clickPower++; saveGame(); updateUI(); } });
+buyAutoBtn.addEventListener('click', () => { if (autoLevel >= MAX_AUTO_LEVEL) return; let cost = 100 * (autoLevel + 1); if (score >= cost) { score -= cost; autoLevel++; autoClickers++; saveGame(); updateUI(); } });
+buyGrainBtn.addEventListener('click', () => { if (grainPurchased === 0) { if (score >= 1000) { score -= 1000; grainPurchased = 1; grainLevel = 1; grainBase = 4; saveGame(); updateUI(); } return; } if (grainLevel >= MAX_GRAIN_LEVEL) return; let cost = 1000 * (grainLevel + 1); if (score >= cost) { score -= cost; grainLevel++; grainBase++; grainPurchased++; saveGame(); updateUI(); } });
+buySuperGrainBtn.addEventListener('click', () => { if (superGrainPurchased) return; if (score >= 10000) { score -= 10000; superGrainPurchased = true; MAX_CLICK_LEVEL = 20; saveGame(); updateUI(); } });
+buyMouseShopBtn.addEventListener('click', () => { if (mousePurchased) return; if (score >= 15000) { score -= 15000; mousePurchased = true; mouseActive = false; saveGame(); updateUI(); } });
+buyHamsterShopBtn.addEventListener('click', () => { if (hamsterPurchased) return; if (score >= 20000) { score -= 20000; hamsterPurchased = true; hamsterFood = 50; hamsterUpgradeCost = 5000; saveGame(); updateUI(); startHamsterMovement(); startFoodDepletion(); startPoopProduction(); } });
+buyHamsterUpgradeBtn.addEventListener('click', () => { if (!hamsterPurchased) return; if (hamsterLevel >= MAX_HAMSTER_LEVEL) return; if (score < hamsterUpgradeCost) return; score -= hamsterUpgradeCost; hamsterLevel++; hamsterUpgradeCost = Math.round(hamsterUpgradeCost * 1.5); hamsterFood = Math.min(hamsterMaxFood, hamsterFood + 15); saveGame(); updateUI(); if (hamsterFood > 0 && !foodDepletionInterval) startFoodDepletion(); });
+buyBossMenuBtn.addEventListener('click', () => { if (bossMenuPurchased) return; if (score >= 50000) { score -= 50000; bossMenuPurchased = true; saveGame(); updateUI(); } });
+buyCapybaraBtn.addEventListener('click', () => { if (capybaraPurchased) return; if (score >= 100000) { score -= 100000; capybaraPurchased = true; capybaraDefeated = false; capybaraCooldown = 0; saveGame(); updateUI(); startBossCooldownTimer(); } });
+buyPlantBtn.addEventListener('click', () => { if (plantPurchased) return; if (!hamsterPurchased || hamsterLevel < 1) return; if (score >= 30000) { score -= 30000; plantPurchased = true; plantLevel = 1; savePlantData(); saveGame(); updateUI(); setTimeout(updatePlantsUI, 100); } });
+buyPlantUpgrade1Btn.addEventListener('click', () => { if (plantUpgrade1) return; if (!plantPurchased) return; if (score >= 50000) { score -= 50000; plantUpgrade1 = true; plantLevel = 2; savePlantData(); saveGame(); updateUI(); setTimeout(updatePlantsUI, 100); } });
+buyPlantUpgrade2Btn.addEventListener('click', () => { if (plantUpgrade2) return; if (!plantUpgrade1) return; if (score >= 70000) { score -= 70000; plantUpgrade2 = true; plantLevel = 3; savePlantData(); saveGame(); updateUI(); setTimeout(updatePlantsUI, 100); } });
 buyPlantTypeGrassBtn.addEventListener('click', () => { if (plantTypeGrass) return; if (score >= 10000) { score -= 10000; plantTypeGrass = true; saveGame(); updateUI(); } });
 buyPlantTypePepperBtn.addEventListener('click', () => { if (plantTypePepper) return; if (score >= 25000) { score -= 25000; plantTypePepper = true; saveGame(); updateUI(); } });
 buyPlantTypeAppleBtn.addEventListener('click', () => { if (plantTypeApple) return; if (score >= 40000) { score -= 40000; plantTypeApple = true; saveGame(); updateUI(); } });
 buyPlantTypeCabbageBtn.addEventListener('click', () => { if (plantTypeCabbage) return; if (score >= 15000) { score -= 15000; plantTypeCabbage = true; saveGame(); updateUI(); } });
 buyLabBtn.addEventListener('click', () => { if (labPurchased) return; if (score >= 50000) { score -= 50000; labPurchased = true; saveGame(); updateUI(); } });
-buyCombinerBtn.addEventListener('click', () => {
-if (combinerPurchased) return;
-if (!labPurchased) return;
-if (score >= 30000) { score -= 30000; combinerPurchased = true; combinerLevel = 0; combinerSlots = [null, null, null]; combinerRunning = [false, false, false]; combinerProgress = [0, 0, 0]; combinerRecipes = [null, null, null]; combinerTimer = [null, null, null]; saveGame(); updateUI(); }
-});
-buyCombinerUpgradeBtn.addEventListener('click', () => {
-if (combinerLevel >= 1) return;
-if (!combinerPurchased) return;
-if (score >= 60000) { score -= 60000; combinerLevel = 1; combinerSlots = [null, null, null]; combinerProgress = [0, 0, 0]; combinerRecipes = [null, null, null]; saveGame(); updateUI(); }
-});
-buyExtractorBtn.addEventListener('click', () => {
-if (extractorPurchased) return;
-if (!combinerPurchased) return;
-if (score >= 20000) {
-score -= 20000; extractorPurchased = true;
-extractorQueue = []; extractorProgress = [];
-if (inventory.gmo_apple_extract > 0) { for (let i = 0; i < inventory.gmo_apple_extract; i++) { extractorQueue.push('gmo_apple_extract'); extractorProgress.push(0); } inventory.gmo_apple_extract = 0; }
-if (inventory.rat_food_extract > 0) { for (let i = 0; i < inventory.rat_food_extract; i++) { extractorQueue.push('rat_food_extract'); extractorProgress.push(0); } inventory.rat_food_extract = 0; }
-if (inventory.hay_extract > 0) { for (let i = 0; i < inventory.hay_extract; i++) { extractorQueue.push('hay_extract'); extractorProgress.push(0); } inventory.hay_extract = 0; }
-saveGame(); updateUI(); updateExtractorUI();
-}
-});
-buyManipulatorBtn.addEventListener('click', () => {
-if (manipulatorLevel >= 3) return;
-if (!isAllLabPartsBought()) return;
-if (score >= 10000) { score -= 10000; manipulatorLevel++; manipulatorPurchased = true; while (manipulatorSettings.length < manipulatorLevel) { manipulatorSettings.push({ enabled: false, action: 'none', target: '', condition: 'always', threshold: 20, interval: 5, plantTargets: ['', '', ''] }); } saveGame(); updateUI(); restartManipulators(); }
-});
-if (buyAdvancedLogicBtn) {
-buyAdvancedLogicBtn.addEventListener('click', () => {
-if (advancedLogicPurchased) return;
-if (manipulatorLevel < 1) return;
-if (score >= 20000) { score -= 20000; advancedLogicPurchased = true; saveGame(); updateUI(); }
-});
-}
+buyCombinerBtn.addEventListener('click', () => { if (combinerPurchased) return; if (!labPurchased) return; if (score >= 30000) { score -= 30000; combinerPurchased = true; combinerLevel = 0; combinerSlots = [null, null, null]; combinerRunning = [false, false, false]; combinerProgress = [0, 0, 0]; combinerRecipes = [null, null, null]; combinerTimer = [null, null, null]; saveGame(); updateUI(); } });
+buyCombinerUpgradeBtn.addEventListener('click', () => { if (combinerLevel >= 1) return; if (!combinerPurchased) return; if (score >= 60000) { score -= 60000; combinerLevel = 1; combinerSlots = [null, null, null]; combinerProgress = [0, 0, 0]; combinerRecipes = [null, null, null]; saveGame(); updateUI(); } });
+buyExtractorBtn.addEventListener('click', () => { if (extractorPurchased) return; if (!combinerPurchased) return; if (score >= 20000) { score -= 20000; extractorPurchased = true; extractorQueue = []; extractorProgress = []; if (inventory.gmo_apple_extract > 0) { for (let i = 0; i < inventory.gmo_apple_extract; i++) { extractorQueue.push('gmo_apple_extract'); extractorProgress.push(0); } inventory.gmo_apple_extract = 0; } if (inventory.rat_food_extract > 0) { for (let i = 0; i < inventory.rat_food_extract; i++) { extractorQueue.push('rat_food_extract'); extractorProgress.push(0); } inventory.rat_food_extract = 0; } if (inventory.hay_extract > 0) { for (let i = 0; i < inventory.hay_extract; i++) { extractorQueue.push('hay_extract'); extractorProgress.push(0); } inventory.hay_extract = 0; } saveGame(); updateUI(); updateExtractorUI(); } });
+buyManipulatorBtn.addEventListener('click', () => { if (manipulatorLevel >= 3) return; if (!isAllLabPartsBought()) return; if (score >= 10000) { score -= 10000; manipulatorLevel++; manipulatorPurchased = true; while (manipulatorSettings.length < manipulatorLevel) { manipulatorSettings.push({ enabled: false, action: 'none', target: '', condition: 'always', threshold: 20, interval: 5, plantTargets: ['', '', ''] }); } saveGame(); updateUI(); restartManipulators(); } });
+if (buyAquariumBtn) { buyAquariumBtn.addEventListener('click', () => { buyAquariumUpgrade(); }); }
+if (buyAdvancedLogicBtn) { buyAdvancedLogicBtn.addEventListener('click', () => { if (advancedLogicPurchased) return; if (manipulatorLevel < 1) return; if (score >= 20000) { score -= 20000; advancedLogicPurchased = true; saveGame(); updateUI(); } }); }
 openLabBtn.addEventListener('click', function() { labModal.classList.add('open'); labModal.style.display = 'flex'; updateLabUI(); });
 closeLabBtn.addEventListener('click', function() { labModal.classList.remove('open'); labModal.style.display = 'none'; });
 labModal.addEventListener('click', function(e) { if (e.target === this) { this.style.display = 'none'; this.classList.remove('open'); } });
-machineBtn.addEventListener('click', function() {
-if (machineRunning) return;
-if (machineProgress >= getMachineTime() && machineProgress > 0) collectFertilizer();
-else startMachine();
-});
+machineBtn.addEventListener('click', function() { if (machineRunning) return; if (machineProgress >= getMachineTime() && machineProgress > 0) collectFertilizer(); else startMachine(); });
 machineUpgradeBtn.addEventListener('click', upgradeMachine);
-openCombinerBtn.addEventListener('click', function() {
-if (!combinerPurchased) return;
-combinerModal.classList.add('open'); combinerModal.style.display = 'flex'; updateCombinerUI();
-});
+openCombinerBtn.addEventListener('click', function() { if (!combinerPurchased) return; combinerModal.classList.add('open'); combinerModal.style.display = 'flex'; updateCombinerUI(); });
 closeCombinerBtn.addEventListener('click', function() { combinerModal.classList.remove('open'); combinerModal.style.display = 'none'; });
 combinerModal.addEventListener('click', function(e) { if (e.target === this) { this.style.display = 'none'; this.classList.remove('open'); } });
-openExtractorBtn.addEventListener('click', function() {
-if (!extractorPurchased) return;
-extractorModal.classList.add('open'); extractorModal.style.display = 'flex'; updateExtractorUI();
-});
+openExtractorBtn.addEventListener('click', function() { if (!extractorPurchased) return; extractorModal.classList.add('open'); extractorModal.style.display = 'flex'; updateExtractorUI(); });
 closeExtractorBtn.addEventListener('click', function() { extractorModal.classList.remove('open'); extractorModal.style.display = 'none'; });
 extractorModal.addEventListener('click', function(e) { if (e.target === this) { this.style.display = 'none'; this.classList.remove('open'); } });
 closeSettingsBtn.addEventListener('click', function() { settingsModal.classList.remove('open'); settingsModal.style.display = 'none'; });
 settingsModal.addEventListener('click', function(e) { if (e.target === this) { this.style.display = 'none'; this.classList.remove('open'); } });
-poopBtn.addEventListener('click', function() {
-if (poopCount <= 0) return;
-labPoopCount += poopCount;
-poopCount = 0;
-saveGame();
-updateUI();
-const pCountEl = document.getElementById('poopCount');
-if (pCountEl) pCountEl.textContent = labPoopCount;
-if (labPurchased) updateLabUI();
-});
-bossSkull.addEventListener('click', function(e) {
-e.stopPropagation(); e.preventDefault();
-if (bossMenuPurchased) { bossMenu.style.display = 'block'; bossMenu.classList.add('open'); updateBossStatus(); }
-});
-document.getElementById('skullIcon').addEventListener('click', function(e) {
-e.stopPropagation(); e.preventDefault();
-if (bossMenuPurchased) { bossMenu.style.display = 'block'; bossMenu.classList.add('open'); updateBossStatus(); }
-});
+poopBtn.addEventListener('click', function() { if (poopCount <= 0) return; labPoopCount += poopCount; poopCount = 0; saveGame(); updateUI(); const pCountEl = document.getElementById('poopCount'); if (pCountEl) pCountEl.textContent = labPoopCount; if (labPurchased) updateLabUI(); });
+bossSkull.addEventListener('click', function(e) { e.stopPropagation(); e.preventDefault(); if (bossMenuPurchased) { bossMenu.style.display = 'block'; bossMenu.classList.add('open'); updateBossStatus(); } });
+document.getElementById('skullIcon').addEventListener('click', function(e) { e.stopPropagation(); e.preventDefault(); if (bossMenuPurchased) { bossMenu.style.display = 'block'; bossMenu.classList.add('open'); updateBossStatus(); } });
 closeBossMenuBtn.addEventListener('click', function() { bossMenu.style.display = 'none'; bossMenu.classList.remove('open'); });
 bossMenu.addEventListener('click', function(e) { if (e.target === this) { this.style.display = 'none'; this.classList.remove('open'); } });
 fightCapybaraBtn.addEventListener('click', () => { if (!capybaraPurchased || capybaraCooldown > 0 || capybaraDefeated) return; startBossFight(); });
-openInventoryBtn.addEventListener('click', function(e) {
-e.stopPropagation(); e.preventDefault();
-updateInventoryUI();
-inventoryModal.style.display = 'flex';
-inventoryModal.classList.add('open');
-});
+openInventoryBtn.addEventListener('click', function(e) { e.stopPropagation(); e.preventDefault(); updateInventoryUI(); inventoryModal.style.display = 'flex'; inventoryModal.classList.add('open'); });
 closeInventoryBtn.addEventListener('click', function() { inventoryModal.style.display = 'none'; inventoryModal.classList.remove('open'); });
 inventoryModal.addEventListener('click', function(e) { if (e.target === this) { this.style.display = 'none'; this.classList.remove('open'); } });
 feedBtn.addEventListener('click', feedHamsters);
@@ -2869,30 +2354,18 @@ if (extractorPurchased) updateExtractorUI();
 if (manipulatorLevel > 0) updateManipulatorUI();
 updatePlantsUI();
 updateInventoryUI();
+updateAquariumUI();
 }
 });
 });
 shootBtn.addEventListener('click', shootBoss);
-retreatBtn.addEventListener('click', () => {
-stopBossFight();
-capybaraCooldown = 300;
-localStorage.setItem('rat_capybaraCooldown', capybaraCooldown);
-saveGame();
-updateUI();
-startBossCooldownTimer();
-});
-closeFightBtn.addEventListener('click', () => {
-if (bossFightActive) { stopBossFight(); capybaraCooldown = 300; localStorage.setItem('rat_capybaraCooldown', capybaraCooldown); saveGame(); updateUI(); startBossCooldownTimer(); }
-else stopBossFight();
-});
-
+retreatBtn.addEventListener('click', () => { stopBossFight(); capybaraCooldown = 300; localStorage.setItem('rat_capybaraCooldown', capybaraCooldown); saveGame(); updateUI(); startBossCooldownTimer(); });
+closeFightBtn.addEventListener('click', () => { if (bossFightActive) { stopBossFight(); capybaraCooldown = 300; localStorage.setItem('rat_capybaraCooldown', capybaraCooldown); saveGame(); updateUI(); startBossCooldownTimer(); } else stopBossFight(); });
+if (aquariumFeedBtn) { aquariumFeedBtn.addEventListener('click', feedAquariumFish); }
 // ============================================================
 // ==================== ИНИЦИАЛИЗАЦИЯ =========================
 // ============================================================
-function checkGameVersion() {
-const savedVersion = localStorage.getItem('rat_game_version');
-if (savedVersion !== GAME_VERSION) { localStorage.setItem('rat_game_version', GAME_VERSION); }
-}
+function checkGameVersion() { const savedVersion = localStorage.getItem('rat_game_version'); if (savedVersion !== GAME_VERSION) { localStorage.setItem('rat_game_version', GAME_VERSION); } }
 initMusic();
 checkGameVersion();
 loadPlantData();
@@ -2901,9 +2374,7 @@ updateLangUI();
 updateUI();
 attachManipulatorHandlers();
 if (hamsterPurchased) startPoopProduction();
-setInterval(() => {
-if (autoClickers > 0) { score += autoClickers; saveGame(); updateUI(); }
-}, 1000);
+setInterval(() => { if (autoClickers > 0) { score += autoClickers; saveGame(); updateUI(); } }, 1000);
 startBossCooldownTimer();
 setInterval(updateBossStatus, 1000);
 setInterval(() => { if (plantPurchased && plantLevel > 0) updatePlantsUI(); }, 5000);
